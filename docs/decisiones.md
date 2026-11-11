@@ -26,6 +26,7 @@
 | 2026-11-10 | Se omite la demo con prospectos por ahora; se valida durante el desarrollo para terminar lo antes posible | Diego |
 | 2026-11-10 | Realt-In ya está respaldado por Lalo; se usa como fuente para auditar `core-base` | Diego |
 | 2026-11-10 | Supabase: proyecto `dentro-dentistas-app`, plan gratuito por ahora; plan de pago más adelante | Diego |
+| 2026-11-10 | Proyecto Supabase dev confirmado: `dentro-dentistas-app`, ref `iacdtcrzmavbjhgtdchl`. Es el único proyecto válido para dentro en desarrollo | Diego |
 | 2026-11-10 | Hosting: Hostinger | Diego |
 | 2026-11-10 | Desarrollo: Diego y Lalo; empieza Diego | Diego |
 | 2026-11-10 | Dominio: `dentro.mx` (disponible) | Diego |

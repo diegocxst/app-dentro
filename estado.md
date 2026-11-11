@@ -21,7 +21,7 @@
 | # | Pendiente | Bloquea | Responsable |
 |---|---|---|---|
 | B1 | Acceso al código de Realt-In (respaldo de Lalo) en la Mac de Diego o en GitHub | E0-A | Diego / Lalo |
-| B2 | Crear el proyecto `dentro-dentistas-app` en Supabase (plan gratuito) y compartir URL y ref; nunca claves | E1 | Diego |
+| ~~B2~~ | ✅ Proyecto `dentro-dentistas-app` creado (2026-11-10) | — | Diego |
 | B3 | Confirmar el plan de Hostinger (compartido o con Node / VPS) | Decisión de M13 y E9 | Diego |
 | B4 | **Correo transaccional** (invitaciones y recuperación de contraseña). Recordar a Diego al iniciar E1 | Cierre de E1 | Diego |
 | B5 | Revisión de la app de Meta (`leads_retrieval`) para M11 | M11 en E6 | Lalo |
@@ -33,7 +33,7 @@
 
 ## Infraestructura
 - Repositorio: `diegocxst/app-dentro` (privado). Carpeta local de Diego: `~/Memory Card/Proyecctos/Dentro-Dentistas`.
-- Supabase (dev): `dentro-dentistas-app`, plan gratuito. **Por crear.** Solo datos ficticios hasta pasar a un plan de pago con respaldos.
+- Supabase (dev): `dentro-dentistas-app`, plan gratuito. **Creado.** URL `https://iacdtcrzmavbjhgtdchl.supabase.co` · ref `iacdtcrzmavbjhgtdchl` · entorno: desarrollo · sin datos. Claves solo en `.env` local (nunca en el repo). Solo datos ficticios hasta pasar a un plan de pago con respaldos.
 - Hosting: Hostinger (plan por confirmar).
 - Dominio: `dentro.mx` (disponible, por comprar).
 - Equipo: Diego empieza el desarrollo; después se suma Lalo.
