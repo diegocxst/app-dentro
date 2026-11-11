@@ -18,3 +18,7 @@
 | 2026-11-05 | Nombre del producto: **dentro**; sistema de diseño "dentro" | Diego |
 | 2026-11-05 | **V2 cerrada; alcance del MVP congelado (M1–M13)** | Diego |
 | 2026-11-06 | Repositorio `diegocxst/app-dentro` (privado) con la documentación inicial | Diego |
+| 2026-11-10 | V3: mapa de pantallas (34) y 4 flujos aprobados; diseño de las 8 pantallas clave aprobado como base (respetar diseño, funciones y secciones) | Diego |
+| 2026-11-10 | Personalización por clínica (dentro de M10 + P04): logo, nombre, responsable y color de marca. Se aplican en el encabezado del menú, PDF de presupuestos, link de pago, mensajes y perfil público. La interfaz (botones y estados) conserva los colores de dentro | Diego |
+| 2026-11-10 | Menú: logo y nombre de la clínica arriba con la responsable debajo; "Hecho con dentro" abajo | Diego |
+| 2026-11-10 | Primer inicio guiado (dentro de P04/P06 y Soporte V1): onboarding de 5 pasos, guía de inicio de 7 tareas en el menú, recorrido de 4 pasos, estados vacíos explicativos y opción de explorar con datos de ejemplo | Diego |
