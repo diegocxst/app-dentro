@@ -23,4 +23,12 @@
 | 2026-11-10 | Menú: logo y nombre de la clínica arriba con la responsable debajo; "Hecho con dentro" abajo | Diego |
 | 2026-11-10 | Demo navegable lista (pantalla de inicio "Demo" con 4 recorridos; marcada como datos de ejemplo) | Diego |
 | 2026-11-10 | V3 cerrada sin validar la demo con 3–5 prospectos; la validación se hace en paralelo a E0 (riesgo aceptado) | Diego |
+| 2026-11-10 | Se omite la demo con prospectos por ahora; se valida durante el desarrollo para terminar lo antes posible | Diego |
+| 2026-11-10 | Realt-In ya está respaldado por Lalo; se usa como fuente para auditar `core-base` | Diego |
+| 2026-11-10 | Supabase: proyecto `dentro-dentistas-app`, plan gratuito por ahora; plan de pago más adelante | Diego |
+| 2026-11-10 | Hosting: Hostinger | Diego |
+| 2026-11-10 | Desarrollo: Diego y Lalo; empieza Diego | Diego |
+| 2026-11-10 | Dominio: `dentro.mx` (disponible) | Diego |
+| 2026-11-10 | Correo transaccional: se define más adelante (antes de cerrar E1) | Diego |
+| 2026-11-10 | Se abrirán las cuentas de pago y se iniciará la revisión de la app de Meta | Diego |
 | 2026-11-10 | Primer inicio guiado (dentro de P04/P06 y Soporte V1): onboarding de 5 pasos, guía de inicio de 7 tareas en el menú, recorrido de 4 pasos, estados vacíos explicativos y opción de explorar con datos de ejemplo | Diego |

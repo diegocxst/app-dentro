@@ -7,28 +7,33 @@
 | V0 Validación | Sin entrevistas aplicadas; scorecard preliminar 3.55 (AJUSTAR). Los cuestionarios son referencia, no requisito (decisión de Diego). |
 | V1 Modelo de negocio | Pendiente (pricing y cortes de plan). Supuesto: $399–$800 MXN/mes. |
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
-| V3 Diseño y demo | ✅ **Cerrada el 2026-11-10** sin validación con prospectos (riesgo aceptado; se valida en paralelo a E0). Demo navegable en el lienzo "dentro — Pantallas clave V3". |
-| **E0 Auditoría y planificación** | **En curso** desde el 2026-11-10. Sin código. |
+| V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
+| **E0 Auditoría y planificación** | **EN_PROGRESO** desde el 2026-11-10. Sin código. |
 
 ## Última tarea validada
-- Cierre de la V2 (`docs/v2-estructura.md`).
-- Repositorio creado y documentación inicial subida.
+- Cierre de V3 y decisiones de infraestructura de E0.
+- Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-**E0:** resolver las decisiones de infraestructura (Supabase, hosting, quién ejecuta) y respaldar Realt-In en GitHub para auditarlo y extraer `core-base`. En paralelo: mostrar la demo a 3–5 dentistas y registrar objeciones.
+**E0-A:** auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
 ## Bloqueos y pendientes
 | # | Pendiente | Bloquea | Responsable |
 |---|---|---|---|
-| P1 | Respaldar Realt-In en GitHub (repo privado) para extraer `core-base` | E0 | Diego / Lalo (el push lo aprueba Diego) |
-| P2 | Empresa propia para facturar suscripciones | C1 | Diego |
-| P3 | Iniciar la revisión de la app de Meta (`leads_retrieval`) para M11 | M11 en producción | Lalo |
+| B1 | Acceso al código de Realt-In (respaldo de Lalo) en la Mac de Diego o en GitHub | E0-A | Diego / Lalo |
+| B2 | Crear el proyecto `dentro-dentistas-app` en Supabase (plan gratuito) y compartir URL y ref; nunca claves | E1 | Diego |
+| B3 | Confirmar el plan de Hostinger (compartido o con Node / VPS) | Decisión de M13 y E9 | Diego |
+| B4 | **Correo transaccional** (invitaciones y recuperación de contraseña). Recordar a Diego al iniciar E1 | Cierre de E1 | Diego |
+| B5 | Revisión de la app de Meta (`leads_retrieval`) para M11 | M11 en E6 | Lalo |
+| B6 | Abrir cuentas de Mercado Pago / Stripe; empresa propia | Link de pago (E6) y cobro de suscripciones (C1) | Diego |
 | P4 | Lógica de Seguimiento Ninja | Fase 2 | Diego |
 | P5 | Revisión legal (contrato responsable/encargado, aviso de privacidad) | C1 | Diego |
 | P6 | V1: pricing y cortes de plan | C1 | Diego |
-| P7 | Entrevistas con dueños de clínicas (referencia) | — | Diego |
+| P7 | Validar con dentistas durante el desarrollo (empezar con la cuñada de Diego) | — | Diego |
 
 ## Infraestructura
-- Repositorio: `diegocxst/app-dentro` (privado).
-- Proyecto de Supabase: **no creado**. Será exclusivo de dentro.
-- Hosting y dominio: sin decidir.
+- Repositorio: `diegocxst/app-dentro` (privado). Carpeta local de Diego: `~/Memory Card/Proyecctos/Dentro-Dentistas`.
+- Supabase (dev): `dentro-dentistas-app`, plan gratuito. **Por crear.** Solo datos ficticios hasta pasar a un plan de pago con respaldos.
+- Hosting: Hostinger (plan por confirmar).
+- Dominio: `dentro.mx` (disponible, por comprar).
+- Equipo: Diego empieza el desarrollo; después se suma Lalo.
