@@ -7,15 +7,15 @@
 | V0 Validación | Sin entrevistas aplicadas; scorecard preliminar 3.55 (AJUSTAR). Los cuestionarios son referencia, no requisito (decisión de Diego). |
 | V1 Modelo de negocio | Pendiente (pricing y cortes de plan). Supuesto: $399–$800 MXN/mes. |
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
-| **V3 Diseño y demo** | **En curso.** Mapa de pantallas aprobado (2026-11-10). 8 pantallas clave + 3 móviles diseñadas; pendiente de revisión de Diego. |
-| E0–E9 Desarrollo | No iniciado. Sin código. |
+| V3 Diseño y demo | ✅ **Cerrada el 2026-11-10** sin validación con prospectos (riesgo aceptado; se valida en paralelo a E0). Demo navegable en el lienzo "dentro — Pantallas clave V3". |
+| **E0 Auditoría y planificación** | **En curso** desde el 2026-11-10. Sin código. |
 
 ## Última tarea validada
 - Cierre de la V2 (`docs/v2-estructura.md`).
 - Repositorio creado y documentación inicial subida.
 
 ## Siguiente tarea
-**V3:** revisión de Diego de las 8 pantallas clave (lienzo "dentro — Pantallas clave V3"); después, demo navegable para enseñar a dentistas. Ver `docs/v3-mapa-pantallas.md`.
+**E0:** resolver las decisiones de infraestructura (Supabase, hosting, quién ejecuta) y respaldar Realt-In en GitHub para auditarlo y extraer `core-base`. En paralelo: mostrar la demo a 3–5 dentistas y registrar objeciones.
 
 ## Bloqueos y pendientes
 | # | Pendiente | Bloquea | Responsable |
