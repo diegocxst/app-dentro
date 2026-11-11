@@ -1,5 +1,5 @@
 # estado.md — dentro
-Última actualización: 2026-11-06 · Por: Diego (con Claude)
+Última actualización: 2026-11-10 · Por: Diego (con Claude)
 
 ## Fase actual
 | Fase | Estado |
@@ -7,7 +7,7 @@
 | V0 Validación | Sin entrevistas aplicadas; scorecard preliminar 3.55 (AJUSTAR). Los cuestionarios son referencia, no requisito (decisión de Diego). |
 | V1 Modelo de negocio | Pendiente (pricing y cortes de plan). Supuesto: $399–$800 MXN/mes. |
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
-| **V3 Diseño y demo** | **Siguiente.** |
+| **V3 Diseño y demo** | **En curso.** Mapa de pantallas aprobado (2026-11-10). 8 pantallas clave + 3 móviles diseñadas; pendiente de revisión de Diego. |
 | E0–E9 Desarrollo | No iniciado. Sin código. |
 
 ## Última tarea validada
@@ -15,7 +15,7 @@
 - Repositorio creado y documentación inicial subida.
 
 ## Siguiente tarea
-**V3:** mapa de pantallas del MVP y flujos principales (dashboard, ficha del paciente, agenda, presupuesto), y después pantallas de escritorio y móvil con el sistema de diseño "dentro".
+**V3:** revisión de Diego de las 8 pantallas clave (lienzo "dentro — Pantallas clave V3"); después, demo navegable para enseñar a dentistas. Ver `docs/v3-mapa-pantallas.md`.
 
 ## Bloqueos y pendientes
 | # | Pendiente | Bloquea | Responsable |
