@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agenda</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1060px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="agenda" hint-size="100%,1060px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h1 style="margin: 0; flex: 1 1 260px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Agenda</h1>
+<div style="display: flex; align-items: center; gap: 4px">
+<button type="button" aria-label="Día anterior" style="width: 44px; height: 40px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1726" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<button type="button" style="height: 40px; padding: 0 14px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Hoy, mar 10 nov</button>
+<button type="button" aria-label="Día siguiente" style="width: 44px; height: 40px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1726" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+</div>
+<div role="group" aria-label="Vista" style="display: flex; padding: 4px; gap: 4px; border-radius: 12px; background: #F0EBFF">
+<button type="button" aria-pressed="true" style="min-height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #1E1240; cursor: pointer">Día</button>
+<button type="button" style="min-height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14px; color: #5E5869; cursor: pointer">Semana</button>
+</div>
+<div role="group" aria-label="Agrupar por" style="display: flex; padding: 4px; gap: 4px; border-radius: 12px; background: #F0EBFF">
+<button type="button" aria-pressed="true" style="min-height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #1E1240; cursor: pointer">Por doctor</button>
+<button type="button" style="min-height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14px; color: #5E5869; cursor: pointer">Por sillón</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #5E5869">
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #2563C9"></span>Confirmada</span>
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #8A6100"></span>Sin confirmar</span>
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #1A7A50"></span>Llegó</span>
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #C2334A"></span>No asistió</span>
+<span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #6A35F0"></span>Valoración (paciente nuevo)</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<div style="flex: 3 1 560px; min-width: 0; overflow-x: auto; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC">
+<div style="min-width: 640px">
+<div style="display: grid; grid-template-columns: 64px repeat(3, minmax(0, 1fr)); border-bottom: 1px solid #E6E2EC">
+<span></span>
+<sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-left: 1px solid #E6E2EC">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700">{{d.ini}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{d.name}}</span>
+<span style="font-size: 12px; color: #5E5869">{{d.meta}}</span>
+</span>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: 64px repeat(3, minmax(0, 1fr))">
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="10">
+<span style="height: 64px; box-sizing: border-box; padding: 4px 8px 0 0; text-align: right; font-size: 12px; color: #5E5869; font-variant-numeric: tabular-nums">{{h}}</span>
+</sc-for>
+</div>
+<sc-for list="{{cols}}" as="col" hint-placeholder-count="3">
+<div style="position: relative; height: 640px; border-left: 1px solid #E6E2EC; background-image: linear-gradient(#E6E2EC 1px, transparent 1px); background-size: 100% 64px">
+<sc-for list="{{col.appts}}" as="a" hint-placeholder-count="3">
+<button type="button" onClick="{{a.pick}}" style="position: absolute; left: 6px; right: 6px; top: {{a.top}}; height: {{a.h}}; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; border: 0; text-align: left; font: inherit; cursor: pointer; overflow: hidden; background: {{a.bg}}; color: #1C1726; box-shadow: {{a.ring}}">
+<span style="display: block; font-size: 13px; font-weight: 600; line-height: 18px">{{a.name}}</span>
+<span style="display: block; font-size: 12px; line-height: 16px; color: #5E5869">{{a.time}} · {{a.what}}</span>
+<span style="position: absolute; left: 0; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: {{a.color}}" aria-hidden="true"></span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<aside aria-label="Detalle de la cita" style="flex: 1 1 300px; min-width: 0; box-sizing: border-box; padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">Cita seleccionada</span>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{sel.pillBg}}; color: {{sel.pillFg}}">{{sel.status}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">{{sel.name}}</h2>
+<span style="font-size: 14px; color: #5E5869">{{sel.time}} · {{sel.what}}</span>
+<span style="font-size: 14px; color: #5E5869">{{sel.doctor}} · Sillón {{sel.chair}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="min-height: 44px; border-radius: 12px; border: 0; background: #E3F4EC; color: #1A7A50; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Llegó</button>
+<button type="button" style="min-height: 44px; border-radius: 12px; border: 0; background: #FCE8EB; color: #C2334A; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">No asistió</button>
+<button type="button" style="min-height: 44px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; color: #1C1726; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Reagendar</button>
+<button type="button" style="min-height: 44px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; color: #1C1726; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Confirmar por WhatsApp</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 12px; background: #FBFAFD">
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5E5869">Saldo del tratamiento</span><strong style="font-variant-numeric: tabular-nums">{{sel.balance}}</strong></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5E5869">Último pago</span><span>{{sel.last}}</span></div>
+</div>
+<a href="Paciente.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Abrir ficha del paciente</a>
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 12px; border: 1px solid #E6E2EC; text-decoration: none; font-size: 14px; font-weight: 600; color: #1C1726">Registrar cobro</a>
+</aside>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: 'a2' }; }
+  renderVals() {
+    const S = {
+      conf: { color: '#2563C9', bg: '#E6EFFC', label: 'Confirmada', pf: '#2563C9' },
+      sin: { color: '#8A6100', bg: '#FFF7D6', label: 'Sin confirmar', pf: '#8A6100' },
+      lleg: { color: '#1A7A50', bg: '#E3F4EC', label: 'Llegó', pf: '#1A7A50' },
+      no: { color: '#C2334A', bg: '#FCE8EB', label: 'No asistió', pf: '#C2334A' },
+      val: { color: '#6A35F0', bg: '#F0EBFF', label: 'Valoración', pf: '#6A35F0' }
+    };
+    const raw = [
+      [
+        { id: 'a1', start: 9, dur: 1, name: 'Valeria Cruz', what: 'Resina', s: 'lleg', chair: 1, balance: '$0', last: 'Hoy, $1,200' },
+        { id: 'a4', start: 11, dur: 1.5, name: 'Jorge Ramírez', what: 'Implante, 2.ª cita', s: 'conf', chair: 1, balance: '$14,500', last: '28 oct, $10,000' },
+        { id: 'a7', start: 13, dur: 0.5, name: 'Elena Ríos', what: 'Revisión', s: 'no', chair: 1, balance: '$0', last: '—' },
+        { id: 'a9', start: 16.5, dur: 1, name: 'Andrés Lara', what: 'Valoración', s: 'val', chair: 1, balance: 'Sin presupuesto', last: '—' }
+      ],
+      [
+        { id: 'a2', start: 10, dur: 1, name: 'Laura Méndez', what: 'Valoración de ortodoncia', s: 'conf', chair: 2, balance: 'Presupuesto $38,000 en duda', last: '—' },
+        { id: 'a5', start: 11.5, dur: 0.5, name: 'Ricardo Peña', what: 'Ajuste de brackets', s: 'sin', chair: 2, balance: '$9,800', last: '15 oct, $1,600' },
+        { id: 'a8', start: 15, dur: 1, name: 'Mariana Gil', what: 'Ajuste de brackets', s: 'conf', chair: 2, balance: '$16,000', last: '10 oct, $1,600' }
+      ],
+      [
+        { id: 'a3', start: 9, dur: 0.75, name: 'Daniela Ortiz', what: 'Limpieza', s: 'lleg', chair: 2, balance: '$0', last: 'Hoy, $850' },
+        { id: 'a6', start: 12, dur: 1.5, name: 'Miguel Torres', what: 'Endodoncia', s: 'conf', chair: 2, balance: '$6,200', last: '—' },
+        { id: 'a10', start: 17, dur: 0.75, name: 'Lucía Fernández', what: 'Limpieza', s: 'sin', chair: 1, balance: '$0', last: '—' }
+      ]
+    ];
+    const docs = [
+      { ini: 'AR', name: 'Dra. Ana Ruiz', meta: '4 citas · Implantes' },
+      { ini: 'PS', name: 'Dr. Pablo Soto', meta: '3 citas · Ortodoncia' },
+      { ini: 'KV', name: 'Dra. Karla Vega', meta: '3 citas · General' }
+    ];
+    const fmt = (t) => { const h = Math.floor(t), m = Math.round((t - h) * 60); return h + ':' + (m < 10 ? '0' + m : m); };
+    let sel = null;
+    const cols = raw.map((list, ci) => ({
+      appts: list.map((a) => {
+        const st = S[a.s];
+        const v = { ...a, time: fmt(a.start), color: st.color, bg: st.bg,
+          top: ((a.start - 9) * 64 + 2) + 'px', h: (a.dur * 64 - 4) + 'px',
+          ring: this.state.picked === a.id ? '0 0 0 2px #6A35F0' : 'none',
+          pick: () => this.setState({ picked: a.id }) };
+        if (this.state.picked === a.id) sel = { ...v, doctor: docs[ci].name, status: st.label, pillBg: st.bg, pillFg: st.pf };
+        return v;
+      })
+    }));
+    const hours = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+    return { docs, cols, hours, sel: sel || {} };
+  }
+}
+</script>
+</body>
+</html>

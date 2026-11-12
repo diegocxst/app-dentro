@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Comisiones de doctores</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1040px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="doctores" hint-size="100%,1040px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; max-width: 1240px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Comisiones</h1>
+<p style="margin: 0; font-size: 14px; color: #5E5869">Se calculan sobre lo cobrado, no sobre lo presupuestado.</p>
+</div>
+<div role="group" aria-label="Periodo" style="display: flex; padding: 4px; gap: 4px; border-radius: 12px; background: #F0EBFF">
+<button type="button" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14px; color: #5E5869; cursor: pointer">16–31 oct</button>
+<button type="button" aria-pressed="true" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #1E1240; cursor: pointer">1–15 nov</button>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Exportar</button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+<div style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #5E5869">Cobrado en el periodo</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-variant-numeric: tabular-nums">$186,400</strong></div>
+<div style="padding: 20px; border-radius: 16px; background: #FFF7D6; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #8A6100">Comisiones por pagar</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-variant-numeric: tabular-nums">$39,530</strong></div>
+<div style="padding: 20px; border-radius: 16px; background: #E3F4EC; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; color: #1A7A50">Queda para la clínica</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-variant-numeric: tabular-nums">$146,870</strong></div>
+</div>
+
+<section style="border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; overflow: hidden">
+<div style="overflow-x: auto">
+<div style="min-width: 860px">
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) 100px 130px 130px 130px; gap: 12px; padding: 12px 20px; background: #FBFAFD; border-bottom: 1px solid #E6E2EC; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">
+<span>Doctor</span><span>Esquema</span><span style="text-align: right">Pacientes</span><span style="text-align: right">Cobrado</span><span style="text-align: right">Comisión</span><span>Estado</span>
+</div>
+<sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+<button type="button" onClick="{{d.pick}}" aria-pressed="{{d.on}}" style="display: grid; width: 100%; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) 100px 130px 130px 130px; gap: 12px; align-items: center; padding: 14px 20px; border: 0; border-bottom: 1px solid #E6E2EC; text-align: left; font: inherit; font-size: 14px; color: #1C1726; cursor: pointer; background: {{d.rowBg}}">
+<span style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700">{{d.ini}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-weight: 600">{{d.name}}</strong><span style="font-size: 12px; color: #5E5869">{{d.role}}</span></span>
+</span>
+<span>{{d.scheme}}</span>
+<span style="text-align: right; font-variant-numeric: tabular-nums">{{d.patients}}</span>
+<span style="text-align: right; font-variant-numeric: tabular-nums">{{d.cobrado}}</span>
+<strong style="text-align: right; font-variant-numeric: tabular-nums">{{d.comision}}</strong>
+<span><span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{d.pBg}}; color: {{d.pFg}}">{{d.status}}</span></span>
+</button>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Detalle de {{sel.name}}</h2>
+<span style="font-size: 14px; color: #5E5869">{{sel.scheme}}</span>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 620px">
+<div style="display: grid; grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr) 120px 120px; gap: 12px; padding: 8px 0; border-bottom: 1px solid #E6E2EC; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">
+<span>Fecha</span><span>Paciente</span><span>Concepto</span><span style="text-align: right">Cobrado</span><span style="text-align: right">Comisión</span>
+</div>
+<sc-for list="{{sel.lines}}" as="l" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr) 120px 120px; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E6E2EC; font-size: 14px">
+<span style="color: #5E5869">{{l.date}}</span><span>{{l.patient}}</span><span>{{l.what}}</span><span style="text-align: right; font-variant-numeric: tabular-nums">{{l.paid}}</span><strong style="text-align: right; font-variant-numeric: tabular-nums">{{l.fee}}</strong>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<span style="flex-grow: 1; font-size: 13px; color: #5E5869">{{sel.more}}</span>
+<button type="button" style="min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: #6A35F0; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Marcar como pagada</button>
+</div>
+</section>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: 'soto' }; }
+  renderVals() {
+    const raw = [
+      { id: 'ruiz', ini: 'AR', name: 'Dra. Ana Ruiz', role: 'Dueña · Implantes', scheme: 'Sin comisión', patients: 41, cobrado: '$82,300', comision: '—', status: 'No aplica', pBg: '#F0EBFF', pFg: '#5E5869',
+        lines: [
+          { date: '10 nov', patient: 'Valeria Cruz', what: 'Resina', paid: '$1,200', fee: '—' },
+          { date: '7 nov', patient: 'Tomás Herrera', what: 'Implante, anticipo', paid: '$8,000', fee: '—' }
+        ], more: 'La dueña no genera comisión. Su producción cuenta para la clínica.' },
+      { id: 'soto', ini: 'PS', name: 'Dr. Pablo Soto', role: 'Colaborador · Ortodoncia', scheme: '40% de lo cobrado', patients: 28, cobrado: '$61,900', comision: '$24,760', status: 'Por pagar', pBg: '#FFF7D6', pFg: '#8A6100',
+        lines: [
+          { date: '9 nov', patient: 'Mariana Gil', what: 'Ortodoncia, anticipo', paid: '$5,000', fee: '$2,000' },
+          { date: '8 nov', patient: 'Ricardo Peña', what: 'Mensualidad de ortodoncia', paid: '$1,600', fee: '$640' },
+          { date: '6 nov', patient: 'Diego Paredes', what: 'Ortodoncia, mensualidad', paid: '$1,600', fee: '$640' },
+          { date: '1 nov', patient: 'Laura Méndez', what: 'Valoración', paid: '$400', fee: '$160' }
+        ], more: 'Y 37 movimientos más en el periodo.' },
+      { id: 'vega', ini: 'KV', name: 'Dra. Karla Vega', role: 'Colaboradora · General', scheme: '35% de lo cobrado', patients: 52, cobrado: '$42,200', comision: '$14,770', status: 'Por pagar', pBg: '#FFF7D6', pFg: '#8A6100',
+        lines: [
+          { date: '10 nov', patient: 'Daniela Ortiz', what: 'Limpieza', paid: '$850', fee: '$298' },
+          { date: '5 nov', patient: 'Miguel Torres', what: 'Endodoncia, anticipo', paid: '$2,000', fee: '$700' }
+        ], more: 'Y 49 movimientos más en el periodo.' }
+    ];
+    const docs = raw.map((d) => ({ ...d, on: this.state.picked === d.id, rowBg: this.state.picked === d.id ? '#F0EBFF' : '#FFFFFF', pick: () => this.setState({ picked: d.id }) }));
+    const sel = raw.find((d) => d.id === this.state.picked) || raw[1];
+    return { docs, sel };
+  }
+}
+</script>
+</body>
+</html>

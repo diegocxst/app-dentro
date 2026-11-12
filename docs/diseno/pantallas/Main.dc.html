@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Dashboard del dueño</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1180px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="inicio" hint-size="100%,1180px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; max-width: 1240px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">Martes 10 de noviembre</span>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Buenos días, Ana</h1>
+</div>
+<div role="group" aria-label="Periodo" style="display: flex; padding: 4px; gap: 4px; border-radius: 12px; background: #F0EBFF">
+<button type="button" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14px; color: #5E5869; cursor: pointer">Semana</button>
+<button type="button" aria-pressed="true" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #1E1240; cursor: pointer">Mes</button>
+<button type="button" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; font: inherit; font-size: 14px; color: #5E5869; cursor: pointer">Año</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: #F0EBFF">
+<div aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A35F0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h4"></path></svg>
+</div>
+<p style="flex: 1 1 320px; margin: 0; font-size: 16px; line-height: 24px">Tienes <strong>4 presupuestos sin seguimiento</strong> esta semana, por <strong>$86,300</strong>. ¿Les escribimos hoy?</p>
+<a href="Presupuestos.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Ver presupuestos</a>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC">
+<span style="font-size: 14px; line-height: 20px; color: #5E5869">{{k.label}}</span>
+<span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700; font-variant-numeric: tabular-nums">{{k.value}}</span>
+<span style="align-self: flex-start; font-size: 12px; line-height: 16px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{k.pillBg}}; color: {{k.pillFg}}">{{k.note}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Presupuestos del mes</h2>
+<span style="font-size: 14px; color: #5E5869">50 presentados · 22% aceptados</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{funnel}}" as="f" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 140px minmax(0, 1fr) 120px; align-items: center; gap: 12px">
+<span style="font-size: 14px; color: #1C1726">{{f.label}}</span>
+<div style="height: 28px; border-radius: 8px; background: #FBFAFD; overflow: hidden">
+<div style="height: 28px; border-radius: 8px; width: {{f.pct}}; background: {{f.color}}"></div>
+</div>
+<span style="font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; color: #1C1726"><strong>{{f.count}}</strong> · {{f.amount}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Presupuestos sin seguimiento</h2>
+<a href="Presupuestos.dc.html" style="font-size: 14px; font-weight: 600">Ver todos</a>
+</div>
+<sc-for list="{{pending}}" as="p" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #E6E2EC">
+<div aria-hidden="true" style="width: 40px; height: 40px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{p.ini}}</div>
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{p.name}}</span>
+<span style="font-size: 13px; color: #5E5869">{{p.treatment}} · {{p.doctor}}</span>
+</div>
+<span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums">{{p.amount}}</span>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFF7D6; color: #8A6100">{{p.days}}</span>
+<a href="Paciente.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid #E6E2EC; text-decoration: none; font-size: 14px; font-weight: 600; color: #1C1726">Dar seguimiento</a>
+</div>
+</sc-for>
+</section>
+</div>
+
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Citas de hoy</h2>
+<a href="Agenda.dc.html" style="font-size: 14px; font-weight: 600">Agenda</a>
+</div>
+<sc-for list="{{today}}" as="c" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #E6E2EC">
+<span style="width: 48px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums">{{c.time}}</span>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 14px; font-weight: 500">{{c.name}}</span>
+<span style="font-size: 13px; color: #5E5869">{{c.what}}</span>
+</div>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{c.bg}}; color: {{c.fg}}">{{c.status}}</span>
+</div>
+</sc-for>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Cobrado por doctor</h2>
+<a href="Comisiones.dc.html" style="font-size: 14px; font-weight: 600">Comisiones</a>
+</div>
+<sc-for list="{{doctors}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px">
+<span>{{d.name}}</span>
+<strong style="font-variant-numeric: tabular-nums">{{d.amount}}</strong>
+</div>
+<div style="height: 8px; border-radius: 999px; background: #F0EBFF; overflow: hidden">
+<div style="height: 8px; border-radius: 999px; width: {{d.pct}}; background: #6A35F0"></div>
+</div>
+</div>
+</sc-for>
+</section>
+
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 16px; background: #FFEEDF; text-decoration: none; color: #1C1726">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B4500F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg>
+<span style="flex-grow: 1; font-size: 14px; line-height: 20px"><strong>Crece tu clínica.</strong> Llena tu agenda con una campaña en Meta hecha para dentistas.</span>
+</a>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ok = ['#E3F4EC', '#1A7A50'], warn = ['#FFF7D6', '#8A6100'], bad = ['#FCE8EB', '#C2334A'], info = ['#E6EFFC', '#2563C9'], vio = ['#F0EBFF', '#6A35F0'];
+    const pill = (p) => ({ pillBg: p[0], pillFg: p[1] });
+    return {
+      kpis: [
+        { label: 'Cobrado este mes', value: '$186,400', note: '+12% vs. octubre', ...pill(ok) },
+        { label: 'Presupuestos por cerrar', value: '$312,500', note: '14 abiertos', ...pill(vio) },
+        { label: 'Inasistencias esta semana', value: '6', note: '8% de las citas', ...pill(bad) },
+        { label: 'Saldos por cobrar', value: '$74,200', note: '21 pacientes', ...pill(warn) }
+      ],
+      funnel: [
+        { label: 'Presentados', count: 50, amount: '$1.02 M', pct: '100%', color: '#F0EBFF' },
+        { label: 'En duda', count: 14, amount: '$312 k', pct: '28%', color: '#FFF7D6' },
+        { label: 'Aceptados', count: 11, amount: '$268 k', pct: '22%', color: '#E3F4EC' },
+        { label: 'En tratamiento', count: 8, amount: '$201 k', pct: '16%', color: '#6A35F0' }
+      ],
+      pending: [
+        { ini: 'LM', name: 'Laura Méndez', treatment: 'Ortodoncia invisible', doctor: 'Dr. Pablo Soto', amount: '$38,000', days: '9 días' },
+        { ini: 'JR', name: 'Jorge Ramírez', treatment: 'Implante unitario', doctor: 'Dra. Ana Ruiz', amount: '$24,500', days: '6 días' },
+        { ini: 'SG', name: 'Sofía Guzmán', treatment: 'Carillas (4)', doctor: 'Dra. Ana Ruiz', amount: '$17,600', days: '5 días' },
+        { ini: 'MT', name: 'Miguel Torres', treatment: 'Endodoncia + corona', doctor: 'Dra. Karla Vega', amount: '$6,200', days: '4 días' }
+      ],
+      today: [
+        { time: '09:00', name: 'Daniela Ortiz', what: 'Limpieza · Dra. Vega', status: 'Llegó', bg: ok[0], fg: ok[1] },
+        { time: '10:00', name: 'Laura Méndez', what: 'Valoración · Dr. Soto', status: 'Confirmada', bg: info[0], fg: info[1] },
+        { time: '11:30', name: 'Ricardo Peña', what: 'Ajuste de brackets · Dr. Soto', status: 'Sin confirmar', bg: warn[0], fg: warn[1] },
+        { time: '13:00', name: 'Valeria Cruz', what: 'Resina · Dra. Ruiz', status: 'Confirmada', bg: info[0], fg: info[1] },
+        { time: '16:30', name: 'Andrés Lara', what: 'Valoración · Dra. Ruiz', status: 'Nuevo paciente', bg: vio[0], fg: vio[1] }
+      ],
+      doctors: [
+        { name: 'Dra. Ana Ruiz', amount: '$82,300', pct: '100%' },
+        { name: 'Dr. Pablo Soto', amount: '$61,900', pct: '75%' },
+        { name: 'Dra. Karla Vega', amount: '$42,200', pct: '51%' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

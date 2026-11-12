@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ficha del paciente</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1180px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="pacientes" hint-size="100%,1180px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; max-width: 1240px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+
+<nav aria-label="Ruta" style="font-size: 14px; color: #5E5869"><a href="Paciente.dc.html">Pacientes</a> / Laura Méndez</nav>
+
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC">
+<div aria-hidden="true" style="width: 64px; height: 64px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700">LM</div>
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Laura Méndez</h1>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFF7D6; color: #8A6100">Presupuesto en duda</span>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #FFEEDF; color: #B4500F">Alto valor</span>
+</div>
+<span style="font-size: 14px; color: #5E5869">29 años · 55 1234 5678 · laura.m@correo.com · Llegó por su perfil público</span>
+<span style="font-size: 14px; color: #5E5869">Doctor tratante: Dr. Pablo Soto · Paciente desde el 1 nov 2026</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Movil-Presupuesto.dc.html" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #E6E2EC; text-decoration: none; font-size: 14px; font-weight: 600; color: #0B7F86">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>WhatsApp</a>
+<a href="Agenda.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #E6E2EC; text-decoration: none; font-size: 14px; font-weight: 600; color: #1C1726">Nueva cita</a>
+<a href="NuevoPresupuesto.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Nuevo presupuesto</a>
+</div>
+</section>
+
+<div role="tablist" aria-label="Secciones de la ficha" style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #E6E2EC">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+<button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 16px; border: 0; background: transparent; font: inherit; font-size: 14px; cursor: pointer; font-weight: {{t.weight}}; color: {{t.fg}}; box-shadow: {{t.line}}">{{t.label}}<span style="margin-left: 6px; font-size: 12px; color: #5E5869">{{t.count}}</span></button>
+</sc-for>
+</div>
+
+<sc-if value="{{isResumen}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<div style="flex: 2 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Presupuesto activo</h2>
+<span style="font-size: 13px; color: #8A6100; font-weight: 600">Sin respuesta hace 9 días</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Tratamiento</span><strong style="font-size: 16px">Ortodoncia invisible, 18 meses</strong></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Total</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-variant-numeric: tabular-nums">$38,000</strong></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Plan</span><strong style="font-size: 16px; font-variant-numeric: tabular-nums">$5,000 + 12 × $2,750</strong></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Movil-Presupuesto.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Reenviar con link de pago</a>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Crear tarea de seguimiento</button>
+<a href="Presupuestos.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 14px; font-weight: 600">Ver presupuesto</a>
+</div>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Actividad</h2>
+<sc-for list="{{timeline}}" as="e" hint-placeholder-count="5">
+<div style="display: flex; gap: 14px">
+<div style="display: flex; flex-direction: column; align-items: center">
+<span aria-hidden="true" style="width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; background: {{e.color}}"></span>
+<span aria-hidden="true" style="flex-grow: 1; width: 2px; background: #E6E2EC; margin: 4px 0"></span>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px; padding-bottom: 16px">
+<span style="font-size: 14px; font-weight: 500">{{e.text}}</span>
+<span style="font-size: 13px; color: #5E5869">{{e.when}}</span>
+</div>
+</div>
+</sc-for>
+</section>
+</div>
+
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="padding: 20px; border-radius: 16px; background: #E6EFFC; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #2563C9">Próxima cita</span>
+<strong style="font-size: 16px">Hoy, 10:00 · Valoración de ortodoncia</strong>
+<span style="font-size: 14px; color: #1C1726">Dr. Pablo Soto · Sillón 2 · Confirmada</span>
+</section>
+<section style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; line-height: 26px; font-weight: 600">Cuenta</h2>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5E5869">Pagado</span><strong style="font-variant-numeric: tabular-nums">$400</strong></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5E5869">Saldo pendiente</span><strong style="font-variant-numeric: tabular-nums">$0</strong></div>
+</section>
+<section style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; line-height: 26px; font-weight: 600">Documentos</h2><button type="button" onClick="{{goDocs}}" style="border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 600; color: #6A35F0; cursor: pointer; min-height: 32px">Ver todos</button></div>
+<sc-for list="{{docsShort}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: {{d.bg}}; color: {{d.fg}}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700">{{d.ext}}</span>
+<span style="flex-grow: 1">{{d.name}}</span>
+<span style="font-size: 12px; color: #5E5869">{{d.date}}</span>
+</div>
+</sc-for>
+</section>
+<section style="display: flex; gap: 10px; padding: 14px 16px; border-radius: 12px; background: #E3F4EC; font-size: 13px; line-height: 18px; color: #1A7A50">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span>Consentimiento de datos de salud firmado el 1 nov 2026 (aviso v1.0).</span>
+</section>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isDocs}}" hint-placeholder-val="{{false}}">
+<section style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<span style="flex-grow: 1; font-size: 14px; color: #5E5869">Solo el equipo de la clínica ve estos archivos. Cada vista y descarga queda registrada.</span>
+<button type="button" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: #6A35F0; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"></path></svg>Subir documento</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px">
+<sc-for list="{{docs}}" as="d" hint-placeholder-count="6">
+<article style="display: flex; flex-direction: column; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; overflow: hidden">
+<div style="height: 120px; background: {{d.bg}}; display: flex; align-items: center; justify-content: center; color: {{d.fg}}; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700">{{d.ext}}</div>
+<div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{d.name}}</span>
+<span style="font-size: 12px; color: #5E5869">{{d.kind}} · {{d.date}} · {{d.by}}</span>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+<section style="border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #E6E2EC">
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{r.title}}</span>
+<span style="font-size: 13px; color: #5E5869">{{r.sub}}</span>
+</div>
+<strong style="font-size: 14px; font-variant-numeric: tabular-nums">{{r.right}}</strong>
+<span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: {{r.bg}}; color: {{r.fg}}">{{r.pill}}</span>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'resumen' }; }
+  renderVals() {
+    const tab = this.state.tab;
+    const ok = ['#E3F4EC', '#1A7A50'], warn = ['#FFF7D6', '#8A6100'], info = ['#E6EFFC', '#2563C9'], gray = ['#F0EBFF', '#6A35F0'];
+    const lists = {
+      citas: [
+        { title: 'Valoración de ortodoncia', sub: 'Hoy 10:00 · Dr. Pablo Soto', right: '', pill: 'Confirmada', bg: info[0], fg: info[1] },
+        { title: 'Valoración general', sub: '1 nov 2026 · Dr. Pablo Soto', right: '', pill: 'Asistió', bg: ok[0], fg: ok[1] }
+      ],
+      presupuestos: [
+        { title: 'Ortodoncia invisible, 18 meses', sub: 'Enviado el 1 nov · Dr. Pablo Soto', right: '$38,000', pill: 'En duda', bg: warn[0], fg: warn[1] }
+      ],
+      pagos: [
+        { title: 'Valoración general', sub: '1 nov 2026 · Tarjeta en terminal', right: '$400', pill: 'Pagado', bg: ok[0], fg: ok[1] }
+      ],
+      notas: [
+        { title: 'Prefiere que le escriban por WhatsApp después de las 6 pm', sub: 'Recepción · 1 nov', right: '', pill: 'Nota', bg: gray[0], fg: gray[1] },
+        { title: 'Le preocupa el precio; preguntar si le sirve el plan a 12 meses', sub: 'Dr. Pablo Soto · 1 nov', right: '', pill: 'Nota', bg: gray[0], fg: gray[1] }
+      ]
+    };
+    const defs = [['resumen', 'Resumen', ''], ['citas', 'Citas', '2'], ['presupuestos', 'Presupuestos', '1'], ['pagos', 'Pagos', '1'], ['documentos', 'Documentos', '6'], ['notas', 'Notas', '2']];
+    const tabs = defs.map(([id, label, count]) => ({
+      label, count, on: tab === id,
+      weight: tab === id ? 600 : 500,
+      fg: tab === id ? '#1E1240' : '#5E5869',
+      line: tab === id ? 'inset 0 -2px 0 #6A35F0' : 'none',
+      pick: () => this.setState({ tab: id })
+    }));
+    const docs = [
+      { name: 'Radiografía panorámica', kind: 'Radiografía', ext: 'RX', date: '1 nov', by: 'Dr. Soto', bg: '#1E1240', fg: '#FFFFFF' },
+      { name: 'Fotos intraorales (6)', kind: 'Fotografía', ext: 'JPG', date: '1 nov', by: 'Dr. Soto', bg: '#F0EBFF', fg: '#6A35F0' },
+      { name: 'Consentimiento de datos', kind: 'Consentimiento', ext: 'PDF', date: '1 nov', by: 'Recepción', bg: '#E3F4EC', fg: '#1A7A50' },
+      { name: 'Presupuesto ortodoncia', kind: 'Presupuesto', ext: 'PDF', date: '1 nov', by: 'Dr. Soto', bg: '#FFEEDF', fg: '#B4500F' },
+      { name: 'Historia clínica inicial', kind: 'Formulario', ext: 'PDF', date: '1 nov', by: 'Recepción', bg: '#E6EFFC', fg: '#2563C9' },
+      { name: 'Escaneo 3D', kind: 'Modelo', ext: 'STL', date: '1 nov', by: 'Dr. Soto', bg: '#DDF7F6', fg: '#0B7F86' }
+    ];
+    const timeline = [
+      { text: 'Presupuesto de ortodoncia sin respuesta. Sugerimos escribirle hoy.', when: 'Hoy', color: '#8A6100' },
+      { text: 'Confirmó su cita por WhatsApp', when: 'Ayer, 7:12 pm', color: '#2563C9' },
+      { text: 'Se le envió el presupuesto de $38,000', when: '1 nov · Dr. Pablo Soto', color: '#6A35F0' },
+      { text: 'Pagó su valoración, $400', when: '1 nov · Recepción', color: '#1A7A50' },
+      { text: 'Llegó como lead desde el perfil público', when: '30 oct', color: '#0B7F86' }
+    ];
+    return {
+      tabs, timeline, docs, docsShort: docs.slice(0, 3),
+      isResumen: tab === 'resumen', isDocs: tab === 'documentos',
+      isList: !!lists[tab], rows: lists[tab] || [],
+      goDocs: () => this.setState({ tab: 'documentos' })
+    };
+  }
+}
+</script>
+</body>
+</html>

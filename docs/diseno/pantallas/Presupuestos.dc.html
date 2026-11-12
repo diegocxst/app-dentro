@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Presupuestos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1000px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="presupuestos" hint-size="100%,1000px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Presupuestos</h1>
+<p style="margin: 0; font-size: 14px; color: #5E5869">Que ningún presupuesto se pierda. Arrastra cada tarjeta cuando cambie de etapa.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" style="min-height: 40px; padding: 0 14px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer">Doctor: todos</button>
+<button type="button" style="min-height: 40px; padding: 0 14px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer">Este mes</button>
+<a href="NuevoPresupuesto.dc.html" style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Nuevo presupuesto</a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+<div style="padding: 16px 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Tasa de aceptación</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 32px">22%</strong></div>
+<div style="padding: 16px 20px; border-radius: 16px; background: #FFF7D6; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #8A6100">En duda, por recuperar</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 32px">$312,500</strong></div>
+<div style="padding: 16px 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Anticipos cobrados</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 32px">$47,000</strong></div>
+<div style="padding: 16px 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #5E5869">Ticket promedio</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 32px">$20,400</strong></div>
+</div>
+
+<div style="overflow-x: auto; padding-bottom: 8px">
+<div style="display: grid; grid-template-columns: repeat(5, minmax(250px, 1fr)); gap: 16px; min-width: 1290px">
+<sc-for list="{{cols}}" as="col" hint-placeholder-count="5">
+<section style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 16px; background: #F4F1F9">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 4px 4px 6px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 999px; background: {{col.color}}"></span>
+<h2 style="margin: 0; flex-grow: 1; font-size: 14px; font-weight: 600">{{col.title}}</h2>
+<span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #FFFFFF; color: #5E5869">{{col.count}}</span>
+</div>
+<span style="padding-left: 16px; font-size: 13px; color: #5E5869; font-variant-numeric: tabular-nums">{{col.total}}</span>
+</div>
+<sc-for list="{{col.cards}}" as="c" hint-placeholder-count="3">
+<a href="Paciente.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E6E2EC; text-decoration: none; color: #1C1726">
+<div style="display: flex; justify-content: space-between; gap: 8px">
+<span style="font-size: 14px; font-weight: 600">{{c.name}}</span>
+<strong style="font-size: 14px; font-variant-numeric: tabular-nums">{{c.amount}}</strong>
+</div>
+<span style="font-size: 13px; color: #5E5869">{{c.treatment}}</span>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px">
+<span style="font-size: 12px; color: #5E5869">{{c.doctor}}</span>
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: {{c.bg}}; color: {{c.fg}}">{{c.tag}}</span>
+</div>
+</a>
+</sc-for>
+</section>
+</sc-for>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = {
+      warn: ['#FFF7D6', '#8A6100'], bad: ['#FCE8EB', '#C2334A'], ok: ['#E3F4EC', '#1A7A50'],
+      info: ['#E6EFFC', '#2563C9'], turq: ['#DDF7F6', '#0B7F86'], vio: ['#F0EBFF', '#6A35F0']
+    };
+    const c = (name, treatment, amount, doctor, tag, p) => ({ name, treatment, amount, doctor, tag, bg: P[p][0], fg: P[p][1] });
+    const cols = [
+      { title: 'Presentado', color: '#2563C9', n: 12, total: '$186,200', cards: [
+        c('Andrés Lara', 'Valoración hoy, por presentar', '—', 'Dra. Ruiz', 'Hoy', 'info'),
+        c('Paola Reyes', 'Blanqueamiento + limpieza', '$4,650', 'Dra. Vega', 'Enviado hace 1 día', 'info'),
+        c('Daniel Ortega', 'Implantes (2)', '$44,000', 'Dra. Ruiz', 'Enviado hace 2 días', 'info'),
+        c('Lucía Fernández', 'Resinas (4)', '$4,800', 'Dra. Vega', 'Enviado hace 2 días', 'info')
+      ] },
+      { title: 'En duda', color: '#8A6100', n: 14, total: '$312,500', cards: [
+        c('Laura Méndez', 'Ortodoncia invisible', '$38,000', 'Dr. Soto', 'Sin respuesta 9 días', 'bad'),
+        c('Jorge Ramírez', 'Implante unitario', '$24,500', 'Dra. Ruiz', 'Sin respuesta 6 días', 'warn'),
+        c('Sofía Guzmán', 'Carillas (4)', '$17,600', 'Dra. Ruiz', 'Pidió plan de pagos', 'warn'),
+        c('Miguel Torres', 'Endodoncia + corona', '$6,200', 'Dra. Vega', 'Tarea para hoy', 'vio')
+      ] },
+      { title: 'Aceptado', color: '#1A7A50', n: 11, total: '$268,000', cards: [
+        c('Mariana Gil', 'Ortodoncia con brackets', '$28,000', 'Dr. Soto', 'Anticipo pagado', 'ok'),
+        c('Tomás Herrera', 'Implante unitario', '$22,000', 'Dra. Ruiz', 'Link de pago enviado', 'turq')
+      ] },
+      { title: 'En tratamiento', color: '#6A35F0', n: 8, total: '$201,300', cards: [
+        c('Ricardo Peña', 'Ortodoncia con brackets', '$28,000', 'Dr. Soto', 'Saldo $9,800', 'vio'),
+        c('Elena Ríos', 'Rehabilitación', '$46,000', 'Dra. Ruiz', 'Saldo $12,000', 'vio')
+      ] },
+      { title: 'Perdido', color: '#C2334A', n: 5, total: '$54,000', cards: [
+        c('Iván Morales', 'Carillas (6)', '$31,000', 'Dra. Ruiz', 'Precio', 'bad')
+      ] }
+    ].map((x) => ({ ...x, count: x.n }));
+    return { cols };
+  }
+}
+</script>
+</body>
+</html>

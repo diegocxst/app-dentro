@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Demo de dentro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1180px; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+
+<header style="background: #1E1240; color: #FFFFFF">
+<div style="box-sizing: border-box; max-width: 1200px; margin: 0 auto; padding: 40px 32px 48px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<img src="/brand/dentro-horizontal-negativo.svg" alt="dentro" style="width: 132px; height: auto; display: block">
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: #FF8A3D; color: #1E1240">Demo · datos de ejemplo</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 760px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 40px; line-height: 48px; font-weight: 800">Tu clínica, por dentro.</h1>
+<p style="margin: 0; font-size: 18px; line-height: 28px; color: #E6E2EC">Leads, pacientes, citas, doctores, presupuestos y cobros en una sola app, para que ningún presupuesto se pierda y ningún paciente se olvide.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="Main-Bienvenida.dc.html" style="display: flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 12px; background: #FFFFFF; color: #1E1240; text-decoration: none; font-size: 15px; font-weight: 700">Empezar el recorrido</a>
+<a href="Main.dc.html" style="display: flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 12px; border: 1px solid #5E5869; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 600">Ver una clínica en operación</a>
+</div>
+<p style="margin: 0; font-size: 13px; color: #B9B2C8">La clínica, los pacientes y los montos son ficticios. "Clínica Dental Sonríe": 3 doctores, 2 sillones, Ciudad de México.</p>
+</div>
+</header>
+
+<main style="box-sizing: border-box; max-width: 1200px; margin: 0 auto; padding: 40px 32px 56px; display: flex; flex-direction: column; gap: 36px">
+<sc-for list="{{tours}}" as="t" hint-placeholder-count="4">
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+<span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{t.tagBg}}; color: {{t.tagFg}}">{{t.tag}}</span>
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; line-height: 30px; font-weight: 700">{{t.title}}</h2>
+<span style="font-size: 14px; color: #5E5869">{{t.pitch}}</span>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+<sc-for list="{{t.steps}}" as="s" hint-placeholder-count="4">
+<li style="display: flex">
+<a href="{{s.href}}" style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; text-decoration: none; color: #1C1726">
+<span style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{s.n}}</span>
+<strong style="font-size: 15px">{{s.title}}</strong>
+</span>
+<span style="font-size: 13px; line-height: 19px; color: #5E5869">{{s.text}}</span>
+<span style="font-size: 12px; font-weight: 600; color: #6A35F0">{{s.device}} →</span>
+</a>
+</li>
+</sc-for>
+</ol>
+</section>
+</sc-for>
+
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 24px; border-radius: 16px; background: #FFEEDF">
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 4px">
+<strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px">Después de la demo, pregúntale al dentista:</strong>
+<span style="font-size: 14px; line-height: 20px">¿Cuántos presupuestos se te quedaron sin respuesta el mes pasado? ¿Cómo calculas hoy las comisiones? ¿Qué te faltó ver?</span>
+</div>
+<span style="font-size: 13px; color: #B4500F">Anota objeciones y ajustes para la siguiente versión.</span>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = (list) => list.map(([title, text, href, device], i) => ({ n: i + 1, title, text, href, device }));
+    return {
+      tours: [
+        { tag: '2 min', tagBg: '#F0EBFF', tagFg: '#6A35F0', title: 'Primer día', pitch: 'Configurar la clínica es guiado y rápido.',
+          steps: s([
+            ['Bienvenida y guía', 'Recorrido de 4 pasos y una lista de 7 tareas.', 'Main-Bienvenida.dc.html', 'Escritorio'],
+            ['Identidad de la clínica', 'Logo, nombre y color en todo lo que ve el paciente.', 'Onboarding-Identidad.dc.html', 'Escritorio'],
+            ['Tratamientos y precios', 'Catálogo precargado; solo ajustas tus precios.', 'Onboarding.dc.html', 'Escritorio']
+          ]) },
+        { tag: '3 min', tagBg: '#FFEEDF', tagFg: '#B4500F', title: 'Del presupuesto al anticipo', pitch: 'El flujo que recupera dinero.',
+          steps: s([
+            ['El dashboard te avisa', '4 presupuestos sin seguimiento por $86,300.', 'Main.dc.html', 'Escritorio'],
+            ['Ficha de la paciente', 'Todo de Laura en un lugar: cita, presupuesto, documentos.', 'Paciente.dc.html', 'Escritorio'],
+            ['Arma el presupuesto', 'Plan de pagos a 6, 12 o 18 meses y PDF con tu marca.', 'NuevoPresupuesto.dc.html', 'Escritorio'],
+            ['Envíalo por WhatsApp', 'Con PDF y link para pagar el anticipo.', 'Movil-Presupuesto.dc.html', 'Celular']
+          ]) },
+        { tag: '2 min', tagBg: '#E6EFFC', tagFg: '#2563C9', title: 'Un día en recepción', pitch: 'Agenda, llegadas y tareas sin papel.',
+          steps: s([
+            ['Mi día en el celular', 'Citas siguientes y tareas de hoy.', 'Movil-MiDia.dc.html', 'Celular'],
+            ['Agenda por doctor', 'Toca una cita: llegó, no asistió, reagendar, cobrar.', 'Agenda.dc.html', 'Escritorio'],
+            ['Leads que llegan', 'De Meta, perfil público y WhatsApp, con alerta a las 24 h.', 'Leads.dc.html', 'Escritorio']
+          ]) },
+        { tag: '2 min', tagBg: '#E3F4EC', tagFg: '#1A7A50', title: 'El dueño ve su negocio', pitch: 'Presupuestos y comisiones claros.',
+          steps: s([
+            ['Presupuestos por etapa', '$312,500 en duda, a la vista.', 'Presupuestos.dc.html', 'Escritorio'],
+            ['Comisiones', 'Por doctor, sobre lo cobrado, con detalle.', 'Comisiones.dc.html', 'Escritorio'],
+            ['Ficha en el celular', 'Consulta y cobra desde donde estés.', 'Movil-Paciente.dc.html', 'Celular']
+          ]) }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

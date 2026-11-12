@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Configura tu clínica</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 980px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+
+<aside style="flex: 1 1 320px; box-sizing: border-box; padding: 40px 32px; background: #1E1240; color: #FFFFFF; display: flex; flex-direction: column; gap: 40px">
+<img src="/brand/dentro-horizontal-negativo.svg" alt="dentro" style="width: 140px; height: auto; display: block">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Tu clínica lista en 10 minutos</h1>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: #B9B2C8">Te dejamos datos de ejemplo para que no empieces en blanco. Todo se cambia después.</p>
+</div>
+<ol aria-label="Pasos" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+<li style="display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 12px; border-radius: 12px; background: {{s.bg}}">
+<span aria-hidden="true" style="width: 28px; height: 28px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: {{s.dotBg}}; color: {{s.dotFg}}">{{s.mark}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600; color: {{s.fg}}">{{s.label}}</span>
+<span style="font-size: 12px; color: #B9B2C8">{{s.hint}}</span>
+</span>
+</li>
+</sc-for>
+</ol>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; line-height: 20px; color: #B9B2C8">¿Prefieres que lo configuremos contigo? <a href="Main.dc.html" style="color: #2DD4E0; font-weight: 600">Agenda una llamada</a></p>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 48px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 760px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #6A35F0">Paso 4 de 5</span>
+<div aria-hidden="true" style="height: 6px; border-radius: 999px; background: #F0EBFF; overflow: hidden"><div style="width: 80%; height: 6px; background: #6A35F0; border-radius: 999px"></div></div>
+<h2 style="margin: 8px 0 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">¿Qué tratamientos ofreces?</h2>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: #5E5869">Elige los que haces y pon tus precios. Los usarás para armar presupuestos en segundos.</p>
+</div>
+
+<div role="group" aria-label="Categorías" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="6">
+<button type="button" style="min-height: 40px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid {{c.border}}; background: {{c.bg}}; color: {{c.fg}}">{{c.label}}</button>
+</sc-for>
+</div>
+
+<div style="max-width: 760px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; overflow: hidden">
+<div style="display: grid; grid-template-columns: 56px minmax(0, 1fr) 160px 120px; gap: 12px; padding: 12px 20px; background: #FBFAFD; border-bottom: 1px solid #E6E2EC; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">
+<span>Activo</span><span>Tratamiento</span><span>Precio (MXN)</span><span>Duración</span>
+</div>
+<sc-for list="{{treatments}}" as="t" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: 56px minmax(0, 1fr) 160px 120px; gap: 12px; align-items: center; padding: 10px 20px; border-bottom: 1px solid #E6E2EC">
+<label style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px"><input type="checkbox" checked="{{t.on}}" aria-label="{{t.name}}" style="width: 20px; height: 20px; accent-color: #6A35F0"></label>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{t.name}}</span>
+<span style="font-size: 13px; color: #5E5869">{{t.cat}}</span>
+</span>
+<input type="text" value="{{t.price}}" aria-label="Precio de {{t.name}}" style="box-sizing: border-box; width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-variant-numeric: tabular-nums; color: #1C1726">
+<span style="font-size: 14px; color: #5E5869">{{t.time}}</span>
+</div>
+</sc-for>
+<button type="button" style="display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; padding: 0 20px; border: 0; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #6A35F0; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Agregar otro tratamiento
+</button>
+</div>
+
+<div style="max-width: 760px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<a href="Onboarding.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600; color: #1C1726">Atrás</a>
+<span style="flex-grow: 1"></span>
+<a href="Main.dc.html" style="font-size: 14px; font-weight: 600">Hacerlo después</a>
+<a href="Main.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 22px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Continuar</a>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const steps = [
+      ['Identidad de tu clínica', 'Nombre, logo y color de marca'],
+      ['Sucursales y sillones', '1 sucursal · 2 sillones'],
+      ['Tu equipo', '3 doctores · 1 recepción'],
+      ['Tratamientos y precios', 'Catálogo para presupuestos'],
+      ['Conecta tu WhatsApp y Meta', 'Para recibir leads']
+    ].map(([label, hint], i) => {
+      const done = i < 3, cur = i === 3;
+      return {
+        label, hint,
+        mark: done ? '✓' : String(i + 1),
+        bg: cur ? '#33295A' : 'transparent',
+        fg: cur || done ? '#FFFFFF' : '#B9B2C8',
+        dotBg: done ? '#2DD4E0' : (cur ? '#7C4DFF' : 'transparent'),
+        dotFg: done ? '#1E1240' : '#FFFFFF'
+      };
+    });
+    const cats = ['Todos', 'Preventiva', 'Restauración', 'Ortodoncia', 'Implantes', 'Estética'].map((label, i) => ({
+      label,
+      bg: i === 0 ? '#1E1240' : '#FFFFFF',
+      fg: i === 0 ? '#FFFFFF' : '#1C1726',
+      border: i === 0 ? '#1E1240' : '#E6E2EC'
+    }));
+    const treatments = [
+      { name: 'Valoración inicial', cat: 'Preventiva', price: '$400', time: '30 min', on: true },
+      { name: 'Limpieza dental', cat: 'Preventiva', price: '$850', time: '45 min', on: true },
+      { name: 'Resina', cat: 'Restauración', price: '$1,200', time: '45 min', on: true },
+      { name: 'Endodoncia', cat: 'Restauración', price: '$4,500', time: '90 min', on: true },
+      { name: 'Ortodoncia con brackets', cat: 'Ortodoncia', price: '$28,000', time: '18 meses', on: true },
+      { name: 'Implante unitario', cat: 'Implantes', price: '$22,000', time: '3 citas', on: false },
+      { name: 'Blanqueamiento', cat: 'Estética', price: '$3,800', time: '60 min', on: true }
+    ];
+    return { steps, cats, treatments };
+  }
+}
+</script>
+</body>
+</html>

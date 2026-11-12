@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mi día en celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="position: relative; box-sizing: border-box; width: 390px; height: 844px; overflow: hidden; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="height: 760px; overflow-y: auto; box-sizing: border-box; padding: 20px 16px 96px; display: flex; flex-direction: column; gap: 18px">
+
+<header style="display: flex; align-items: center; gap: 12px">
+<div role="img" aria-label="Logo de Clínica Dental Sonríe" style="width: 40px; height: 40px; border-radius: 12px; background: #0E5E8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800">CS</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column">
+<span style="font-size: 12px; color: #5E5869">Clínica Dental Sonríe · mar 10 nov</span>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; line-height: 28px; font-weight: 700">Mi día</h1>
+</div>
+<button type="button" aria-label="Notificaciones" style="width: 44px; height: 44px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1726" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"></path></svg></button>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="padding: 12px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E6E2EC"><strong style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px">10</strong><span style="font-size: 12px; color: #5E5869">citas hoy</span></div>
+<div style="padding: 12px; border-radius: 12px; background: #FFF7D6"><strong style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px">2</strong><span style="font-size: 12px; color: #8A6100">sin confirmar</span></div>
+<div style="padding: 12px; border-radius: 12px; background: #F0EBFF"><strong style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px">3</strong><span style="font-size: 12px; color: #6A35F0">tareas</span></div>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600">Siguientes citas</h2>
+<sc-for list="{{appts}}" as="a" hint-placeholder-count="4">
+<article style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E6E2EC">
+<div style="width: 48px; display: flex; flex-direction: column; align-items: center"><strong style="font-size: 15px; font-variant-numeric: tabular-nums">{{a.time}}</strong><span style="font-size: 11px; color: #5E5869">{{a.chair}}</span></div>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600">{{a.name}}</span>
+<span style="font-size: 12px; color: #5E5869">{{a.what}}</span>
+<span style="align-self: flex-start; margin-top: 2px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: {{a.bg}}; color: {{a.fg}}">{{a.status}}</span>
+</div>
+<a href="Movil-Paciente.dc.html" aria-label="Abrir ficha de {{a.name}}" style="width: 44px; height: 44px; border-radius: 12px; background: #F0EBFF; display: flex; align-items: center; justify-content: center; color: #6A35F0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+</article>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 14px; font-weight: 600">Tareas de hoy</h2>
+<sc-for list="{{tasks}}" as="t" hint-placeholder-count="3">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 12px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E6E2EC; font-size: 14px">
+<input type="checkbox" style="width: 22px; height: 22px; accent-color: #6A35F0">
+<span style="flex-grow: 1">{{t}}</span>
+</label>
+</sc-for>
+</section>
+</div>
+
+<a href="Movil-Presupuesto.dc.html" aria-label="Nuevo" style="position: absolute; right: 16px; bottom: 96px; width: 56px; height: 56px; border-radius: 18px; background: #6A35F0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(106, 53, 240, 0.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+
+<nav aria-label="Navegación" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; box-sizing: border-box; padding: 8px 8px 20px; background: #FFFFFF; border-top: 1px solid #E6E2EC; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr))">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<a href="{{t.href}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 11px; font-weight: 600; color: {{t.fg}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.label}}</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const info = ['#E6EFFC', '#2563C9'], warn = ['#FFF7D6', '#8A6100'], vio = ['#F0EBFF', '#6A35F0'];
+    const ap = (time, chair, name, what, status, p) => ({ time, chair, name, what, status, bg: p[0], fg: p[1] });
+    const nav = [
+      ['Inicio', 'Movil-MiDia.dc.html', 'M3 11l9-7 9 7M5 10v10h14V10'],
+      ['Agenda', 'Agenda.dc.html', 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4'],
+      ['Pacientes', 'Movil-Paciente.dc.html', 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M18 15c2 .5 3 2.5 3 5'],
+      ['Leads', 'Leads.dc.html', 'M4 13l3-8h10l3 8v6H4zM4 13h5l1 2h4l1-2h5'],
+      ['Más', 'Main.dc.html', 'M5 12h.01M12 12h.01M19 12h.01']
+    ];
+    return {
+      appts: [
+        ap('10:00', 'Sillón 2', 'Laura Méndez', 'Valoración de ortodoncia · Dr. Soto', 'Confirmada', info),
+        ap('11:00', 'Sillón 1', 'Jorge Ramírez', 'Implante, 2.ª cita · Dra. Ruiz', 'Confirmada', info),
+        ap('11:30', 'Sillón 2', 'Ricardo Peña', 'Ajuste de brackets · Dr. Soto', 'Sin confirmar', warn),
+        ap('16:30', 'Sillón 1', 'Andrés Lara', 'Valoración · Dra. Ruiz', 'Paciente nuevo', vio)
+      ],
+      tasks: ['Escribir a Laura Méndez por su presupuesto', 'Confirmar cita de Ricardo Peña', 'Cobrar mensualidad a Mariana Gil'],
+      tabs: nav.map(([label, href, d], i) => ({ label, href, d, fg: i === 0 ? '#6A35F0' : '#5E5869' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

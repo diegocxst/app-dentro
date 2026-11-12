@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ficha del paciente en celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="position: relative; box-sizing: border-box; width: 390px; height: 844px; overflow: hidden; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="height: 760px; overflow-y: auto; box-sizing: border-box; padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 16px">
+
+<header style="display: flex; align-items: center; gap: 8px">
+<a href="Movil-MiDia.dc.html" aria-label="Regresar" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #1C1726"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></a>
+<span style="flex-grow: 1; font-size: 15px; font-weight: 600">Paciente</span>
+<button type="button" aria-label="Más opciones" style="width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1726" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"></path></svg></button>
+</header>
+
+<section style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+<div aria-hidden="true" style="width: 72px; height: 72px; border-radius: 999px; background: #F0EBFF; color: #6A35F0; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700">LM</div>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; line-height: 28px; font-weight: 700">Laura Méndez</h1>
+<span style="font-size: 13px; color: #5E5869">29 años · Dr. Pablo Soto</span>
+<div style="display: flex; gap: 6px">
+<span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #FFF7D6; color: #8A6100">Presupuesto en duda</span>
+<span style="font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #FFEEDF; color: #B4500F">Alto valor</span>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<a href="Movil-Presupuesto.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E6E2EC; text-decoration: none; font-size: 12px; font-weight: 600; color: #0B7F86"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>WhatsApp</a>
+<a href="Agenda.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E6E2EC; text-decoration: none; font-size: 12px; font-weight: 600; color: #6A35F0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"></path></svg>Cita</a>
+<a href="Movil-Presupuesto.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E6E2EC; text-decoration: none; font-size: 12px; font-weight: 600; color: #1C1726"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18M7 15h3"></path></svg>Cobrar</a>
+</div>
+
+<section style="padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 15px; font-weight: 600">Presupuesto activo</h2><span style="font-size: 12px; font-weight: 600; color: #C2334A">9 días sin respuesta</span></div>
+<span style="font-size: 14px">Ortodoncia invisible, 18 meses</span>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-variant-numeric: tabular-nums">$38,000</strong><span style="font-size: 13px; color: #5E5869">$5,000 + 12 × $2,750</span></div>
+<a href="Movil-Presupuesto.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Reenviar con link de pago</a>
+</section>
+
+<section style="padding: 16px; border-radius: 16px; background: #E6EFFC; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #2563C9">Próxima cita</span>
+<strong style="font-size: 14px">Hoy, 10:00 · Valoración de ortodoncia</strong>
+<span style="font-size: 13px">Sillón 2 · Confirmada</span>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="margin: 0; font-size: 15px; font-weight: 600">Documentos</h2><a href="Paciente.dc.html" style="font-size: 13px; font-weight: 600">Ver 6</a></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="height: 84px; border-radius: 12px; background: #1E1240; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px"><strong style="font-size: 15px">RX</strong>Panorámica</div>
+<div style="height: 84px; border-radius: 12px; background: #F0EBFF; color: #6A35F0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px"><strong style="font-size: 15px">JPG</strong>Fotos (6)</div>
+<button type="button" style="height: 84px; border-radius: 12px; border: 1px dashed #B9B2C8; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: inherit; font-size: 11px; color: #5E5869; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Tomar foto</button>
+</div>
+</section>
+
+<section style="padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">Nota</h2>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: #5E5869">Le preocupa el precio; preguntar si le sirve el plan a 12 meses. Prefiere WhatsApp después de las 6 pm.</p>
+</section>
+</div>
+
+<nav aria-label="Navegación" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; box-sizing: border-box; padding: 8px 8px 20px; background: #FFFFFF; border-top: 1px solid #E6E2EC; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr))">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<a href="{{t.href}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 11px; font-weight: 600; color: {{t.fg}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.label}}</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const nav = [
+      ['Inicio', 'Movil-MiDia.dc.html', 'M3 11l9-7 9 7M5 10v10h14V10'],
+      ['Agenda', 'Agenda.dc.html', 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4'],
+      ['Pacientes', 'Movil-Paciente.dc.html', 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M18 15c2 .5 3 2.5 3 5'],
+      ['Leads', 'Leads.dc.html', 'M4 13l3-8h10l3 8v6H4zM4 13h5l1 2h4l1-2h5'],
+      ['Más', 'Main.dc.html', 'M5 12h.01M12 12h.01M19 12h.01']
+    ];
+    return { tabs: nav.map(([label, href, d], i) => ({ label, href, d, fg: i === 2 ? '#6A35F0' : '#5E5869' })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Identidad de tu clínica</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1000px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+
+<aside style="flex: 1 1 320px; box-sizing: border-box; padding: 40px 32px; background: #1E1240; color: #FFFFFF; display: flex; flex-direction: column; gap: 40px">
+<img src="/brand/dentro-horizontal-negativo.svg" alt="dentro" style="width: 140px; height: auto; display: block">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Bienvenida, Ana</h1>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: #B9B2C8">Vamos a dejar tu clínica lista en 5 pasos. Puedes pausar cuando quieras: guardamos tu avance.</p>
+</div>
+<ol aria-label="Pasos" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+<li style="display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 12px; border-radius: 12px; background: {{s.bg}}">
+<span aria-hidden="true" style="width: 28px; height: 28px; flex-shrink: 0; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; border: 1px solid #5E5869; background: {{s.dotBg}}; color: #FFFFFF">{{s.n}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600; color: {{s.fg}}">{{s.label}}</span>
+<span style="font-size: 12px; color: #B9B2C8">{{s.hint}}</span>
+</span>
+</li>
+</sc-for>
+</ol>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; line-height: 20px; color: #B9B2C8">¿Prefieres que lo configuremos contigo? <a href="Main-Bienvenida.dc.html" style="color: #2DD4E0; font-weight: 600">Agenda una llamada</a></p>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 48px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 1000px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #6A35F0">Paso 1 de 5</span>
+<div aria-hidden="true" style="height: 6px; border-radius: 999px; background: #F0EBFF; overflow: hidden"><div style="width: 20%; height: 6px; background: #6A35F0; border-radius: 999px"></div></div>
+<h2 style="margin: 8px 0 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Así se verá tu clínica</h2>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: #5E5869">Tu logo, nombre y color aparecen en el menú, en los presupuestos, en los mensajes a tus pacientes y en tu perfil público.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; max-width: 1000px">
+<form style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #5E5869">Logo</span>
+<div style="display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; border: 1px dashed #B9B2C8; background: #FFFFFF">
+<div role="img" aria-label="Logo actual" style="width: 64px; height: 64px; border-radius: 16px; background: {{color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800">CS</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; font-weight: 600">Arrastra tu logo o súbelo</span>
+<span style="font-size: 12px; color: #5E5869">PNG o SVG, fondo transparente. Si aún no tienes, usamos tus iniciales.</span>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 14px; border: 1px solid #E6E2EC; border-radius: 12px; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Subir</button>
+</div>
+</div>
+
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Nombre de la clínica o consultorio
+<input type="text" value="Clínica Dental Sonríe" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF">
+</label>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Doctora o doctor responsable
+<input type="text" value="Dra. Ana Ruiz" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Cargo
+<select style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF"><option>Propietaria</option><option>Director(a) médico</option><option>Socia</option></select>
+</label>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; font-weight: 600; color: #5E5869">Color de tu marca</span>
+<div role="group" aria-label="Color de marca" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<sc-for list="{{swatches}}" as="w" hint-placeholder-count="6">
+<button type="button" aria-label="{{w.name}}" aria-pressed="{{w.on}}" onClick="{{w.pick}}" style="width: 44px; height: 44px; border-radius: 12px; border: 0; cursor: pointer; background: {{w.hex}}; box-shadow: {{w.ring}}"></button>
+</sc-for>
+<span style="font-size: 13px; color: #5E5869; margin-left: 4px">o escribe tu código: <strong style="color: #1C1726; font-variant-numeric: tabular-nums">{{color}}</strong></span>
+</div>
+<span style="font-size: 12px; line-height: 18px; color: #5E5869">Revisamos que el texto se lea bien sobre tu color. Los botones y estados de la app se quedan igual para que tu equipo no se confunda.</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">WhatsApp de la clínica
+<input type="tel" value="55 8765 4321" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Ciudad
+<input type="text" value="Ciudad de México" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF">
+</label>
+</div>
+</form>
+
+<aside aria-label="Vista previa" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">Vista previa en vivo</span>
+
+<div style="display: flex; gap: 14px; flex-wrap: wrap">
+<div style="flex: 1 1 170px; box-sizing: border-box; padding: 16px; border-radius: 16px; background: #1E1240; color: #FFFFFF; display: flex; flex-direction: column; gap: 10px; min-height: 220px">
+<div aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; background: {{color}}; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800">CS</div>
+<strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px">Clínica Dental Sonríe</strong>
+<span style="font-size: 11px; color: #B9B2C8">Dra. Ana Ruiz · Propietaria</span>
+<div aria-hidden="true" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px">
+<span style="height: 8px; width: 70%; border-radius: 999px; background: #33295A"></span>
+<span style="height: 8px; width: 55%; border-radius: 999px; background: #33295A"></span>
+<span style="height: 8px; width: 62%; border-radius: 999px; background: #33295A"></span>
+</div>
+<span style="flex-grow: 1"></span>
+<span style="font-size: 10px; color: #B9B2C8">Menú · Hecho con dentro</span>
+</div>
+
+<div style="flex: 1 1 170px; box-sizing: border-box; padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 10px; min-height: 220px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 8px; background: {{color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800">CS</span>
+<strong style="font-size: 12px">Clínica Dental Sonríe</strong>
+</div>
+<span style="font-size: 11px; color: #5E5869">Presupuesto para Laura Méndez</span>
+<strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px">$38,000</strong>
+<span style="flex-grow: 1"></span>
+<span style="display: flex; align-items: center; justify-content: center; min-height: 32px; border-radius: 8px; background: {{color}}; color: #FFFFFF; font-size: 11px; font-weight: 600">Pagar anticipo</span>
+<span style="font-size: 10px; color: #5E5869">PDF del presupuesto</span>
+</div>
+</div>
+
+<div style="box-sizing: border-box; padding: 14px; border-radius: 16px; background: #EDE8F5">
+<div style="max-width: 320px; box-sizing: border-box; padding: 10px 12px; border-radius: 14px 14px 14px 4px; background: #FFFFFF; font-size: 13px; line-height: 19px">
+Hola, Laura. Te recordamos tu cita de mañana a las 10:00.<br><strong style="color: {{color}}">Clínica Dental Sonríe</strong>
+</div>
+<span style="display: block; margin-top: 6px; font-size: 10px; color: #5E5869">Mensaje de WhatsApp a tu paciente</span>
+</div>
+</aside>
+</div>
+
+<div style="max-width: 1000px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<span style="flex-grow: 1; font-size: 13px; color: #5E5869">Todo esto se cambia después en Configuración › Identidad.</span>
+<a href="Main-Bienvenida.dc.html" style="font-size: 14px; font-weight: 600">Hacerlo después</a>
+<a href="Onboarding.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 22px; border-radius: 12px; background: #6A35F0; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">Continuar</a>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { color: '#0E5E8A' }; }
+  renderVals() {
+    const color = this.state.color;
+    const steps = [
+      ['Identidad de tu clínica', 'Nombre, logo y color de marca'],
+      ['Sucursales y sillones', 'Dónde y con qué atiendes'],
+      ['Tu equipo', 'Invita doctores y recepción'],
+      ['Tratamientos y precios', 'Catálogo para presupuestos'],
+      ['Conecta WhatsApp y Meta', 'Para recibir leads']
+    ].map(([label, hint], i) => ({
+      label, hint, n: String(i + 1),
+      bg: i === 0 ? '#33295A' : 'transparent',
+      fg: i === 0 ? '#FFFFFF' : '#B9B2C8',
+      dotBg: i === 0 ? '#7C4DFF' : 'transparent'
+    }));
+    const swatches = [
+      ['Azul petróleo', '#0E5E8A'], ['Frambuesa', '#B42A5B'], ['Verde bosque', '#2F6B3A'],
+      ['Grafito', '#33363D'], ['Cobre', '#9A4A1C'], ['Índigo', '#3D3DB8']
+    ].map(([name, hex]) => ({
+      name, hex, on: color === hex,
+      ring: color === hex ? '0 0 0 3px #FFFFFF, 0 0 0 5px #1E1240' : 'none',
+      pick: () => this.setState({ color: hex })
+    }));
+    return { color, steps, swatches };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Crear presupuesto</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#6A35F0}a:hover{color:#1E1240}
+</style>
+</helmet>
+<div style="box-sizing: border-box; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap; background: #FBFAFD; font-family: 'Inter', system-ui, sans-serif; color: #1C1726">
+<div style="flex: 1 1 240px; display: flex">
+<dc-import name="Menu" active="presupuestos" hint-size="100%,1100px" style="flex-grow: 1"></dc-import>
+</div>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="Barra" hint-size="100%,64px"></dc-import>
+<div style="box-sizing: border-box; width: 100%; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<nav aria-label="Ruta" style="font-size: 14px; color: #5E5869"><a href="Presupuestos.dc.html">Presupuestos</a> / Nuevo</nav>
+<h1 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; line-height: 36px; font-weight: 700">Nuevo presupuesto</h1>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Paciente
+<input type="text" value="Laura Méndez" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Doctor
+<select style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; background: #FFFFFF"><option>Dr. Pablo Soto</option><option>Dra. Ana Ruiz</option><option>Dra. Karla Vega</option></select>
+</label>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Tratamientos</h2>
+<label style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border: 1px dashed #B9B2C8; border-radius: 8px; color: #5E5869">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Agregar tratamiento</span>
+<input type="search" placeholder="Agrega un tratamiento de tu catálogo" style="flex-grow: 1; border: 0; outline: none; font: inherit; font-size: 14px; color: #1C1726; min-width: 0; background: transparent">
+</label>
+<div style="overflow-x: auto">
+<div style="min-width: 520px">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 64px 120px 120px; gap: 12px; padding: 8px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869; border-bottom: 1px solid #E6E2EC">
+<span>Concepto</span><span>Cant.</span><span style="text-align: right">Precio</span><span style="text-align: right">Importe</span>
+</div>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 64px 120px 120px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #E6E2EC; font-size: 14px">
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-weight: 600">{{it.name}}</strong><span style="font-size: 13px; color: #5E5869">{{it.note}}</span></span>
+<span style="font-variant-numeric: tabular-nums">{{it.qty}}</span>
+<span style="text-align: right; font-variant-numeric: tabular-nums">{{it.price}}</span>
+<strong style="text-align: right; font-variant-numeric: tabular-nums; color: {{it.color}}">{{it.total}}</strong>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 24px; padding-top: 4px; font-size: 16px">
+<span style="color: #5E5869">Total</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-variant-numeric: tabular-nums">$38,000</strong>
+</div>
+</section>
+
+<section style="padding: 24px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; line-height: 28px; font-weight: 600">Plan de pagos</h2>
+<p style="margin: 0; font-size: 14px; color: #5E5869">Un plan claro ayuda a que el paciente diga que sí.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #5E5869">Anticipo para apartar
+<input type="text" value="$5,000" style="box-sizing: border-box; height: 44px; padding: 0 12px; border: 1px solid #E6E2EC; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 400; color: #1C1726; font-variant-numeric: tabular-nums">
+</label>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13px; font-weight: 600; color: #5E5869">Mensualidades</span>
+<div role="group" aria-label="Número de mensualidades" style="display: flex; gap: 8px">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{p.on}}" onClick="{{p.pick}}" style="flex: 1 1 0; min-height: 44px; border-radius: 10px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid {{p.border}}; background: {{p.bg}}; color: {{p.fg}}">{{p.label}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; background: #F0EBFF">
+<span style="flex: 1 1 240px; font-size: 14px; line-height: 20px">El paciente paga <strong>$5,000</strong> hoy y <strong>{{planText}}</strong>.</span>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input type="checkbox" checked="{{yes}}" style="width: 20px; height: 20px; accent-color: #6A35F0">Incluir link de pago del anticipo</label>
+</div>
+</section>
+</div>
+
+<aside aria-label="Vista previa del presupuesto" style="flex: 2 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E5869">Así lo verá el paciente</span>
+<div style="box-sizing: border-box; padding: 28px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E6E2EC; box-shadow: 0 12px 32px rgba(30, 18, 64, 0.08); display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 10px; background: #0E5E8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 14px">CS</span>
+<span style="display: flex; flex-direction: column"><strong style="font-size: 15px">Clínica Dental Sonríe</strong><span style="font-size: 12px; color: #5E5869">Av. Reforma 120, Centro</span></span>
+</div>
+<span style="font-size: 12px; color: #5E5869; text-align: right">Folio P-0142<br>10 nov 2026</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #5E5869">Presupuesto para</span>
+<strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px">Laura Méndez</strong>
+<span style="font-size: 13px; color: #5E5869">Dr. Pablo Soto · Ortodoncia</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-top: 1px solid #E6E2EC; border-bottom: 1px solid #E6E2EC">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px"><span>{{it.name}}</span><span style="font-variant-numeric: tabular-nums; color: {{it.color}}">{{it.total}}</span></div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px">Total</span><strong style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-variant-numeric: tabular-nums">$38,000</strong></div>
+<div style="padding: 14px; border-radius: 12px; background: #FBFAFD; font-size: 13px; line-height: 20px">
+<strong>Plan:</strong> $5,000 de anticipo y {{planText}}.<br>
+<span style="color: #5E5869">Vigencia: 30 días. Precios en MXN, IVA incluido.</span>
+</div>
+<span style="display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 12px; background: #0E5E8A; color: #FFFFFF; font-size: 14px; font-weight: 600">Pagar anticipo de $5,000</span>
+<span style="text-align: center; font-size: 11px; color: #5E5869">Con la identidad de tu clínica · hecho con dentro</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" style="flex: 1 1 140px; min-height: 44px; border-radius: 12px; border: 1px solid #E6E2EC; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Descargar PDF</button>
+<a href="Movil-Presupuesto.dc.html" style="flex: 2 1 200px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 12px; background: #1E1240; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>Enviar por WhatsApp</a>
+</div>
+</aside>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { months: 12 }; }
+  renderVals() {
+    const m = this.state.months;
+    const fin = 33000;
+    const monthly = Math.round(fin / m).toLocaleString('es-MX');
+    const items = [
+      { name: 'Alineadores transparentes', note: 'Tratamiento completo, 18 meses', qty: 1, price: '$34,500', total: '$34,500', color: '#1C1726' },
+      { name: 'Retenedores', note: 'Al terminar el tratamiento', qty: 1, price: '$3,500', total: '$3,500', color: '#1C1726' },
+      { name: 'Limpieza previa', note: 'Antes de iniciar', qty: 1, price: '$850', total: '$850', color: '#1C1726' },
+      { name: 'Descuento por anticipo', note: 'Promoción de noviembre', qty: 1, price: '−$850', total: '−$850', color: '#1A7A50' }
+    ];
+    const plans = [6, 12, 18].map((n) => ({
+      label: n + ' meses', on: m === n,
+      bg: m === n ? '#1E1240' : '#FFFFFF', fg: m === n ? '#FFFFFF' : '#1C1726', border: m === n ? '#1E1240' : '#E6E2EC',
+      pick: () => this.setState({ months: n })
+    }));
+    plans.push({ label: 'Contado', on: false, bg: '#FFFFFF', fg: '#1C1726', border: '#E6E2EC', pick: () => {} });
+    return { items, plans, yes: true, planText: m + ' mensualidades de $' + monthly };
+  }
+}
+</script>
+</body>
+</html>
