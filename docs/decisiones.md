@@ -33,3 +33,9 @@
 | 2026-11-10 | Correo transaccional: se define más adelante (antes de cerrar E1) | Diego |
 | 2026-11-10 | Se abrirán las cuentas de pago y se iniciará la revisión de la app de Meta | Diego |
 | 2026-11-10 | Primer inicio guiado (dentro de P04/P06 y Soporte V1): onboarding de 5 pasos, guía de inicio de 7 tareas en el menú, recorrido de 4 pasos, estados vacíos explicativos y opción de explorar con datos de ejemplo | Diego |
+| 2026-11-12 | E1-A: el menú lateral aparece desde 1024 px; en tablet y móvil se usan la barra inferior y el botón flotante "+ Nuevo" | Diego |
+| 2026-11-12 | E1-A: "Más" en móvil es una página (`/mas`) con las secciones restantes y la guía de inicio | Diego |
+| 2026-11-12 | Tokens derivados aceptados (`on-violet`, `border-strong`, `night-raised`, `night-active`, textos sobre `night`); se proponen al sistema de diseño. En oscuro el texto de botones va en `night` | Diego |
+| 2026-11-12 | La etiqueta "automático" usa texto `ink` con punto turquesa, porque `turquoise-text` sobre `turquoise-soft` no llega a AA en claro | Diego |
+| 2026-11-12 | Suben a `core-base`: `color.ts` (contraste y validación de `brand_color`), `useDismiss` y los componentes base | Diego |
+| 2026-11-12 | Se aceptan las 10 vulnerabilidades moderadas de `npm audit` (solo dependencias de desarrollo, ESLint); se revisan al actualizar dependencias | Diego |

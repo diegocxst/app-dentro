@@ -1,5 +1,5 @@
 # estado.md — dentro
-Última actualización: 2026-11-11 · Por: Diego (con Claude)
+Última actualización: 2026-11-12 · Por: Diego (con Claude)
 
 ## Fase actual
 | Fase | Estado |
@@ -9,7 +9,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | **EN_PROGRESO** desde el 2026-11-10. Falta la auditoría de Realt-In (E0-A). |
-| **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+| **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
 
 ## E1-A — Estructura del proyecto y layout (EN_PRUEBAS)
 Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue pendiente la auditoría de Realt-In. No toca auth, base de datos ni Supabase.
@@ -22,7 +22,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - **Rutas:** `/`, `/agenda`, `/leads`, `/pacientes`, `/presupuestos`, `/cobros`, `/seguimientos`, `/doctores`, `/crece`, `/configuracion`, `/guia`, `/mas` y 404. Todas con estado vacío explicativo, sin datos de ejemplo.
 - **Verificación:** lint, typecheck, 66 pruebas y build limpios. Revisado a 1440, 768 y 390 px en claro y oscuro.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-12, ver `docs/decisiones.md`)
 1. **Punto de corte:** el menú lateral aparece desde 1024 px; en tablet (768 px) se usa la barra inferior.
 2. **"Más" en móvil** es una página (`/mas`) con las secciones restantes y la guía.
 3. **Tokens derivados** que no están en `tokens.json` (en `tokens.css`): `on-violet` (texto de botones; en oscuro va en `night` porque blanco sobre `#9B7BFF` da 3.15:1), `border-strong`, `night-raised`, `night-active` y textos sobre `night`. Proponer subirlos al sistema de diseño.
