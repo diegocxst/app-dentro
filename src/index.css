@@ -1,0 +1,107 @@
+@import 'tailwindcss';
+@import './brand/tokens.css';
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-*: initial;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-night: var(--night);
+  --color-night-raised: var(--night-raised);
+  --color-night-active: var(--night-active);
+  --color-night-border: var(--night-border);
+  --color-on-night: var(--on-night);
+  --color-on-night-muted: var(--on-night-muted);
+  --color-on-night-growth: var(--on-night-growth);
+  --color-violet-electric: var(--violet-electric);
+  --color-violet: var(--violet);
+  --color-on-violet: var(--on-violet);
+  --color-lavender: var(--lavender);
+  --color-turquoise: var(--turquoise);
+  --color-turquoise-logo: var(--turquoise-logo);
+  --color-turquoise-text: var(--turquoise-text);
+  --color-turquoise-soft: var(--turquoise-soft);
+  --color-orange: var(--orange);
+  --color-orange-text: var(--orange-text);
+  --color-orange-soft: var(--orange-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Escala tipográfica (tokens.json → type.groups) */
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-display--font-weight: 800;
+  --text-title: 28px;
+  --text-title--line-height: 36px;
+  --text-title--font-weight: 700;
+  --text-subtitle: 20px;
+  --text-subtitle--line-height: 28px;
+  --text-subtitle--font-weight: 600;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-ui: 14px;
+  --text-ui--line-height: 20px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-caption: 13px;
+  --text-caption--line-height: 18px;
+  --text-micro: 11px;
+  --text-micro--line-height: 14px;
+
+  /* Radios (tokens.json → radius) */
+  --radius-sm: 8px;
+  --radius-nav: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-icon: 27%;
+  --radius-pill: 999px;
+
+  --shadow-fab: 0 8px 20px var(--shadow-violet);
+  --shadow-popover: 0 16px 40px var(--shadow-night);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+  :focus-visible {
+    outline: 2px solid var(--violet);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

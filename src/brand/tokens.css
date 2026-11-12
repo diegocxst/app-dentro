@@ -1,0 +1,121 @@
+/*
+ * Tokens del sistema de diseño "dentro".
+ * Fuente: docs/diseno/tokens.json (v1). Una prueba verifica que estén sincronizados.
+ * Tema claro por defecto; oscuro con [data-theme="dark"] o por preferencia del sistema.
+ */
+:root {
+  color-scheme: light;
+  --surface: #FBFAFD;
+  --surface-raised: #FFFFFF;
+  --ink: #1C1726;
+  --ink-muted: #5E5869;
+  --border: #E6E2EC;
+  --night: #1E1240;
+  --violet-electric: #7C4DFF;
+  --violet: #6A35F0;
+  --lavender: #F0EBFF;
+  --turquoise: #2DD4E0;
+  --turquoise-logo: #0FA3B1;
+  --turquoise-text: #0B7F86;
+  --turquoise-soft: #DDF7F6;
+  --orange: #FF8A3D;
+  --orange-text: #B4500F;
+  --orange-soft: #FFEEDF;
+  --success: #1A7A50;
+  --success-soft: #E3F4EC;
+  --warning: #8A6100;
+  --warning-soft: #FFF7D6;
+  --error: #C2334A;
+  --error-soft: #FCE8EB;
+  --info: #2563C9;
+  --info-soft: #E6EFFC;
+  /* Derivados (no están en tokens.json; proponer al sistema de diseño) */
+  --on-violet: #FFFFFF;
+  --border-strong: #D6D0E0;
+  --night-raised: #2B1B60;
+  --night-active: #33295A;
+  --night-border: #33295A;
+  --on-night: #FFFFFF;
+  --on-night-muted: #B9B2C8;
+  --on-night-growth: #FFAA70;
+  --shadow-violet: rgba(106, 53, 240, 0.35);
+  --shadow-night: rgba(30, 18, 64, 0.28);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #120A28;
+  --surface-raised: #1E1240;
+  --ink: #F3F0FA;
+  --ink-muted: #B9B2C8;
+  --border: #33295A;
+  --night: #2B1B60;
+  --violet-electric: #7C4DFF;
+  --violet: #9B7BFF;
+  --lavender: #2A1D57;
+  --turquoise: #2DD4E0;
+  --turquoise-logo: #2DD4E0;
+  --turquoise-text: #2DD4E0;
+  --turquoise-soft: #0E3A40;
+  --orange: #FF8A3D;
+  --orange-text: #FFAA70;
+  --orange-soft: #3D2414;
+  --success: #4CC38A;
+  --success-soft: #12301F;
+  --warning: #E8B84A;
+  --warning-soft: #33290C;
+  --error: #F07A8C;
+  --error-soft: #3A141B;
+  --info: #7AA7F0;
+  --info-soft: #142540;
+  --on-violet: #1E1240;
+  --border-strong: #4A3F75;
+  --night-raised: #3A2878;
+  --night-active: #44348A;
+  --night-border: #44348A;
+  --on-night: #FFFFFF;
+  --on-night-muted: #B9B2C8;
+  --on-night-growth: #FFAA70;
+  --shadow-violet: rgba(0, 0, 0, 0.45);
+  --shadow-night: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #120A28;
+    --surface-raised: #1E1240;
+    --ink: #F3F0FA;
+    --ink-muted: #B9B2C8;
+    --border: #33295A;
+    --night: #2B1B60;
+    --violet-electric: #7C4DFF;
+    --violet: #9B7BFF;
+    --lavender: #2A1D57;
+    --turquoise: #2DD4E0;
+    --turquoise-logo: #2DD4E0;
+    --turquoise-text: #2DD4E0;
+    --turquoise-soft: #0E3A40;
+    --orange: #FF8A3D;
+    --orange-text: #FFAA70;
+    --orange-soft: #3D2414;
+    --success: #4CC38A;
+    --success-soft: #12301F;
+    --warning: #E8B84A;
+    --warning-soft: #33290C;
+    --error: #F07A8C;
+    --error-soft: #3A141B;
+    --info: #7AA7F0;
+    --info-soft: #142540;
+    --on-violet: #1E1240;
+    --border-strong: #4A3F75;
+    --night-raised: #3A2878;
+    --night-active: #44348A;
+    --night-border: #44348A;
+    --on-night: #FFFFFF;
+    --on-night-muted: #B9B2C8;
+    --on-night-growth: #FFAA70;
+    --shadow-violet: rgba(0, 0, 0, 0.45);
+    --shadow-night: rgba(0, 0, 0, 0.5);
+  }
+}
