@@ -55,3 +55,8 @@
 | 2026-11-15 | E1-B1: las sucursales no se borran, se desactivan; siempre queda al menos una activa | Diego |
 | 2026-11-15 | E1-B1: el superadmin no edita la identidad de una clínica; solo cambia su estatus, con motivo | Diego |
 | 2026-11-15 | E1-B1: cambios de rol, revocar miembros e invitaciones quedan para E1-B5 | Diego |
+| 2026-11-15 | E1-B3: en el alta de la clínica el logo se sube después (requiere Storage privado, E1-B5); mientras, se usan las iniciales | Diego |
+| 2026-11-15 | E1-B3: WhatsApp de la clínica y Ciudad se agregan a `tenants` en una migración junto con E1-B4 | Diego |
+| 2026-11-15 | E1-B3: el alta incluye la elección Clínica / Consultorio (D2) y la dirección del perfil público (`dentro.mx/…`, M13) | Diego |
+| 2026-11-15 | E1-B3: sin «Hacerlo después» (la clínica es obligatoria para entrar) ni «Agenda una llamada» por ahora | Diego |
+| 2026-11-15 | E1-B3: los pasos 2 a 5 del onboarding solo se muestran; se construyen en E2 | Diego |
