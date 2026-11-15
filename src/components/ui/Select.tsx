@@ -10,8 +10,8 @@ type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'id' | 'childre
   label: string
   options: readonly SelectOption[]
   placeholder?: string
-  hint?: string
-  error?: string
+  hint?: string | undefined
+  error?: string | undefined
   id?: string
 }
 

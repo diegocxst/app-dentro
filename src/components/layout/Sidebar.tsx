@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
 import { cn } from '@/lib/cn'
 import { ClinicAvatar } from './ClinicAvatar'
+import { SignOutButton } from './SignOutButton'
 
 /** Menú lateral de escritorio (fondo `night`). Réplica de `Menu.dc.html`. */
 export function Sidebar() {
@@ -60,6 +61,8 @@ export function Sidebar() {
           {clinic.guide.done}/{clinic.guide.total}
         </span>
       </NavLink>
+
+      <SignOutButton tone="night" className="-my-3" />
 
       <div className="flex items-center gap-2 border-t border-night-border px-2 pt-3">
         <span className="text-micro text-on-night-muted">Hecho con</span>

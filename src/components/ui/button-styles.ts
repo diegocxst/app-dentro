@@ -17,12 +17,13 @@ const SIZES: Record<ButtonSize, string> = {
 }
 
 /** Clases compartidas para usar el estilo de botón en enlaces. */
-export function buttonClasses(variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string) {
+export function buttonClasses(variant: ButtonVariant = 'primary', size: ButtonSize = 'md', className?: string, block = false) {
   return cn(
     'inline-flex items-center justify-center gap-2 rounded-md font-semibold no-underline transition',
-    'disabled:cursor-not-allowed disabled:opacity-50',
+    'disabled:cursor-not-allowed disabled:opacity-60',
     VARIANTS[variant],
     SIZES[size],
+    block && 'w-full',
     className,
   )
 }

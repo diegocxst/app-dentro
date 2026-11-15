@@ -105,3 +105,19 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* Logotipo según el tema (mismos selectores que tokens.css). */
+:root[data-theme='dark'] .brand-logo-light {
+  display: none;
+}
+:root[data-theme='dark'] .brand-logo-dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .brand-logo-light {
+    display: none;
+  }
+  :root:not([data-theme='light']) .brand-logo-dark {
+    display: block;
+  }
+}

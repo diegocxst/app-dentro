@@ -6,8 +6,8 @@ import { TEMP_CLINIC_CONFIG } from '@/lib/clinic-config'
 import { renderApp } from '@/test/renderApp'
 
 describe('AppLayout', () => {
-  it('muestra el menú lateral con la identidad de la clínica, las 10 secciones, la guía y "Hecho con dentro"', () => {
-    renderApp('/')
+  it('muestra el menú lateral con la identidad de la clínica, las 10 secciones, la guía y "Hecho con dentro"', async () => {
+    await renderApp('/')
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
     expect(within(menu).getByRole('img', { name: `Logo de ${TEMP_CLINIC_CONFIG.displayName}` })).toBeInTheDocument()
     expect(within(menu).getByText(TEMP_CLINIC_CONFIG.displayName)).toBeInTheDocument()
@@ -22,16 +22,16 @@ describe('AppLayout', () => {
     expect(within(menu).getByRole('img', { name: 'dentro' })).toHaveAttribute('src', '/brand/dentro-horizontal-negativo.svg')
   })
 
-  it('usa el brand_color validado para las iniciales', () => {
-    renderApp('/', { ...TEMP_CLINIC_CONFIG, displayName: 'Clínica Dental Sonríe', brandColor: '#FFEEDF' })
+  it('usa el brand_color validado para las iniciales', async () => {
+    await renderApp('/', { config: { ...TEMP_CLINIC_CONFIG, displayName: 'Clínica Dental Sonríe', brandColor: '#FFEEDF' } })
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
     const logo = within(menu).getByRole('img', { name: 'Logo de Clínica Dental Sonríe' })
     expect(logo).toHaveTextContent('CS')
     expect(logo.style.backgroundColor).not.toBe('rgb(255, 238, 223)')
   })
 
-  it('muestra la barra superior: búsqueda, sucursal, notificaciones y "+ Nuevo"', () => {
-    renderApp('/')
+  it('muestra la barra superior: búsqueda, sucursal, notificaciones y "+ Nuevo"', async () => {
+    await renderApp('/')
     expect(screen.getAllByRole('searchbox', { name: 'Buscar' }).length).toBeGreaterThan(0)
     expect(screen.getByRole('combobox', { name: 'Sucursal' })).toHaveDisplayValue(TEMP_CLINIC_CONFIG.branches[0]!.name)
     expect(screen.getAllByRole('button', { name: 'Notificaciones' }).length).toBeGreaterThan(0)
@@ -44,7 +44,7 @@ describe('AppLayout', () => {
 
   it('abre y cierra el menú de "+ Nuevo"', async () => {
     const user = userEvent.setup()
-    renderApp('/')
+    await renderApp('/')
     const [topbarNuevo] = screen.getAllByRole('button', { name: 'Nuevo' })
     await user.click(topbarNuevo!)
     const menu = screen.getByRole('menu', { name: 'Crear nuevo' })
@@ -53,17 +53,17 @@ describe('AppLayout', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
-  it('muestra la barra inferior móvil Inicio · Agenda · Pacientes · Leads · Más', () => {
-    renderApp('/')
+  it('muestra la barra inferior móvil Inicio · Agenda · Pacientes · Leads · Más', async () => {
+    await renderApp('/')
     const tabs = screen.getByRole('navigation', { name: 'Navegación' })
     expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Leads', 'Más'])
   })
 })
 
 describe('navegación', () => {
-  it('cada sección tiene su página vacía con estado explicativo', () => {
+  it('cada sección tiene su página vacía con estado explicativo', async () => {
     for (const s of SECTIONS) {
-      const { unmount } = renderApp(s.path)
+      const { unmount } = await renderApp(s.path)
       expect(screen.getByRole('heading', { level: 1, name: s.label })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 2, name: s.empty.title })).toBeInTheDocument()
       unmount()
@@ -72,7 +72,7 @@ describe('navegación', () => {
 
   it('navega entre rutas desde el menú lateral y la barra inferior', async () => {
     const user = userEvent.setup()
-    const { router } = renderApp('/')
+    const { router } = await renderApp('/')
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
 
     await user.click(within(menu).getByRole('link', { name: 'Presupuestos' }))
@@ -93,8 +93,8 @@ describe('navegación', () => {
     expect(router.state.location.pathname).toBe('/')
   })
 
-  it('muestra una página 404 dentro del layout', () => {
-    renderApp('/no-existe')
+  it('muestra una página 404 dentro del layout', async () => {
+    await renderApp('/no-existe')
     expect(screen.getByRole('heading', { level: 1, name: 'No encontramos esta página' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Menú principal' })).toBeInTheDocument()
   })

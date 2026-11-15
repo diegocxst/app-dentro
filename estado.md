@@ -9,8 +9,22 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B2 — Auth en el frontend (EN_PRUEBAS)
+- Portado de `core-base` y adaptado a dentro: cliente de Supabase (PKCE, clave publishable, D1), `AuthProvider`, guardas `RequireAuth` / `GuestOnly`, `safeNextPath`, errores en español sin revelar si una cuenta existe, enlaces `token_hash` que solo se verifican al tocar el botón, canje PKCE, reenvío de confirmación con espera de 60 s.
+- Pantallas con el diseño de dentro (`AuthLayout`: panel `night` con la promesa de marca en escritorio): P01 Ingresar (`/ingresar`), P02 Registro (`/registro`), P03 Recuperar y restablecer (`/recuperar`, `/restablecer`), confirmación de correo (`/auth/callback`), P05 Aceptar invitación (`/auth/invitacion`) y aviso de privacidad BORRADOR (`/aviso-de-privacidad`).
+- Todo el panel exige sesión. "Cerrar sesión" en el menú lateral y en "Más". Si faltan variables de entorno, la app lo dice en lugar de fallar.
+- D3: solo correo y contraseña; el código por correo (OTP) no se portó. D4: registro abierto para dueños.
+- Nuevos componentes: `Alert`, `Checkbox`, `Spinner`, `BrandLogo` (logo a color o negativo según el tema); `Button` con `loading` y `block`.
+- `database.types.ts` PROVISIONAL, escrito a mano desde la migración; se regenera en E1-B4.
+- Pruebas: 89 (antes 66) con Supabase simulado: rutas protegidas, ingreso, registro, recuperación, invitación, confirmación, cierre de sesión, redirecciones seguras, errores y esquemas. Estables en 3 corridas seguidas.
+- Las pruebas encontraron un error real: al entrar, `GuestOnly` mandaba al inicio en lugar de a la sección pedida. Corregido.
+- Revisión visual a 1440, 768 y 390 px en claro y oscuro; sin errores en consola. Se corrigió el logo en tema oscuro (ahora usa la versión negativa).
+- Aviso del build: el JavaScript pesa 699 kB (206 kB gzip) por supabase-js; se dividirá con carga diferida en E7.
+- Pendiente para más adelante: borradores de formularios y avisos `toast`/`confirm` de core-base (se portan con E3); `.claude/launch.json` incluye `dentro-dev-sin-backend` para ver las pantallas sin Supabase.
 
 ## E1-B1 — Migración del núcleo multiempresa (EN_PRUEBAS)
 - `supabase/migrations/20261115000100_core_tenancy.sql`: perfiles, clínicas con identidad (`display_name`, responsable, cargo, logo, `brand_color` ajustado a AA, `onboarding_state`), membresías con roles `owner` / `admin` / `reception` / `doctor` / `doctor_collab`, sucursales, sucursales por membresía, superadmin y `audit_logs`.
@@ -61,7 +75,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **E1-B2:** auth en el frontend (cliente Supabase, `AuthProvider`, guardas y pantallas de acceso con el diseño de dentro), con Supabase simulado.
+- **Revisar E1-B2.**
+- **E1-B3:** la clínica activa (`WorkspaceProvider`) reemplaza la identidad TEMPORAL de E1-A y alta de clínica (P04 paso 1), con Supabase simulado.
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
 ## Bloqueos y pendientes

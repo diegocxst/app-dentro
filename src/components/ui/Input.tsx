@@ -1,12 +1,12 @@
-import { useId, type InputHTMLAttributes } from 'react'
+import { useId, type ComponentPropsWithRef } from 'react'
 import { cn } from '@/lib/cn'
 import { Field } from './Field'
 import { describedBy, fieldControlClasses } from './field-styles'
 
-type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> & {
+type InputProps = Omit<ComponentPropsWithRef<'input'>, 'id'> & {
   label: string
-  hint?: string
-  error?: string
+  hint?: string | undefined
+  error?: string | undefined
   id?: string
 }
 

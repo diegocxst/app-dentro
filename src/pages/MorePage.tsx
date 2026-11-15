@@ -1,8 +1,10 @@
+import { BrandLogo } from '@/brand/BrandLogo'
 import { Link } from 'react-router'
 import { GUIDE_PATH, MOBILE_TAB_IDS, SECTIONS } from '@/app/navigation'
 import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
 import { cn } from '@/lib/cn'
+import { SignOutButton } from '@/components/layout/SignOutButton'
 import { PageHeader } from './PageHeader'
 
 /** "Más" en móvil: las secciones que no caben en la barra inferior. */
@@ -34,9 +36,10 @@ export function MorePage() {
           </li>
         </ul>
       </nav>
+      <SignOutButton className="mt-4 w-full justify-center border border-border bg-surface-raised" />
       <div className="mt-8 flex items-center justify-center gap-2">
         <span className="text-micro text-ink-muted">Hecho con</span>
-        <img src="/brand/dentro-horizontal-color.svg" alt="dentro" width={72} height={22} className="block h-auto w-18" />
+        <BrandLogo width={72} />
       </div>
     </>
   )
