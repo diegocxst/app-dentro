@@ -35,6 +35,8 @@ describe('P04 paso 1 · alta de la clínica', () => {
     await user.type(screen.getByLabelText('Doctora o doctor responsable'), 'Dra. Ana Ruiz')
     await user.selectOptions(screen.getByLabelText('Cargo'), 'Directora médica')
     await user.click(screen.getByRole('button', { name: 'Frambuesa' }))
+    await user.type(screen.getByLabelText('WhatsApp de la clínica'), '55 1234 5678')
+    await user.type(screen.getByLabelText('Ciudad'), 'Ciudad de México')
 
     expect(screen.getByText('dentro.mx/clinica-dental-sonrie')).toBeInTheDocument()
     const preview = screen.getByRole('complementary', { name: 'Vista previa' })
@@ -51,11 +53,21 @@ describe('P04 paso 1 · alta de la clínica', () => {
       p_owner_display_name: 'Dra. Ana Ruiz',
       p_owner_title: 'Directora médica',
       p_brand_color: '#B42A5B',
+      p_whatsapp_e164: '+525512345678',
+      p_city: 'Ciudad de México',
     })
     const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
     expect(router.state.location.pathname).toBe('/')
     expect(await within(nav).findByText('Clínica Dental Sonríe')).toBeInTheDocument()
     expect(within(nav).getByText('Dra. Ana Ruiz · Directora médica')).toBeInTheDocument()
+  })
+
+  it('rechaza un WhatsApp que no se puede interpretar', async () => {
+    const user = userEvent.setup()
+    await renderApp('/bienvenida', { tenant: null })
+    await user.type(await screen.findByLabelText('WhatsApp de la clínica'), '5512')
+    await user.click(screen.getByRole('button', { name: 'Continuar' }))
+    expect(await screen.findByText('Escribe 10 dígitos (México) o el número con +lada internacional.')).toBeInTheDocument()
   })
 
   it('avisa cuando oscurece un color claro', async () => {

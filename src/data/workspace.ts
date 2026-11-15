@@ -52,6 +52,9 @@ export type CreateClinicInput = {
   ownerDisplayName: string
   ownerTitle: string
   brandColor: string
+  /** E.164 o null. */
+  whatsappE164: string | null
+  city: string
 }
 
 /** Alta de la clínica (P04 paso 1): crea la clínica, la membresía de dueño y la «Sucursal principal». */
@@ -63,6 +66,8 @@ export async function createClinic(input: CreateClinicInput): Promise<Tenant> {
     p_owner_display_name: input.ownerDisplayName,
     p_owner_title: input.ownerTitle,
     p_brand_color: input.brandColor,
+    p_whatsapp_e164: input.whatsappE164,
+    p_city: input.city,
   })
   if (error) throw error
   return data as Tenant

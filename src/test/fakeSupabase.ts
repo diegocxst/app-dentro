@@ -70,6 +70,8 @@ export function fakeTenant(overrides: Row = {}): Row {
     logo_path: null,
     brand_color: '#0E5E8A',
     onboarding_state: {},
+    whatsapp_e164: null,
+    city: '',
     created_by: null,
     created_at: '2026-11-15T00:00:00Z',
     updated_at: '2026-11-15T00:00:00Z',
@@ -124,6 +126,8 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
       owner_display_name: args.p_owner_display_name,
       owner_title: args.p_owner_title,
       brand_color: args.p_brand_color,
+      whatsapp_e164: args.p_whatsapp_e164,
+      city: args.p_city,
     })
     seedClinic(tenant)
     return Promise.resolve({ data: tenant, error: null })

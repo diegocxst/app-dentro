@@ -14,6 +14,7 @@ import { clinicInitials, ownerLine } from '@/lib/clinic-identity'
 import { cn } from '@/lib/cn'
 import { ensureBrandContrast, isHexColor } from '@/lib/color'
 import { clinicErrorMessage } from '@/lib/errors'
+import { normalizePhone } from '@/lib/phone'
 import { clinicSchema, OWNER_TITLES, type ClinicValues } from '@/lib/schemas'
 import { slugify } from '@/lib/slug'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -42,7 +43,7 @@ export function CreateClinicPage() {
     formState: { errors, isSubmitting },
   } = useForm<ClinicValues>({
     resolver: zodResolver(clinicSchema),
-    defaultValues: { kind: 'clinic', displayName: '', ownerDisplayName: '', ownerTitle: 'Propietaria', brandColor: BRAND_SWATCHES[0].hex, slug: '' },
+    defaultValues: { kind: 'clinic', displayName: '', ownerDisplayName: '', ownerTitle: 'Propietaria', brandColor: BRAND_SWATCHES[0].hex, whatsapp: '', city: '', slug: '' },
   })
   const [displayName, ownerName, ownerTitle, color, kind, slug] = useWatch({
     control,
@@ -63,7 +64,8 @@ export function CreateClinicPage() {
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null)
     try {
-      const tenant = await createClinic({ ...values, brandColor: values.brandColor.toUpperCase() })
+      const { whatsapp, ...rest } = values
+      const tenant = await createClinic({ ...rest, brandColor: values.brandColor.toUpperCase(), whatsappE164: normalizePhone(whatsapp) })
       setActiveTenant(tenant.id)
       await refresh()
       navigate('/', { replace: true })
@@ -175,6 +177,11 @@ export function CreateClinicPage() {
                     : 'Revisamos que el texto se lea bien sobre tu color. Los botones y estados de la app no cambian.'}
                 </p>
               </fieldset>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Input label="WhatsApp de la clínica" type="tel" inputMode="tel" autoComplete="tel" placeholder="55 1234 5678" error={errors.whatsapp?.message} {...register('whatsapp')} />
+                <Input label="Ciudad" autoComplete="address-level2" error={errors.city?.message} {...register('city')} />
+              </div>
 
               <Input
                 label="Dirección de tu perfil público"

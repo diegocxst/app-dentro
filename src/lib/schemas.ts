@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { normalizePhone } from './phone'
 import { SLUG_PROBLEM_MESSAGES, slugProblem } from './slug'
 
 // Esquemas de los formularios de acceso. Origen: core-base (Realt-In).
@@ -62,6 +63,11 @@ export const clinicSchema = z.object({
   ownerDisplayName: z.string().trim().min(2, 'Escribe el nombre de la doctora o el doctor responsable.').max(120, 'Máximo 120 caracteres.'),
   ownerTitle: z.enum(OWNER_TITLES, { message: 'Elige el cargo.' }),
   brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Escribe un color como #0E5E8A.'),
+  whatsapp: z
+    .string()
+    .trim()
+    .refine((v) => v === '' || normalizePhone(v) !== null, 'Escribe 10 dígitos (México) o el número con +lada internacional.'),
+  city: z.string().trim().max(80, 'Máximo 80 caracteres.'),
   slug: z
     .string()
     .trim()

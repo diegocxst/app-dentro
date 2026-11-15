@@ -30,6 +30,8 @@ type TenantRow = Timestamps & {
   logo_path: string | null
   brand_color: string
   onboarding_state: Json
+  whatsapp_e164: string | null
+  city: string
   created_by: string | null
 }
 
@@ -90,6 +92,8 @@ export type Database = {
           p_owner_display_name?: string
           p_owner_title?: string
           p_brand_color?: string | null
+          p_whatsapp_e164?: string | null
+          p_city?: string
         }
         Returns: TenantRow
       }
@@ -101,6 +105,8 @@ export type Database = {
           p_owner_title?: string | null
           p_logo_path?: string | null
           p_brand_color?: string | null
+          p_whatsapp_e164?: string | null
+          p_city?: string | null
         }
         Returns: TenantRow
       }
