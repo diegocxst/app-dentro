@@ -39,3 +39,4 @@
 | 2026-11-12 | La etiqueta "automático" usa texto `ink` con punto turquesa, porque `turquoise-text` sobre `turquoise-soft` no llega a AA en claro | Diego |
 | 2026-11-12 | Suben a `core-base`: `color.ts` (contraste y validación de `brand_color`), `useDismiss` y los componentes base | Diego |
 | 2026-11-12 | Se aceptan las 10 vulnerabilidades moderadas de `npm audit` (solo dependencias de desarrollo, ESLint); se revisan al actualizar dependencias | Diego |
+| 2026-11-15 | El superadmin (`platform_admin`) ve clínicas, perfiles y membresías de todas las clínicas; no ve datos clínicos (pacientes, documentos, citas, presupuestos, pagos) | Diego |

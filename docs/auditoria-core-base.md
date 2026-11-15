@@ -30,7 +30,7 @@ E0-A · 2026-11-15 · Estado: PROPUESTA (pendiente de aprobación de Diego)
 | **FK compuestas `(tenant_id, id)`** | ❌ No aparecen (solo hay tablas raíz) | Agregar `unique (tenant_id, id)` en `memberships` y usar FK compuestas en toda tabla hija (`branches`, `membership_branches`, `doctor_settings`…) |
 | Índices que empiezan por `tenant_id` | ✅ En `audit_logs`. ⚠️ `memberships` solo tiene `unique (tenant_id, user_id)`, que sirve | Mantener el patrón en las tablas nuevas |
 | Roles `owner`, `admin`, `reception`, `doctor`, `doctor_collab` | ❌ Solo `owner`, `admin` y `agent` | Enum `tenant_role` = `owner`, `admin`, `reception`, `doctor`, `doctor_collab`. Se quita `agent` |
-| `platform_admin` sin datos clínicos | ✅ Lo resuelve una tabla `private.platform_admins` que solo se otorga por SQL. ⚠️ Hoy el superadmin **lee todas** las membresías, perfiles y la auditoría | Mantener la tabla. En las tablas clínicas, el superadmin **no** entra en las políticas |
+| `platform_admin` sin datos clínicos | ✅ Lo resuelve una tabla `private.platform_admins` que solo se otorga por SQL. El superadmin lee todas las clínicas, perfiles, membresías y la auditoría | Mantener tal cual: **el superadmin ve clínicas, perfiles y membresías de todas las clínicas** (confirmado por Diego, 2026-11-15). En las tablas clínicas (pacientes, documentos, citas, presupuestos, pagos) **no** entra en las políticas |
 | Tipo de tenant | `independent` / `brokerage` | `independent` / `clinic` |
 | Identidad de la clínica | ❌ No existe | Agregar a `tenants`: `display_name`, `owner_display_name`, `owner_title`, `logo_path`, `brand_color` (con `check` de formato hex; el contraste se valida en la RPC) y `onboarding_state` |
 | Sucursales (multi-sucursal desde el MVP) | ❌ No existe | Tablas `branches` y `membership_branches` |
@@ -73,7 +73,7 @@ E0-A · 2026-11-15 · Estado: PROPUESTA (pendiente de aprobación de Diego)
 1. **Versiones:** Realt-In usa React Router 7, Vite 7, TypeScript 5.9 y Vitest 4; dentro va en Router 8, Vite 8, TS 6 y Vitest 5. Se porta pieza por pieza y se prueba en cada paso; no se copia el `package.json`.
 2. **Dependencias nuevas:** `@supabase/supabase-js`, `react-hook-form`, `zod`, `@hookform/resolvers` y, para pruebas de base, `embedded-postgres` y `pg` (descargan un PostgreSQL local; no tocan ningún servidor).
 3. **Correo transaccional (B4):** las invitaciones y la recuperación dependen de un SMTP propio. El de Supabase no sirve para producción.
-4. **Superadmin:** en Realt-In ve perfiles y membresías de todas las empresas. En dentro hay que acotarlo para cumplir «no ve datos clínicos».
+4. **Superadmin:** ve perfiles y membresías de todas las clínicas (decisión de Diego). Cada tabla clínica nueva debe probar en la suite que el superadmin **no** la lee.
 
 ## 6. Plan propuesto para E1-B (una tarea = un incremento verificable)
 | Paso | Contenido | Toca Supabase |
