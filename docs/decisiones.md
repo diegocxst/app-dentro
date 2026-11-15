@@ -49,3 +49,4 @@
 | 2026-11-15 | D6: la bitácora se llama `audit_logs` (como Realt-In) | Diego |
 | 2026-11-15 | D7: las migraciones se prueban primero en un PostgreSQL local desechable (`embedded-postgres`, dependencia de desarrollo) | Diego |
 | 2026-11-15 | D8: las mejoras de seguridad (escrituras por RPC, FK compuestas, `(select …)`, roles genéricos) se devuelven a `core-base` | Diego |
+| 2026-11-15 | E0 cerrada; arranca E1-B1 (migración del núcleo probada en PostgreSQL local) | Diego |

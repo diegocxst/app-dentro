@@ -8,8 +8,26 @@
 | V1 Modelo de negocio | Pendiente (pricing y cortes de plan). Supuesto: $399–$800 MXN/mes. |
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
-| **E0 Auditoría y planificación** | Auditoría de Realt-In (E0-A) **aprobada** el 2026-11-15 con D1–D8. Pendiente: que Diego dé por cerrada E0 y autorice E1-B. |
+| **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B1 — Migración del núcleo multiempresa (EN_PRUEBAS)
+- `supabase/migrations/20261115000100_core_tenancy.sql`: perfiles, clínicas con identidad (`display_name`, responsable, cargo, logo, `brand_color` ajustado a AA, `onboarding_state`), membresías con roles `owner` / `admin` / `reception` / `doctor` / `doctor_collab`, sucursales, sucursales por membresía, superadmin y `audit_logs`.
+- Reglas de dentro aplicadas: `authenticated` solo lee (RLS); toda escritura por RPC (`create_tenant`, `update_tenant_identity`, `update_my_profile`, `create_branch`, `update_branch`, `set_membership_branches`, `admin_set_tenant_status`); FK compuestas `(tenant_id, id)`; helpers envueltos en `(select …)`; auditoría sin datos personales en claro.
+- Rollback: `supabase/rollback/20261115000100_core_tenancy.down.sql`. Comprobación posterior: `supabase/tests/core_post_apply_check.sql`.
+- Suite `supabase/tests/core_rls_isolation.sql` (93 comprobaciones, 9 actores + anónimo, termina en ROLLBACK).
+- `npm run test:db` (PostgreSQL 17 local con `embedded-postgres`): migración → suite → paridad del `brand_color` SQL/TypeScript → rollback sin residuos → reaplicación → suite. **TODO OK.**
+- Prueba de mutaciones: se rompió la migración 5 veces a propósito (sucursales visibles para todos, UPDATE directo, estatus ignorado, superadmin sin perfiles, límite de clínicas) y la suite detectó las 5.
+- La suite encontró un error real en `update_tenant_identity` (armado del arreglo de campos), ya corregido.
+- lint, typecheck, 66 pruebas y build limpios.
+
+### Para aprobar (Diego)
+1. `create_tenant` crea automáticamente la «Sucursal principal».
+2. Una membresía sin sucursales asignadas puede trabajar en todas.
+3. Las sucursales no se borran: se desactivan (y siempre queda al menos una activa).
+4. El superadmin ve todo el núcleo pero **no** puede editar la identidad de una clínica; solo cambia su estatus con motivo.
+5. Cambios de rol, revocar miembros e invitaciones quedan para E1-B5.
 
 ## E0-A — Auditoría de `core-base` (APROBADA 2026-11-15)
 - Fuente: `REALT-IN-BASE-DENTRO.zip` (copia depurada de Realt-In del 2026-11-14), revisada en modo de solo lectura fuera del repo. No se ejecutó nada ni se copió código.
@@ -43,8 +61,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **Cerrar E0 y autorizar E1-B** (aprobación de Diego).
-- **E1-B1:** migración `0001_core_tenancy` adaptada + rollback + suite de aislamiento, probadas en PostgreSQL local desechable (sin Supabase).
+- **Revisar E1-B1** y aprobar los 5 puntos de arriba.
+- **E1-B2:** auth en el frontend (cliente Supabase, `AuthProvider`, guardas y pantallas de acceso con el diseño de dentro), con Supabase simulado.
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
 ## Bloqueos y pendientes
