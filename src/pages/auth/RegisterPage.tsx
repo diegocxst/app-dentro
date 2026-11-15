@@ -47,9 +47,14 @@ export function RegisterPage() {
       email,
       password,
       options: {
-        // Evidencia mínima de aceptación del aviso (borrador). El registro formal de
-        // consentimientos llega con `privacy_notices` y `consents` (E1-B5).
-        data: { full_name: fullName, privacy_notice_version: PRIVACY_NOTICE_VERSION, privacy_accepted_at: new Date().toISOString() },
+        // Lo que aceptó en este formulario. Al entrar, ConsentGate lo registra como
+        // evidencia en `account_consents` (migración 0003).
+        data: {
+          full_name: fullName,
+          privacy_notice_version: PRIVACY_NOTICE_VERSION,
+          privacy_source: 'signup',
+          privacy_accepted_at: new Date().toISOString(),
+        },
         emailRedirectTo: signupRedirectUrl(),
       },
     })

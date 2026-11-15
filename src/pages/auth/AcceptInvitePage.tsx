@@ -41,7 +41,12 @@ export function AcceptInvitePage() {
     setFormError(null)
     const { error } = await supabase.auth.updateUser({
       password,
-      data: { full_name: fullName, privacy_notice_version: PRIVACY_NOTICE_VERSION, privacy_accepted_at: new Date().toISOString() },
+      data: {
+        full_name: fullName,
+        privacy_notice_version: PRIVACY_NOTICE_VERSION,
+        privacy_source: 'invite',
+        privacy_accepted_at: new Date().toISOString(),
+      },
     })
     if (error) {
       setFormError(authErrorMessage(error))

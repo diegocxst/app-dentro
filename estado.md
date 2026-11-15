@@ -13,11 +13,26 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents`. Migración 0003 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
 | **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. Diferencias con el mockup aprobadas el 2026-11-15. |
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B5a — Aviso de privacidad y consentimientos de las cuentas (EN_PRUEBAS)
+E1-B5 se dividió en tres incrementos: **B5a** aviso y consentimientos, **B5b** logo en Storage privado, **B5c** invitaciones de equipo.
+- **Migración 0003** `20261115000300_account_consents`: `privacy_notices` (versiones del aviso, una sola vigente; se publican por SQL, no desde la app) y `account_consents` (evidencia por cuenta y versión, con origen `signup` / `invite` / `renewal`; solo se agrega, nunca se edita ni se borra). RPC `accept_privacy_notice` (solo la versión vigente, idempotente). RLS: cada quien ve sus aceptaciones; el superadmin todas (ARCO). Versión vigente: `borrador-2026-11-15`.
+- **Alcance:** es el consentimiento de las CUENTAS al aviso de dentro. El de los PACIENTES es de cada clínica y llega con M2 (`patient_consents`, por tenant).
+- **`ConsentGate`** en el área privada: si la persona ya aceptó al registrarse o al activar su invitación, registra la evidencia sin volver a preguntar; si no, o si se publicó una versión nueva, muestra «Acepta el aviso» / «Actualizamos el aviso» antes de entrar.
+- Suite `consents_rls_isolation.sql` y `test:db` en verde (con rollback y reaplicación de las 3 migraciones). 116 pruebas de la app (antes 109), estables en 3 corridas; una verifica que la versión del registro sea la vigente en la migración.
+- `database.types.ts` lleva a mano los tipos de 0003 (marcado PROVISIONAL) hasta aplicarla en dev y regenerar.
+- La pantalla de aceptación usa `AuthLayout` y componentes ya revisados en E1-B2; falta verla con datos reales al aplicar en dev.
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0003 en `dentro-dentistas-app`.
+2. Que este consentimiento sea solo de las cuentas; el de pacientes, con M2.
+3. Si en el futuro no hay aviso vigente publicado, la app no bloquea el acceso (no hay nada que aceptar).
 
 ## E1-B4 — Conexión al proyecto dev (EN_PRUEBAS)
 - **Migración 0002** `20261115000200_tenant_contact`: WhatsApp (`whatsapp_e164`, E.164) y ciudad (`city`) de la clínica; `create_tenant` y `update_tenant_identity` amplían su firma sin dejar sobrecargas. Rollback y suite `contact_rls_isolation.sql`. El alta pide ambos campos (WhatsApp normalizado con `lib/phone.ts` de core-base).

@@ -1,5 +1,7 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · 2026-11-15. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: privacy_notices, account_consents y accept_privacy_notice (migración 0003) se
+// agregaron a mano hasta aplicarla en dev; luego se regenera este archivo.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -18,6 +20,18 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_consents: {
+        Row: { accepted_at: string; id: number; notice_id: string; source: Database["public"]["Enums"]["consent_source"]; user_id: string }
+        Insert: { accepted_at?: string; id?: never; notice_id: string; source: Database["public"]["Enums"]["consent_source"]; user_id: string }
+        Update: { accepted_at?: string; id?: never; notice_id?: string; source?: Database["public"]["Enums"]["consent_source"]; user_id?: string }
+        Relationships: []
+      }
+      privacy_notices: {
+        Row: { created_at: string; id: string; is_current: boolean; is_draft: boolean; published_at: string; title: string; url_path: string; version: string }
+        Insert: { created_at?: string; id?: string; is_current?: boolean; is_draft?: boolean; published_at?: string; title: string; url_path?: string; version: string }
+        Update: { created_at?: string; id?: string; is_current?: boolean; is_draft?: boolean; published_at?: string; title?: string; url_path?: string; version?: string }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -257,6 +271,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_privacy_notice: {
+        Args: { p_source?: Database["public"]["Enums"]["consent_source"]; p_version: string }
+        Returns: Database["public"]["Tables"]["account_consents"]["Row"]
+      }
       admin_set_tenant_status: {
         Args: {
           p_reason: string
@@ -422,6 +440,7 @@ export type Database = {
       }
     }
     Enums: {
+      consent_source: "signup" | "invite" | "renewal"
       membership_status: "active" | "invited" | "revoked"
       tenant_kind: "independent" | "clinic"
       tenant_role: "owner" | "admin" | "reception" | "doctor" | "doctor_collab"

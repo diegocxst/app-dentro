@@ -52,8 +52,17 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[] }
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [] }
+
+export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
+export const NOTICE_VERSION = 'borrador-2026-11-15'
+
+/** Aviso vigente y, si `accepted`, la aceptación de la persona de la sesión. */
+export function seedNotice({ accepted = true, version = NOTICE_VERSION }: { accepted?: boolean; version?: string } = {}) {
+  fakeDb.privacy_notices.push({ id: NOTICE_ID, version, title: 'Aviso de privacidad de dentro (borrador)', url_path: '/aviso-de-privacidad', is_current: true, is_draft: true })
+  if (accepted) fakeDb.account_consents.push({ id: 1, user_id: fakeUser().id, notice_id: NOTICE_ID, source: 'signup' })
+}
 
 export const TENANT_ID = '10000000-0000-4000-8000-000000000001'
 export const BRANCH_ID = '20000000-0000-4000-8000-000000000001'
@@ -117,6 +126,15 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
   const override = rpcOverrides[fn]
   if (override) return override(args)
   if (fn === 'am_i_platform_admin') return Promise.resolve({ data: false, error: null })
+  if (fn === 'accept_privacy_notice') {
+    const notice = fakeDb.privacy_notices.find((n) => n.is_current)
+    if (!notice || notice.version !== args.p_version) return Promise.resolve({ data: null, error: { code: '22023', message: 'cambió' } })
+    const userId = current?.user.id
+    if (!fakeDb.account_consents.some((c) => c.user_id === userId && c.notice_id === notice.id)) {
+      fakeDb.account_consents.push({ id: fakeDb.account_consents.length + 1, user_id: userId, notice_id: notice.id, source: args.p_source })
+    }
+    return Promise.resolve({ data: {}, error: null })
+  }
   if (fn === 'create_tenant') {
     const tenant = fakeTenant({
       id: '10000000-0000-4000-8000-0000000000ff',

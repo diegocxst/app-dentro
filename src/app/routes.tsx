@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Outlet, type RouteObject } from 'react-router'
+import { ConsentGate } from '@/auth/ConsentGate'
 import { GuestOnly, RequireAuth } from '@/auth/guards'
 import { AppLayout } from '@/layouts/AppLayout'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
@@ -31,13 +32,15 @@ export const routes: RouteObject[] = [
   { path: '/auth/invitacion', element: <AcceptInvitePage /> },
   { path: PRIVACY_PATH, element: <PrivacyPage /> },
 
-  // Área privada: sesión + membresías.
+  // Área privada: sesión + aviso de privacidad aceptado + membresías.
   {
     element: (
       <RequireAuth>
-        <WorkspaceProvider>
-          <Outlet />
-        </WorkspaceProvider>
+        <ConsentGate>
+          <WorkspaceProvider>
+            <Outlet />
+          </WorkspaceProvider>
+        </ConsentGate>
       </RequireAuth>
     ),
     children: [

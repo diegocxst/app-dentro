@@ -2,19 +2,22 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { routes } from '@/app/routes'
 import { AuthProvider } from '@/auth/AuthProvider'
-import { fakeSession, fakeTenant, seedClinic, setInitialSession } from './fakeSupabase'
+import { fakeSession, fakeTenant, seedClinic, seedNotice, setInitialSession } from './fakeSupabase'
 
 type Options = {
   signedIn?: boolean
   /** Clínica de la persona de la sesión. `null` = aún no tiene clínica. */
   tenant?: Record<string, unknown> | null
+  /** ¿La persona ya aceptó el aviso vigente? (por omisión, sí). */
+  consented?: boolean
 }
 
 /** Monta la app completa en una ruta, con sesión y clínica simuladas por omisión. */
-export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant() }: Options = {}) {
+export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant(), consented = true }: Options = {}) {
   setInitialSession(signedIn ? fakeSession() : null)
   // La clínica existe en la base aunque la persona aún no haya entrado.
   if (tenant) seedClinic(tenant)
+  seedNotice({ accepted: consented })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const utils = render(
     <AuthProvider>
