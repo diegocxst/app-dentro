@@ -13,7 +13,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
-| **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents`. Migración 0003 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
 | **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. Diferencias con el mockup aprobadas el 2026-11-15. |
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
@@ -26,10 +26,12 @@ E1-B5 se dividió en tres incrementos: **B5a** aviso y consentimientos, **B5b** 
 - **Alcance:** es el consentimiento de las CUENTAS al aviso de dentro. El de los PACIENTES es de cada clínica y llega con M2 (`patient_consents`, por tenant).
 - **`ConsentGate`** en el área privada: si la persona ya aceptó al registrarse o al activar su invitación, registra la evidencia sin volver a preguntar; si no, o si se publicó una versión nueva, muestra «Acepta el aviso» / «Actualizamos el aviso» antes de entrar.
 - Suite `consents_rls_isolation.sql` y `test:db` en verde (con rollback y reaplicación de las 3 migraciones). 116 pruebas de la app (antes 109), estables en 3 corridas; una verifica que la versión del registro sea la vigente en la migración.
-- `database.types.ts` lleva a mano los tipos de 0003 (marcado PROVISIONAL) hasta aplicarla en dev y regenerar.
-- La pantalla de aceptación usa `AuthLayout` y componentes ya revisados en E1-B2; falta verla con datos reales al aplicar en dev.
+- **Aplicada en dev** (prueba en seco → `db push`): las 3 suites en verde en el proyecto real; tipos regenerados.
+- **Con la cuenta de Diego:** al abrir el panel, `ConsentGate` registró sola la evidencia (`borrador-2026-11-15`, origen `signup`) porque la aceptó al registrarse; entró directo sin volver a preguntar.
+- **Asesor nuevo:** `auth_leaked_password_protection` (Supabase Auth no revisa contraseñas filtradas). Es un ajuste del panel de Supabase: lo decide Diego.
+- La pantalla «Acepta el aviso» solo se probó con Supabase simulado (la cuenta de Diego ya tenía la aceptación); usa `AuthLayout` y componentes ya revisados.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-15)
 1. Aplicar la migración 0003 en `dentro-dentistas-app`.
 2. Que este consentimiento sea solo de las cuentas; el de pacientes, con M2.
 3. Si en el futuro no hay aviso vigente publicado, la app no bloquea el acceso (no hay nada que aceptar).

@@ -65,3 +65,5 @@
 | 2026-11-15 | Los avisos del asesor de Supabase sobre RPC `SECURITY DEFINER` ejecutables por `authenticated` se aceptan: es el diseño de escrituras por RPC | Diego |
 | 2026-11-15 | E1-A a E1-B4 integradas en `main` local (sin push) | Diego |
 | 2026-11-15 | Push de `main` a `diegocxst/app-dentro` (E1-A a E1-B4) | Diego |
+| 2026-11-15 | E1-B5 se divide en B5a (aviso y consentimientos), B5b (logo en Storage privado) y B5c (invitaciones) | Diego |
+| 2026-11-15 | B5a: migración 0003 aplicada en dev; el consentimiento de B5a es solo de las cuentas (el de pacientes llega con M2, por clínica); sin aviso vigente publicado, la app no bloquea el acceso | Diego |
