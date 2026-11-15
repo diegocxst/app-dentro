@@ -42,3 +42,21 @@ export function authErrorMessage(error: ErrorLike): string {
   }
   return GENERIC
 }
+
+/** Errores de las RPC del núcleo (SQLSTATE definidos en la migración 20261115000100). */
+export function clinicErrorMessage(error: ErrorLike): string {
+  switch (error?.code) {
+    case '23505':
+      return 'Esa dirección ya la usa otra clínica. Prueba con otra.'
+    case '23514':
+      return 'Revisa los datos: el nombre debe tener entre 2 y 120 caracteres y la dirección no puede estar reservada.'
+    case 'P0001':
+      return 'Ya tienes una clínica registrada.'
+    case '28000':
+      return 'Tu sesión expiró. Vuelve a entrar.'
+    case '42501':
+      return 'No tienes permiso para hacer este cambio.'
+    default:
+      return authErrorMessage(error)
+  }
+}

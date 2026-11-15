@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { SLUG_PROBLEM_MESSAGES, slugProblem } from './slug'
 
 // Esquemas de los formularios de acceso. Origen: core-base (Realt-In).
 
@@ -50,3 +51,24 @@ export const newPasswordSchema = z
   .object({ password, confirmPassword: z.string() })
   .refine((v) => v.password === v.confirmPassword, confirmMatches)
 export type NewPasswordValues = z.infer<typeof newPasswordSchema>
+
+// ── Alta de la clínica (P04 paso 1) ─────────────────────────────────────────
+
+export const OWNER_TITLES = ['Propietaria', 'Propietario', 'Directora médica', 'Director médico', 'Socia', 'Socio'] as const
+
+export const clinicSchema = z.object({
+  kind: z.enum(['clinic', 'independent'], { message: 'Elige si es clínica o consultorio.' }),
+  displayName: z.string().trim().min(2, 'Escribe al menos 2 caracteres.').max(120, 'Máximo 120 caracteres.'),
+  ownerDisplayName: z.string().trim().min(2, 'Escribe el nombre de la doctora o el doctor responsable.').max(120, 'Máximo 120 caracteres.'),
+  ownerTitle: z.enum(OWNER_TITLES, { message: 'Elige el cargo.' }),
+  brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Escribe un color como #0E5E8A.'),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .superRefine((value, ctx) => {
+      const problem = slugProblem(value)
+      if (problem) ctx.addIssue({ code: 'custom', message: SLUG_PROBLEM_MESSAGES[problem] })
+    }),
+})
+export type ClinicValues = z.infer<typeof clinicSchema>

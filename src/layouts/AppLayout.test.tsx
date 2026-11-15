@@ -2,16 +2,16 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { SECTIONS } from '@/app/navigation'
-import { TEMP_CLINIC_CONFIG } from '@/lib/clinic-config'
+import { fakeTenant } from '@/test/fakeSupabase'
 import { renderApp } from '@/test/renderApp'
 
 describe('AppLayout', () => {
   it('muestra el menú lateral con la identidad de la clínica, las 10 secciones, la guía y "Hecho con dentro"', async () => {
     await renderApp('/')
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
-    expect(within(menu).getByRole('img', { name: `Logo de ${TEMP_CLINIC_CONFIG.displayName}` })).toBeInTheDocument()
-    expect(within(menu).getByText(TEMP_CLINIC_CONFIG.displayName)).toBeInTheDocument()
-    expect(within(menu).getByText(`${TEMP_CLINIC_CONFIG.ownerDisplayName} · ${TEMP_CLINIC_CONFIG.ownerTitle}`)).toBeInTheDocument()
+    expect(await within(menu).findByRole('img', { name: 'Logo de Clínica Prueba' })).toBeInTheDocument()
+    expect(within(menu).getByText('Clínica Prueba')).toBeInTheDocument()
+    expect(within(menu).getByText('Dra. Prueba · Propietaria')).toBeInTheDocument()
 
     const links = within(within(menu).getAllByRole('list')[0]!).getAllByRole('link')
     expect(links.map((l) => l.textContent)).toEqual(SECTIONS.map((s) => s.label))
@@ -23,7 +23,7 @@ describe('AppLayout', () => {
   })
 
   it('usa el brand_color validado para las iniciales', async () => {
-    await renderApp('/', { config: { ...TEMP_CLINIC_CONFIG, displayName: 'Clínica Dental Sonríe', brandColor: '#FFEEDF' } })
+    await renderApp('/', { tenant: fakeTenant({ display_name: 'Clínica Dental Sonríe', brand_color: '#FFEEDF' }) })
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
     const logo = within(menu).getByRole('img', { name: 'Logo de Clínica Dental Sonríe' })
     expect(logo).toHaveTextContent('CS')
@@ -33,7 +33,7 @@ describe('AppLayout', () => {
   it('muestra la barra superior: búsqueda, sucursal, notificaciones y "+ Nuevo"', async () => {
     await renderApp('/')
     expect(screen.getAllByRole('searchbox', { name: 'Buscar' }).length).toBeGreaterThan(0)
-    expect(screen.getByRole('combobox', { name: 'Sucursal' })).toHaveDisplayValue(TEMP_CLINIC_CONFIG.branches[0]!.name)
+    expect(await screen.findByRole('combobox', { name: 'Sucursal' })).toHaveDisplayValue('Sucursal principal')
     expect(screen.getAllByRole('button', { name: 'Notificaciones' }).length).toBeGreaterThan(0)
 
     // Uno en la barra superior (escritorio) y el botón flotante (móvil); el CSS muestra solo uno.

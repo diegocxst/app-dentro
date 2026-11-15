@@ -9,9 +9,26 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. |
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B3 — Clínica activa y alta de clínica (EN_PRUEBAS)
+- **Se retiró la identidad TEMPORAL** de E1-A (`clinic-config.ts`). El menú, la barra y "Más" muestran la clínica real de la persona: nombre, responsable, cargo, iniciales con `brand_color` (validado otra vez por contraste) y avance de la guía desde `onboarding_state`.
+- `WorkspaceProvider` (de core-base): perfil, membresías activas, superadmin, clínica activa y sucursal activa. Ambas se recuerdan en este dispositivo (`dentro.activeTenantId`, `dentro.activeBranchId.<clínica>`; solo ids).
+- `RequireClinic`: sin clínica → `/bienvenida`; clínica cancelada → aviso sin acceso a datos (ni se piden sus sucursales); error de carga → "Volver a intentar". Clínica suspendida → aviso de solo lectura en el panel.
+- **P04 paso 1 · `/bienvenida`** (mockup Onboarding-Identidad): pasos a la izquierda, tipo (clínica o consultorio, D2), nombre, responsable y cargo, color de marca (6 colores + código, con aviso si se oscurece), dirección del perfil (`dentro.mx/…`, sugerida desde el nombre y validada igual que la base) y vista previa en vivo (menú, PDF y WhatsApp, sin datos de ejemplo). "Continuar" llama a `create_tenant` y entra al panel.
+- Selector de clínica en la barra (y en "Más") solo si la persona trabaja en más de una (doctor colaborador). Selector de sucursal con las sucursales reales.
+- Pruebas: 106 (antes 89), estables en 8 corridas seguidas (se corrigió una prueba que a veces fallaba por no esperar a que se dibujara el panel; no era un error de la app). Una prueba verifica que las palabras reservadas de la dirección sean las mismas en TypeScript y en la migración.
+- Revisión visual de `/bienvenida` a 1440 y 390 px, claro y oscuro (con una página temporal que no se guardó). Se corrigió: el PDF y la burbuja de WhatsApp de la vista previa se veían oscuros en tema oscuro; ahora siempre son blancos, como en la vida real.
+
+### Diferencias con el mockup (para aprobar)
+1. **Logo:** no se puede subir todavía (requiere Storage privado, E1-B5); se muestran las iniciales con un aviso.
+2. **WhatsApp de la clínica y Ciudad:** el mockup los pide, pero no existen en `tenants`. Propuesta: agregarlos en una migración junto con E1-B4.
+3. Se agregó la elección **Clínica / Consultorio** (D2) y la **dirección del perfil** (la exige la base para M13).
+4. Se omitieron "Hacerlo después" (la clínica es obligatoria para entrar) y "Agenda una llamada" (aún no hay a dónde enviarla).
+5. Pasos 2 a 5 del onboarding: solo se muestran; se construyen en E2.
 
 ## E1-B2 — Auth en el frontend (EN_PRUEBAS)
 - Portado de `core-base` y adaptado a dentro: cliente de Supabase (PKCE, clave publishable, D1), `AuthProvider`, guardas `RequireAuth` / `GuestOnly`, `safeNextPath`, errores en español sin revelar si una cuenta existe, enlaces `token_hash` que solo se verifican al tocar el botón, canje PKCE, reenvío de confirmación con espera de 60 s.
@@ -75,8 +92,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **Revisar E1-B2.**
-- **E1-B3:** la clínica activa (`WorkspaceProvider`) reemplaza la identidad TEMPORAL de E1-A y alta de clínica (P04 paso 1), con Supabase simulado.
+- **Revisar E1-B3** y aprobar las 5 diferencias con el mockup.
+- **E1-B4:** conectar el proyecto dev `dentro-dentistas-app` (requiere aprobación de Diego): `.env.local` con la clave publishable, aplicar la migración, correr la suite en el SQL Editor, regenerar `database.types.ts` y probar el registro real (necesita correo: B4).
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
 ## Bloqueos y pendientes

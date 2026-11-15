@@ -1,6 +1,8 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useId, type FormEvent } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
+import { useWorkspace } from '@/workspace/workspace-context'
+import { ClinicSwitcher } from './ClinicSwitcher'
 import { ClinicAvatar } from './ClinicAvatar'
 import { NewMenu } from './NewMenu'
 
@@ -27,9 +29,9 @@ function SearchField({ className }: { className?: string }) {
 }
 
 function BranchSelect() {
-  const clinic = useClinic()
-  const [branch, setBranch] = useState(clinic.branches[0]?.id ?? '')
+  const { branches, activeBranchId, setActiveBranch } = useWorkspace()
   const id = useId()
+  if (branches.length === 0 || !activeBranchId) return null
   return (
     <div className="relative flex h-10 shrink-0 items-center rounded-md border border-border bg-surface-raised text-ui font-medium text-ink">
       <Icon name="sucursal" size={18} className="pointer-events-none absolute left-3 text-ink-muted" />
@@ -38,11 +40,11 @@ function BranchSelect() {
       </label>
       <select
         id={id}
-        value={branch}
-        onChange={(e) => setBranch(e.target.value)}
+        value={activeBranchId}
+        onChange={(e) => setActiveBranch(e.target.value)}
         className="h-full max-w-56 cursor-pointer appearance-none truncate rounded-md border-0 bg-transparent pr-9 pl-9 outline-none"
       >
-        {clinic.branches.map((b) => (
+        {branches.map((b) => (
           <option key={b.id} value={b.id}>
             {b.name}
           </option>
@@ -68,6 +70,8 @@ function NotificationsButton() {
 /** Barra superior. Réplica de `Barra.dc.html` (escritorio) y del encabezado de `Movil-MiDia.dc.html` (móvil). */
 export function Topbar() {
   const clinic = useClinic()
+  const { branches, activeBranchId } = useWorkspace()
+  const branchName = branches.find((b) => b.id === activeBranchId)?.name
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface-raised">
       {/* Escritorio y tablet */}
@@ -78,6 +82,7 @@ export function Topbar() {
         </div>
         <SearchField className="max-w-120 min-w-0 flex-[1_1_200px]" />
         <div className="grow" />
+        <ClinicSwitcher />
         <BranchSelect />
         <NotificationsButton />
         <NewMenu variant="button" className="hidden lg:block" />
@@ -89,7 +94,7 @@ export function Topbar() {
           <ClinicAvatar size="md" />
           <div className="flex min-w-0 grow flex-col">
             <span className="truncate font-display text-ui font-bold">{clinic.displayName}</span>
-            <span className="truncate text-label font-normal text-ink-muted">{clinic.branches[0]?.name}</span>
+            <span className="truncate text-label font-normal text-ink-muted">{branchName}</span>
           </div>
           <NotificationsButton />
         </div>

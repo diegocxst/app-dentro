@@ -1,31 +1,26 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { ClinicProvider } from '@/app/ClinicProvider'
 import { routes } from '@/app/routes'
 import { AuthProvider } from '@/auth/AuthProvider'
-import type { ClinicConfig } from '@/lib/clinic-config'
-import { fakeSession, setInitialSession } from './fakeSupabase'
+import { fakeSession, fakeTenant, seedClinic, setInitialSession } from './fakeSupabase'
 
-type Options = { config?: ClinicConfig; signedIn?: boolean }
+type Options = {
+  signedIn?: boolean
+  /** Clínica de la persona de la sesión. `null` = aún no tiene clínica. */
+  tenant?: Record<string, unknown> | null
+}
 
-/** Monta la app completa en una ruta, con sesión simulada por omisión. */
-export async function renderApp(path = '/', { config, signedIn = true }: Options = {}) {
+/** Monta la app completa en una ruta, con sesión y clínica simuladas por omisión. */
+export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant() }: Options = {}) {
   setInitialSession(signedIn ? fakeSession() : null)
+  // La clínica existe en la base aunque la persona aún no haya entrado.
+  if (tenant) seedClinic(tenant)
   const router = createMemoryRouter(routes, { initialEntries: [path] })
-  const tree = (
+  const utils = render(
     <AuthProvider>
-      {config ? (
-        <ClinicProvider config={config}>
-          <RouterProvider router={router} />
-        </ClinicProvider>
-      ) : (
-        <ClinicProvider>
-          <RouterProvider router={router} />
-        </ClinicProvider>
-      )}
-    </AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>,
   )
-  const utils = render(tree)
   await waitFor(() => expect(screen.queryByText('Cargando…')).not.toBeInTheDocument())
   return { router, ...utils }
 }

@@ -4,6 +4,7 @@ import { GUIDE_PATH, MOBILE_TAB_IDS, SECTIONS } from '@/app/navigation'
 import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
 import { cn } from '@/lib/cn'
+import { ClinicSwitcher } from '@/components/layout/ClinicSwitcher'
 import { SignOutButton } from '@/components/layout/SignOutButton'
 import { PageHeader } from './PageHeader'
 
@@ -13,7 +14,7 @@ export function MorePage() {
   const rest = SECTIONS.filter((s) => !MOBILE_TAB_IDS.includes(s.id))
   return (
     <>
-      <PageHeader title="Más" />
+      <PageHeader title="Más" actions={<ClinicSwitcher />} />
       <nav aria-label="Más secciones">
         <ul className="m-0 flex list-none flex-col overflow-hidden rounded-lg border border-border bg-surface-raised p-0">
           {rest.map((s, i) => (

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { RouteObject } from 'react-router'
+import { Outlet, type RouteObject } from 'react-router'
 import { GuestOnly, RequireAuth } from '@/auth/guards'
 import { AppLayout } from '@/layouts/AppLayout'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
@@ -10,6 +10,9 @@ import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { GuidePage } from '@/pages/GuidePage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
+import { CreateClinicPage } from '@/pages/onboarding/CreateClinicPage'
+import { RequireClinic } from '@/workspace/RequireClinic'
+import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
 import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
@@ -28,21 +31,35 @@ export const routes: RouteObject[] = [
   { path: '/auth/invitacion', element: <AcceptInvitePage /> },
   { path: PRIVACY_PATH, element: <PrivacyPage /> },
 
-  // Panel de la clínica (requiere sesión)
+  // Área privada: sesión + membresías.
   {
-    path: '/',
     element: (
       <RequireAuth>
-        <AppLayout />
+        <WorkspaceProvider>
+          <Outlet />
+        </WorkspaceProvider>
       </RequireAuth>
     ),
     children: [
-      ...SECTIONS.map((s): RouteObject =>
-        s.path === '/' ? { index: true, element: <SectionPage id={s.id} /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
-      ),
-      { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
-      { path: MORE_PATH.slice(1), element: <MorePage /> },
-      { path: '*', element: <NotFoundPage /> },
+      // P04 paso 1: alta de la clínica (solo si aún no tiene una).
+      { path: '/bienvenida', element: <CreateClinicPage /> },
+      // Panel de la clínica activa.
+      {
+        path: '/',
+        element: (
+          <RequireClinic>
+            <AppLayout />
+          </RequireClinic>
+        ),
+        children: [
+          ...SECTIONS.map((s): RouteObject =>
+            s.path === '/' ? { index: true, element: <SectionPage id={s.id} /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
+          ),
+          { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
+          { path: MORE_PATH.slice(1), element: <MorePage /> },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ]
