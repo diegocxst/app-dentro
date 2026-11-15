@@ -9,10 +9,22 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
 | **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. Diferencias con el mockup aprobadas el 2026-11-15. |
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B4 — Conexión al proyecto dev (EN_PRUEBAS)
+- **Migración 0002** `20261115000200_tenant_contact`: WhatsApp (`whatsapp_e164`, E.164) y ciudad (`city`) de la clínica; `create_tenant` y `update_tenant_identity` amplían su firma sin dejar sobrecargas. Rollback y suite `contact_rls_isolation.sql`. El alta pide ambos campos (WhatsApp normalizado con `lib/phone.ts` de core-base).
+- **CLI de Supabase** como dependencia de desarrollo (`npx supabase`) y `supabase/config.toml`. Diego hizo `login` y `link` (sus credenciales nunca pasaron por Claude). `.env.local` solo en su Mac, excluido de git.
+- **Aplicado en dev** (`iacdtcrzmavbjhgtdchl`): prueba en seco → `db push` de 0001 y 0002.
+- **Verificación en el proyecto real:** suites `core_rls_isolation` y `contact_rls_isolation` en verde (ROLLBACK, sin residuos); comprobación posterior: RLS en todas las tablas, `anon` sin privilegios ni acceso a `private`, `authenticated` sin escrituras directas, todas las funciones con `search_path`.
+- **Asesores de Supabase:** sin errores ni avisos de rendimiento. 7 avisos `authenticated_security_definer_function_executable` en las RPC de escritura: **es el diseño** (escrituras solo por RPC que validan rol y clínica; cubierto por la suite).
+- **Tipos regenerados** desde el proyecto (`src/lib/database.types.ts`, no editar a mano) con alias en `src/lib/db.ts`.
+- **Prueba de punta a punta con Diego:** registro con su correo → confirmación → alta de la clínica → panel con su clínica y «Sucursal principal». En la base: 1 usuario confirmado con nombre y aviso aceptado, 1 clínica activa con WhatsApp y ciudad, membresía `owner`, sucursal activa y auditoría `tenant.created`.
+- Pruebas: 109 con Supabase simulado y `test:db` en verde. lint, typecheck y build limpios.
+- Datos en dev: solo los de prueba de Diego (ficticios). Plan gratuito: nada de pacientes reales.
 
 ## E1-B3 — Clínica activa y alta de clínica (EN_PRUEBAS)
 - **Se retiró la identidad TEMPORAL** de E1-A (`clinic-config.ts`). El menú, la barra y "Más" muestran la clínica real de la persona: nombre, responsable, cargo, iniciales con `brand_color` (validado otra vez por contraste) y avance de la guía desde `onboarding_state`.
@@ -92,7 +104,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **E1-B4:** conectar el proyecto dev `dentro-dentistas-app` (requiere aprobación de Diego): `.env.local` con la clave publishable, aplicar la migración, correr la suite en el SQL Editor, regenerar `database.types.ts` y probar el registro real (necesita correo: B4). Incluye la migración de WhatsApp y Ciudad de la clínica.
+- **Integrar las ramas E1-A → E1-B4 en `main`** (local; push con aprobación de Diego).
+- **E1-B5:** invitaciones de equipo (Edge Function), aviso de privacidad y consentimientos (`privacy_notices`, `consents`), Storage privado para el logo. Requiere correo transaccional (B4) para producción.
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
 ## Bloqueos y pendientes

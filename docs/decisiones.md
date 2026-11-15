@@ -60,3 +60,6 @@
 | 2026-11-15 | E1-B3: el alta incluye la elección Clínica / Consultorio (D2) y la dirección del perfil público (`dentro.mx/…`, M13) | Diego |
 | 2026-11-15 | E1-B3: sin «Hacerlo después» (la clínica es obligatoria para entrar) ni «Agenda una llamada» por ahora | Diego |
 | 2026-11-15 | E1-B3: los pasos 2 a 5 del onboarding solo se muestran; se construyen en E2 | Diego |
+| 2026-11-15 | E1-B4 autorizada: migraciones 0001 y 0002 aplicadas en el proyecto dev `dentro-dentistas-app` | Diego |
+| 2026-11-15 | El CLI de Supabase vive como dependencia de desarrollo del proyecto (`npx supabase`), no instalado globalmente | Diego |
+| 2026-11-15 | Los avisos del asesor de Supabase sobre RPC `SECURITY DEFINER` ejecutables por `authenticated` se aceptan: es el diseño de escrituras por RPC | Diego |
