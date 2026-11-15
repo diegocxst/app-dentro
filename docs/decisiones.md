@@ -70,3 +70,4 @@
 | 2026-11-15 | B5b: migración 0004 aplicada en dev; logo sin SVG (solo PNG, JPG, WebP); cambiar el logo después llega con Configuración (M10) | Diego |
 | 2026-11-15 | B5c: migración 0005 aplicada en dev, secreto SITE_URL y Edge Function invite-member desplegada; las invitaciones a cualquier correo esperan el correo transaccional (B4) | Diego |
 | 2026-11-15 | E1-B5a a E1-B5c integradas en `main` y push a `diegocxst/app-dentro` | Diego |
+| 2026-11-15 | E1 cerrada con B4 (correo transaccional) pendiente; arranca E2, dividida en E2-A, E2-B y E2-C | Diego |

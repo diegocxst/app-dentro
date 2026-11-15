@@ -10,6 +10,7 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { GuidePage } from '@/pages/GuidePage'
+import { HomePage } from '@/pages/HomePage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
 import { ConfigurationPage } from '@/pages/configuration/ConfigurationPage'
 import { TeamPage } from '@/pages/configuration/TeamPage'
@@ -58,7 +59,7 @@ export const routes: RouteObject[] = [
         ),
         children: [
           ...SECTIONS.filter((s) => s.id !== 'configuracion').map((s): RouteObject =>
-            s.path === '/' ? { index: true, element: <SectionPage id={s.id} /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
+            s.path === '/' ? { index: true, element: <HomePage /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
           ),
           { path: 'configuracion', element: <ConfigurationPage /> },
           { path: 'configuracion/equipo', element: <TeamPage /> },

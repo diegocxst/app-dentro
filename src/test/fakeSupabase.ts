@@ -38,7 +38,7 @@ export const fakeSupabase = {
     signInWithPassword: vi.fn(),
     signUp: vi.fn(),
     resetPasswordForEmail: vi.fn(() => ok({})),
-    updateUser: vi.fn(),
+    updateUser: vi.fn(() => Promise.resolve({ data: {}, error: null })),
     verifyOtp: vi.fn(),
     resend: vi.fn(() => ok({ user: null, session: null })),
     signOut: vi.fn(() => {
@@ -95,7 +95,7 @@ export function fakeTenant(overrides: Row = {}): Row {
     owner_title: 'Propietaria',
     logo_path: null,
     brand_color: '#0E5E8A',
-    onboarding_state: {},
+    onboarding_state: { tasks: { identity: true } },
     whatsapp_e164: null,
     city: '',
     created_by: null,
@@ -121,7 +121,14 @@ function query(table: string) {
     let rows = ((fakeDb as Record<string, Row[] | undefined>)[table] ?? []).filter(
       (r) => filters.every(([k, v]) => r[k] === v) && inFilters.every(([k, vs]) => vs.includes(r[k])),
     )
-    if (table === 'memberships') rows = rows.map((m) => ({ ...m, tenant: fakeDb.tenants.find((t) => t.id === m.tenant_id) ?? null }))
+    // Como Supabase: cada respuesta trae objetos nuevos (copias), no referencias a la base.
+    rows = rows.map((r) => structuredClone(r))
+    if (table === 'memberships') {
+      rows = rows.map((m) => {
+        const tenant = fakeDb.tenants.find((t) => t.id === m.tenant_id)
+        return { ...m, tenant: tenant ? structuredClone(tenant) : null }
+      })
+    }
     return Promise.resolve(single ? { data: rows[0] ?? null, error: null } : { data: rows, error: null })
   }
   const builder = {
@@ -189,6 +196,14 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'set_onboarding_task') {
+    const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
+    if (t) {
+      const state = (t.onboarding_state ?? {}) as { tasks?: Record<string, boolean> }
+      t.onboarding_state = { ...state, tasks: { ...(state.tasks ?? {}), [String(args.p_task)]: Boolean(args.p_done) } }
+    }
+    return Promise.resolve({ data: t?.onboarding_state ?? null, error: null })
+  }
   if (fn === 'revoke_invitation') {
     const inv = fakeDb.invitations.find((i) => i.id === args.p_invitation)
     if (inv) inv.status = 'revoked'
@@ -243,6 +258,7 @@ export function resetFakeSupabase() {
   fakeSupabase.auth.signInWithPassword.mockReset()
   fakeSupabase.auth.signUp.mockReset()
   fakeSupabase.auth.updateUser.mockReset()
+  fakeSupabase.auth.updateUser.mockImplementation(() => Promise.resolve({ data: {}, error: null }))
   fakeSupabase.auth.verifyOtp.mockReset()
   for (const k of Object.keys(fakeDb) as (keyof Db)[]) fakeDb[k] = []
   fakeStorage.length = 0

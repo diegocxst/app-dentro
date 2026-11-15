@@ -62,7 +62,8 @@ describe('AppLayout', () => {
 
 describe('navegación', () => {
   it('cada sección tiene su página vacía con estado explicativo', async () => {
-    for (const s of SECTIONS) {
+    // Inicio muestra la guía de primer uso (ver pages/home.test.tsx).
+    for (const s of SECTIONS.filter((x) => x.id !== 'inicio')) {
       const { unmount } = await renderApp(s.path)
       expect(screen.getByRole('heading', { level: 1, name: s.label })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 2, name: s.empty.title })).toBeInTheDocument()

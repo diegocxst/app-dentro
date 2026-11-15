@@ -14,6 +14,8 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
+| **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida`. Migración 0006 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Plantilla «Invite user» pegada por Diego. |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
@@ -22,6 +24,23 @@
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E2 — Interfaz y estructura
+E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vacíos), **E2-B** pasos 2 a 5 del onboarding (dependen de tablas nuevas: se propone antes) y **E2-C** estados vacío, carga y error en toda la app.
+
+## E2-A — Inicio de primer uso (EN_PRUEBAS)
+- **Migración 0006** `20261116000100_onboarding_tasks`: RPC `set_onboarding_task` (propietario o administración de clínica activa; solo las 7 tareas; con auditoría). Las clínicas nuevas (y las existentes) empiezan con «identity» hecha.
+- **Inicio (mockup Main-Bienvenida):** «Hola, {nombre}. Terminemos de armar tu clínica.», **guía de 7 tareas** (avance en %, barra, minutos que faltan, marcar/desmarcar, botón principal en la primera pendiente), «¿Tienes dudas?» con «Repetir el recorrido» y **«Tu negocio, por dentro»** con 4 indicadores vacíos y su explicación. Con la guía completa, Inicio vuelve al tablero (E5). `/guia` muestra la misma guía; el contador del menú se actualiza.
+- **Recorrido de 4 pasos** la primera vez (Saltar, Siguiente, Empezar, Escape); se recuerda por persona en sus metadatos de Auth. En móvil va encima del botón «+».
+- Doctores y recepción ven la guía pero no la marcan.
+- Suite `onboarding_rls_isolation.sql` y `test:db` con 6 migraciones en verde. 156 pruebas (antes 147), estables en 3 corridas; una verifica que las 7 tareas coincidan con la base.
+- Revisión visual con la cuenta de Diego a 1440 px (claro) y 390 px (oscuro), sin marcar nada. Se corrigió: en móvil el recorrido tapaba el botón «+».
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0006 en dev.
+2. **Diferencias con el mockup:** se omitieron el video «Aprende dentro en 3 minutos», «Manuales paso a paso» y «Escríbenos por WhatsApp» (aún no existen) y la casilla **«Explorar con datos de ejemplo»** (choca con la regla «nada con datos simulados»; se propone diseñarla aparte).
+3. Saludo neutro «Hola, Diego» en lugar de «Bienvenida, Ana».
+4. Los botones de la guía llevan a Configuración, Pacientes y Presupuestos, que aún son páginas vacías hasta E2-B y E3.
 
 ## E1-B5c — Invitaciones de equipo (EN_PRUEBAS)
 - **Migración 0005** `20261115000500_team_invitations`: tabla `invitations` (correo normalizado, rol distinto de `owner`, sucursales, vence en 7 días, una pendiente por correo y clínica). RPC: `create_invitation` (propietario o administración de clínica activa; rechaza a quien ya es miembro, roles y sucursales inválidos; reinvitar renueva), `revoke_invitation`, `accept_my_invitations` (solo con correo **confirmado**; convierte en membresías las invitaciones vigentes de ese correo, reactiva a quien fue quitado y nunca toca a la propietaria), `update_member_role` y `revoke_member` (nunca sobre la propietaria ni hacia `owner`). Auditoría sin correos.
