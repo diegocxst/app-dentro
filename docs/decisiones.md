@@ -50,3 +50,8 @@
 | 2026-11-15 | D7: las migraciones se prueban primero en un PostgreSQL local desechable (`embedded-postgres`, dependencia de desarrollo) | Diego |
 | 2026-11-15 | D8: las mejoras de seguridad (escrituras por RPC, FK compuestas, `(select …)`, roles genéricos) se devuelven a `core-base` | Diego |
 | 2026-11-15 | E0 cerrada; arranca E1-B1 (migración del núcleo probada en PostgreSQL local) | Diego |
+| 2026-11-15 | E1-B1: `create_tenant` crea automáticamente la «Sucursal principal» | Diego |
+| 2026-11-15 | E1-B1: una membresía sin sucursales asignadas puede trabajar en todas | Diego |
+| 2026-11-15 | E1-B1: las sucursales no se borran, se desactivan; siempre queda al menos una activa | Diego |
+| 2026-11-15 | E1-B1: el superadmin no edita la identidad de una clínica; solo cambia su estatus, con motivo | Diego |
+| 2026-11-15 | E1-B1: cambios de rol, revocar miembros e invitaciones quedan para E1-B5 | Diego |

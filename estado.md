@@ -9,7 +9,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
-| **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. |
+| **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
 
 ## E1-B1 — Migración del núcleo multiempresa (EN_PRUEBAS)
@@ -22,7 +22,7 @@
 - La suite encontró un error real en `update_tenant_identity` (armado del arreglo de campos), ya corregido.
 - lint, typecheck, 66 pruebas y build limpios.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-15, ver `docs/decisiones.md`)
 1. `create_tenant` crea automáticamente la «Sucursal principal».
 2. Una membresía sin sucursales asignadas puede trabajar en todas.
 3. Las sucursales no se borran: se desactivan (y siempre queda al menos una activa).
@@ -61,7 +61,6 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **Revisar E1-B1** y aprobar los 5 puntos de arriba.
 - **E1-B2:** auth en el frontend (cliente Supabase, `AuthProvider`, guardas y pantallas de acceso con el diseño de dentro), con Supabase simulado.
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
