@@ -13,7 +13,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
-| **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations`. Migración 0005 y Edge Function probadas en local; **falta aplicar, desplegar y configurar en dev** (requiere aprobación). |
+| **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Falta pegar la plantilla de correo. |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
@@ -29,9 +29,12 @@
 - **Plantilla** `supabase/templates/invite_user.html` con la marca dentro; el enlace lleva a `/auth/invitacion` con `token_hash`.
 - Suite `invitations_rls_isolation.sql` y `test:db` con las 5 migraciones en verde. Prueba de mutación: la primera versión de la suite no detectaba 2 cambios peligrosos (aceptar sin correo confirmado; quitarle el rol a la propietaria); se reforzó y ahora los detecta.
 - 147 pruebas de la app (antes 122), estables en 3 corridas.
-- **Pendiente:** revisión visual de «Tu equipo» con datos reales (al aplicar en dev).
+- **En dev:** migración 0005 aplicada (prueba en seco → `db push`), las 5 suites en verde en el proyecto real, secreto `SITE_URL=http://localhost:5173`, Edge Function `invite-member` desplegada (`--use-api`, `verify_jwt` activo; sin sesión responde 401). Tipos regenerados.
+- **Prueba de punta a punta con la cuenta de Diego:** «Tu equipo» muestra su clínica y a Diego como propietario. Invitación a un correo ficticio: la cadena app → función → base → Supabase Auth funcionó; el correo NO salió (el correo por defecto solo envía a correos del equipo del proyecto) y la pantalla avisó «Guardamos la invitación, pero no pudimos enviar el correo». No se creó ningún usuario en Auth. Luego se canceló desde la pantalla. En dev quedan esa invitación (cancelada) y su auditoría.
+- Se ajustó la pantalla: la descripción del rol va debajo del selector (antes se cortaba). Revisión a 1440 px (claro) y 390 px (oscuro), sin desplazamiento horizontal.
+- **Pendiente:** pegar la plantilla «Invite user» (Diego) y probar una invitación real cuando haya correo transaccional (B4) o con un correo del equipo del proyecto en Supabase.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-15)
 1. Aplicar la migración 0005 en dev.
 2. Definir el secreto `SITE_URL=http://localhost:5173` de las Edge Functions y **desplegar** `invite-member` en dev.
 3. Pegar la plantilla «Invite user» en Supabase → Authentication → Emails (lo hace Diego).

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router'
 import { useAuth } from '@/auth/auth-context'
@@ -30,7 +30,7 @@ import { useWorkspace } from '@/workspace/workspace-context'
 
 type Notice = { tone: AlertTone; text: string }
 
-const ROLE_OPTIONS = ASSIGNABLE_ROLES.map((r) => ({ value: r, label: `${ROLE_LABEL[r]} · ${ROLE_HINT[r]}` }))
+const ROLE_OPTIONS = ASSIGNABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short' })
 
 /** Tu equipo (E1-B5c): invitar, cambiar rol y quitar. Solo propietario o administración gestionan. */
@@ -185,8 +185,10 @@ function InviteForm({ tenantId, branches, onDone }: { tenantId: string; branches
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<InviteValues>({ resolver: zodResolver(inviteSchema), defaultValues: { email: '', role: 'doctor', branchIds: [] } })
+  const role = useWatch({ control, name: 'role' })
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -206,7 +208,7 @@ function InviteForm({ tenantId, branches, onDone }: { tenantId: string; branches
       </div>
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <Input label="Correo electrónico" type="email" autoComplete="off" inputMode="email" autoCapitalize="none" error={errors.email?.message} {...register('email')} />
-        <Select label="Rol" options={ROLE_OPTIONS} error={errors.role?.message} {...register('role')} />
+        <Select label="Rol" options={ROLE_OPTIONS} hint={role ? `${ROLE_HINT[role]}.` : undefined} error={errors.role?.message} {...register('role')} />
         {branches.length > 1 && (
           <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
             <legend className="mb-1 p-0 text-ui font-medium">Sucursales</legend>
