@@ -13,7 +13,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
-| **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo`. Migración 0004 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
 | **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. Diferencias con el mockup aprobadas el 2026-11-15. |
@@ -27,8 +27,10 @@
 - **Panel:** el menú muestra el logo con una URL firmada de 1 hora que se renueva sola (sobre fondo blanco para que se vea en `night`).
 - Suite `logo_rls_isolation.sql` (propietaria, recepción, otra clínica, superadmin, clínica suspendida) y `test:db` con las 4 migraciones en verde. Prueba de mutación: al quitar la regla de la ruta, la suite falla.
 - 122 pruebas de la app (antes 116), estables en 3 corridas. Revisión visual del bloque a 1440 y 390 px (con página temporal no guardada); se compactó a una fila como en el mockup.
+- **Aplicada en dev:** las 4 suites en verde en el proyecto real (incluye las políticas sobre el `storage.objects` real); bucket privado de 1 MB con PNG/JPG/WebP y sus 4 políticas; sin archivos de prueba. Asesores: sin avisos nuevos.
+- **No probado en real:** subir un logo con la app (la clínica de Diego ya existe y cambiar el logo llega con Configuración).
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-15)
 1. Aplicar la migración 0004 en `dentro-dentistas-app`.
 2. **SVG no se permite** (el mockup dice «PNG o SVG»): un SVG puede llevar código; PNG, JPG y WebP bastan.
 3. Cambiar el logo después de crear la clínica llega con Configuración (M10, E3).

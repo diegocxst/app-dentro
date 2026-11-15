@@ -1,5 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0003 · 2026-11-15. NO editar a mano: regenerar tras cada migración.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0004 · 2026-11-15. NO editar a mano: regenerar tras cada migración.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =

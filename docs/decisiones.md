@@ -67,3 +67,4 @@
 | 2026-11-15 | Push de `main` a `diegocxst/app-dentro` (E1-A a E1-B4) | Diego |
 | 2026-11-15 | E1-B5 se divide en B5a (aviso y consentimientos), B5b (logo en Storage privado) y B5c (invitaciones) | Diego |
 | 2026-11-15 | B5a: migración 0003 aplicada en dev; el consentimiento de B5a es solo de las cuentas (el de pacientes llega con M2, por clínica); sin aviso vigente publicado, la app no bloquea el acceso | Diego |
+| 2026-11-15 | B5b: migración 0004 aplicada en dev; logo sin SVG (solo PNG, JPG, WebP); cambiar el logo después llega con Configuración (M10) | Diego |
