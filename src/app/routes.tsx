@@ -11,6 +11,8 @@ import { RegisterPage } from '@/pages/auth/RegisterPage'
 import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage'
 import { GuidePage } from '@/pages/GuidePage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
+import { ConfigurationPage } from '@/pages/configuration/ConfigurationPage'
+import { TeamPage } from '@/pages/configuration/TeamPage'
 import { CreateClinicPage } from '@/pages/onboarding/CreateClinicPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
@@ -55,9 +57,11 @@ export const routes: RouteObject[] = [
           </RequireClinic>
         ),
         children: [
-          ...SECTIONS.map((s): RouteObject =>
+          ...SECTIONS.filter((s) => s.id !== 'configuracion').map((s): RouteObject =>
             s.path === '/' ? { index: true, element: <SectionPage id={s.id} /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
           ),
+          { path: 'configuracion', element: <ConfigurationPage /> },
+          { path: 'configuracion/equipo', element: <TeamPage /> },
           { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
           { path: MORE_PATH.slice(1), element: <MorePage /> },
           { path: '*', element: <NotFoundPage /> },

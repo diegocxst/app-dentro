@@ -36,6 +36,8 @@
     }
   },
   "include": [
-    "src"
+    "src",
+    "supabase/functions/**/handler.ts",
+    "supabase/functions/**/*.test.ts"
   ]
 }

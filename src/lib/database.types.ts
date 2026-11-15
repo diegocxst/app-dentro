@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0004 · 2026-11-15. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: invitations y sus RPC (migración 0005) agregados a mano hasta aplicarla en dev.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -18,6 +19,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      invitations: {
+        Row: { accepted_at: string | null; accepted_by: string | null; branch_ids: string[]; created_at: string; email: string; expires_at: string; id: string; invited_by: string | null; role: Database["public"]["Enums"]["tenant_role"]; status: Database["public"]["Enums"]["invitation_status"]; tenant_id: string; updated_at: string }
+        Insert: { email: string; role: Database["public"]["Enums"]["tenant_role"]; tenant_id: string }
+        Update: { status?: Database["public"]["Enums"]["invitation_status"] }
+        Relationships: []
+      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -322,6 +329,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_my_invitations: { Args: never; Returns: number }
+      create_invitation: {
+        Args: { p_branch_ids?: string[]; p_email: string; p_role: Database["public"]["Enums"]["tenant_role"]; p_tenant: string }
+        Returns: Database["public"]["Tables"]["invitations"]["Row"]
+      }
+      revoke_invitation: { Args: { p_invitation: string }; Returns: Database["public"]["Tables"]["invitations"]["Row"] }
+      revoke_member: { Args: { p_membership: string }; Returns: Database["public"]["Tables"]["memberships"]["Row"] }
+      update_member_role: {
+        Args: { p_membership: string; p_role: Database["public"]["Enums"]["tenant_role"] }
+        Returns: Database["public"]["Tables"]["memberships"]["Row"]
+      }
       accept_privacy_notice: {
         Args: {
           p_source?: Database["public"]["Enums"]["consent_source"]
@@ -506,6 +524,7 @@ export type Database = {
       }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "revoked"
       consent_source: "signup" | "invite" | "renewal"
       membership_status: "active" | "invited" | "revoked"
       tenant_kind: "independent" | "clinic"

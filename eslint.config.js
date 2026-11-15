@@ -6,7 +6,8 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'node_modules', 'docs']),
+  // Entradas Deno de las Edge Functions: las revisa Supabase al desplegar.
+  globalIgnores(['dist', 'node_modules', 'docs', 'supabase/functions/**/index.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

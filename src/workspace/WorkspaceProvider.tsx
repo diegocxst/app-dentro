@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAuth } from '@/auth/auth-context'
 import { signedLogoUrl, LOGO_URL_SECONDS } from '@/data/branding'
+import { acceptMyInvitations } from '@/data/team'
 import { fetchBranches, fetchIsPlatformAdmin, fetchMyMemberships, fetchMyProfile, type Branch } from '@/data/workspace'
 import { prefs } from './preferences'
 import { WorkspaceContext, type WorkspaceState, type WorkspaceValue } from './workspace-context'
 
 async function loadWorkspace(userId: string): Promise<WorkspaceState> {
+  // Primero, las invitaciones vigentes de su correo se vuelven membresías (E1-B5c).
+  // Si falla, se sigue: la persona entra con lo que ya tenía.
+  await acceptMyInvitations().catch(() => 0)
   try {
     const [profile, memberships, isPlatformAdmin] = await Promise.all([
       fetchMyProfile(userId),

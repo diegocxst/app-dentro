@@ -47,6 +47,9 @@ export const fakeSupabase = {
     }),
   },
   from: vi.fn((table: string) => query(table)),
+  functions: {
+    invoke: vi.fn((name: string, { body }: { body: Record<string, unknown> }) => functionHandler(name, body)),
+  },
   storage: {
     from: vi.fn((bucket: string) => ({
       upload: vi.fn((path: string, file: File) => {
@@ -65,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -103,17 +106,21 @@ export function fakeTenant(overrides: Row = {}): Row {
 }
 
 /** Siembra una clínica con la persona de la sesión como dueña y una sucursal. */
-export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id) {
+export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, role = 'owner') {
   fakeDb.tenants.push(tenant)
-  fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role: 'owner', status: 'active', created_at: '2026-11-15T00:00:00Z' })
+  fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role, status: 'active', created_at: '2026-11-15T00:00:00Z' })
+  if (!fakeDb.profiles.some((p) => p.id === userId)) fakeDb.profiles.push({ id: userId, full_name: 'Dueña Prueba', phone_e164: null, avatar_path: null })
   fakeDb.branches.push({ id: tenant.id === TENANT_ID ? BRANCH_ID : `b-${String(tenant.id)}`, tenant_id: tenant.id, name: 'Sucursal principal', address: '', is_active: true })
 }
 
 function query(table: string) {
   const filters: [string, unknown][] = []
+  const inFilters: [string, unknown[]][] = []
   let single = false
   const run = () => {
-    let rows = ((fakeDb as Record<string, Row[] | undefined>)[table] ?? []).filter((r) => filters.every(([k, v]) => r[k] === v))
+    let rows = ((fakeDb as Record<string, Row[] | undefined>)[table] ?? []).filter(
+      (r) => filters.every(([k, v]) => r[k] === v) && inFilters.every(([k, vs]) => vs.includes(r[k])),
+    )
     if (table === 'memberships') rows = rows.map((m) => ({ ...m, tenant: fakeDb.tenants.find((t) => t.id === m.tenant_id) ?? null }))
     return Promise.resolve(single ? { data: rows[0] ?? null, error: null } : { data: rows, error: null })
   }
@@ -123,7 +130,12 @@ function query(table: string) {
       filters.push([k, v])
       return builder
     },
+    in: (k: string, vs: unknown[]) => {
+      inFilters.push([k, vs])
+      return builder
+    },
     order: () => builder,
+    limit: () => builder,
     maybeSingle: () => {
       single = true
       return run()
@@ -131,6 +143,33 @@ function query(table: string) {
     then: (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) => run().then(resolve, reject),
   }
   return builder
+}
+
+type FnResult = Promise<{ data: unknown; error: { context?: { json: () => Promise<unknown> } } | null }>
+export const functionOverrides: Record<string, (body: Record<string, unknown>) => FnResult> = {}
+
+function functionHandler(name: string, body: Record<string, unknown>): FnResult {
+  const override = functionOverrides[name]
+  if (override) return override(body)
+  if (name === 'invite-member') {
+    const existing = fakeDb.invitations.find((i) => i.tenant_id === body.tenant_id && i.email === body.email && i.status === 'pending')
+    if (existing) {
+      existing.role = body.role
+    } else {
+      fakeDb.invitations.push({
+        id: `inv-${fakeDb.invitations.length + 1}`,
+        tenant_id: body.tenant_id,
+        email: body.email,
+        role: body.role,
+        branch_ids: body.branch_ids,
+        status: 'pending',
+        expires_at: '2026-11-22T00:00:00Z',
+        created_at: '2026-11-15T00:00:00Z',
+      })
+    }
+    return Promise.resolve({ data: { status: 'sent', invitation_id: 'inv-1' }, error: null })
+  }
+  return Promise.resolve({ data: null, error: null })
 }
 
 type RpcResult = Promise<{ data: unknown; error: { code: string; message: string } | null }>
@@ -148,6 +187,18 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
       fakeDb.account_consents.push({ id: fakeDb.account_consents.length + 1, user_id: userId, notice_id: notice.id, source: args.p_source })
     }
     return Promise.resolve({ data: {}, error: null })
+  }
+  if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'revoke_invitation') {
+    const inv = fakeDb.invitations.find((i) => i.id === args.p_invitation)
+    if (inv) inv.status = 'revoked'
+    return Promise.resolve({ data: inv ?? null, error: null })
+  }
+  if (fn === 'update_member_role' || fn === 'revoke_member') {
+    const m = fakeDb.memberships.find((x) => x.id === args.p_membership)
+    if (m && fn === 'update_member_role') m.role = args.p_role
+    if (m && fn === 'revoke_member') m.status = 'revoked'
+    return Promise.resolve({ data: m ?? null, error: null })
   }
   if (fn === 'update_tenant_identity') {
     const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
@@ -196,4 +247,5 @@ export function resetFakeSupabase() {
   for (const k of Object.keys(fakeDb) as (keyof Db)[]) fakeDb[k] = []
   fakeStorage.length = 0
   for (const k of Object.keys(rpcOverrides)) delete rpcOverrides[k]
+  for (const k of Object.keys(functionOverrides)) delete functionOverrides[k]
 }

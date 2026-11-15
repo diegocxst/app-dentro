@@ -13,6 +13,7 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations`. Migración 0005 y Edge Function probadas en local; **falta aplicar, desplegar y configurar en dev** (requiere aprobación). |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
@@ -20,6 +21,21 @@
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B5c — Invitaciones de equipo (EN_PRUEBAS)
+- **Migración 0005** `20261115000500_team_invitations`: tabla `invitations` (correo normalizado, rol distinto de `owner`, sucursales, vence en 7 días, una pendiente por correo y clínica). RPC: `create_invitation` (propietario o administración de clínica activa; rechaza a quien ya es miembro, roles y sucursales inválidos; reinvitar renueva), `revoke_invitation`, `accept_my_invitations` (solo con correo **confirmado**; convierte en membresías las invitaciones vigentes de ese correo, reactiva a quien fue quitado y nunca toca a la propietaria), `update_member_role` y `revoke_member` (nunca sobre la propietaria ni hacia `owner`). Auditoría sin correos.
+- **Edge Function `invite-member`**: con el JWT de quien invita llama a `create_invitation` (la base decide permisos) y solo entonces envía el correo con `auth.admin.inviteUserByEmail` (clave de servicio, solo en el servidor). Si el correo ya tiene cuenta, la invitación queda lista para su próximo ingreso. La lógica vive en `handler.ts` con 14 pruebas; `index.ts` solo la conecta con Deno.
+- **App:** al entrar, `accept_my_invitations` convierte invitaciones en membresías (así el invitado entra directo a la clínica). **Configuración › Tu equipo** (`/configuracion/equipo`): invitar (correo, rol, sucursales), lista del equipo con cambio de rol y «Quitar» con confirmación, invitaciones pendientes con «Reenviar» y «Cancelar». Doctores y recepción ven el equipo pero no lo editan.
+- **Plantilla** `supabase/templates/invite_user.html` con la marca dentro; el enlace lleva a `/auth/invitacion` con `token_hash`.
+- Suite `invitations_rls_isolation.sql` y `test:db` con las 5 migraciones en verde. Prueba de mutación: la primera versión de la suite no detectaba 2 cambios peligrosos (aceptar sin correo confirmado; quitarle el rol a la propietaria); se reforzó y ahora los detecta.
+- 147 pruebas de la app (antes 122), estables en 3 corridas.
+- **Pendiente:** revisión visual de «Tu equipo» con datos reales (al aplicar en dev).
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0005 en dev.
+2. Definir el secreto `SITE_URL=http://localhost:5173` de las Edge Functions y **desplegar** `invite-member` en dev.
+3. Pegar la plantilla «Invite user» en Supabase → Authentication → Emails (lo hace Diego).
+4. Con el correo por defecto de Supabase **solo llegan invitaciones a correos del equipo del proyecto**; para invitar a cualquiera se necesita el correo transaccional (B4).
 
 ## E1-B5b — Logo de la clínica en Storage privado (EN_PRUEBAS)
 - **Migración 0004** `20261115000400_tenant_logo`: bucket **privado** `tenant-branding` (1 MB; PNG, JPG o WebP), rutas `<clínica>/logo-<id>.<ext>`. Políticas en `storage.objects`: suben, cambian o borran solo propietario o administrador de una clínica **activa**; ven los miembros y el superadmin. `update_tenant_identity` solo acepta un logo de esa misma clínica (ni de otra ni URL externa).

@@ -10,13 +10,15 @@ type Options = {
   tenant?: Record<string, unknown> | null
   /** ¿La persona ya aceptó el aviso vigente? (por omisión, sí). */
   consented?: boolean
+  /** Rol de la persona en la clínica (por omisión, propietaria). */
+  role?: string
 }
 
 /** Monta la app completa en una ruta, con sesión y clínica simuladas por omisión. */
-export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant(), consented = true }: Options = {}) {
+export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant(), consented = true, role = 'owner' }: Options = {}) {
   setInitialSession(signedIn ? fakeSession() : null)
   // La clínica existe en la base aunque la persona aún no haya entrado.
-  if (tenant) seedClinic(tenant)
+  if (tenant) seedClinic(tenant, undefined, role)
   seedNotice({ accepted: consented })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const utils = render(
