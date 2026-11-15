@@ -126,7 +126,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
       owner_display_name: args.p_owner_display_name,
       owner_title: args.p_owner_title,
       brand_color: args.p_brand_color,
-      whatsapp_e164: args.p_whatsapp_e164,
+      whatsapp_e164: args.p_whatsapp_e164 || null,
       city: args.p_city,
     })
     seedClinic(tenant)

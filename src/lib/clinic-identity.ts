@@ -1,5 +1,5 @@
 import { ensureBrandContrast, type BrandColorResult } from './color'
-import type { Tables } from './database.types'
+import type { Tables } from './db'
 import { guideProgress } from './onboarding'
 
 /** Identidad de la clínica activa, lista para el menú, la barra y los documentos. */

@@ -1,4 +1,4 @@
-import type { Json } from './database.types'
+import type { Json } from './db'
 
 /** Tareas de la guía de inicio (decisión 2026-11-10: 7 tareas). */
 export const GUIDE_TOTAL = 7

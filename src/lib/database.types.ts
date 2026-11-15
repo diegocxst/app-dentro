@@ -1,145 +1,562 @@
-// ⚠️ PROVISIONAL — escrito a mano a partir de
-// supabase/migrations/20261115000100_core_tenancy.sql.
-// En E1-B4, al conectar el proyecto dev, se REGENERA con:
-//   supabase gen types typescript --project-id <ref> > src/lib/database.types.ts
+// Generado con: npx supabase gen types typescript --remote --schema public
+// Proyecto dev dentro-dentistas-app · 2026-11-15. NO editar a mano: regenerar tras cada migración.
+// Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
-
-type Timestamps = { created_at: string; updated_at: string }
-
-export type TenantKind = 'independent' | 'clinic'
-export type TenantStatus = 'active' | 'suspended' | 'cancelled'
-export type TenantRole = 'owner' | 'admin' | 'reception' | 'doctor' | 'doctor_collab'
-export type MembershipStatus = 'active' | 'invited' | 'revoked'
-
-type ProfileRow = Timestamps & {
-  id: string
-  full_name: string
-  phone_e164: string | null
-  avatar_path: string | null
-}
-
-type TenantRow = Timestamps & {
-  id: string
-  kind: TenantKind
-  display_name: string
-  slug: string
-  status: TenantStatus
-  owner_display_name: string
-  owner_title: string
-  logo_path: string | null
-  brand_color: string
-  onboarding_state: Json
-  whatsapp_e164: string | null
-  city: string
-  created_by: string | null
-}
-
-type MembershipRow = Timestamps & {
-  id: string
-  tenant_id: string
-  user_id: string
-  role: TenantRole
-  status: MembershipStatus
-}
-
-type BranchRow = Timestamps & {
-  id: string
-  tenant_id: string
-  name: string
-  address: string
-  is_active: boolean
-}
-
-type MembershipBranchRow = {
-  tenant_id: string
-  membership_id: string
-  branch_id: string
-  created_at: string
-}
-
-type AuditLogRow = {
-  id: number
-  tenant_id: string | null
-  actor_id: string | null
-  action: string
-  entity: string
-  entity_id: string | null
-  details: Json
-  created_at: string
-}
-
-/** Las tablas solo se leen: toda escritura va por RPC (Insert/Update vacíos a propósito). */
-type ReadOnlyTable<Row> = { Row: Row; Insert: never; Update: never; Relationships: [] }
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
   public: {
     Tables: {
-      profiles: ReadOnlyTable<ProfileRow>
-      tenants: ReadOnlyTable<TenantRow>
-      memberships: ReadOnlyTable<MembershipRow>
-      branches: ReadOnlyTable<BranchRow>
-      membership_branches: ReadOnlyTable<MembershipBranchRow>
-      audit_logs: ReadOnlyTable<AuditLogRow>
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string
+          entity_id: string | null
+          id: number
+          tenant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity: string
+          entity_id?: string | null
+          id?: never
+          tenant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string
+          entity_id?: string | null
+          id?: never
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      branches: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_branches: {
+        Row: {
+          branch_id: string
+          created_at: string
+          membership_id: string
+          tenant_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          membership_id: string
+          tenant_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          membership_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_branches_tenant_id_branch_id_fkey"
+            columns: ["tenant_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "membership_branches_tenant_id_membership_id_fkey"
+            columns: ["tenant_id", "membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["tenant_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone_e164: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          created_at?: string
+          full_name?: string
+          id: string
+          phone_e164?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone_e164?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenants: {
+        Row: {
+          brand_color: string
+          city: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          kind: Database["public"]["Enums"]["tenant_kind"]
+          logo_path: string | null
+          onboarding_state: Json
+          owner_display_name: string
+          owner_title: string
+          slug: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          updated_at: string
+          whatsapp_e164: string | null
+        }
+        Insert: {
+          brand_color?: string
+          city?: string
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          id?: string
+          kind: Database["public"]["Enums"]["tenant_kind"]
+          logo_path?: string | null
+          onboarding_state?: Json
+          owner_display_name?: string
+          owner_title?: string
+          slug: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          updated_at?: string
+          whatsapp_e164?: string | null
+        }
+        Update: {
+          brand_color?: string
+          city?: string
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["tenant_kind"]
+          logo_path?: string | null
+          onboarding_state?: Json
+          owner_display_name?: string
+          owner_title?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          updated_at?: string
+          whatsapp_e164?: string | null
+        }
+        Relationships: []
+      }
     }
-    Views: Record<never, never>
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
+      admin_set_tenant_status: {
+        Args: {
+          p_reason: string
+          p_status: Database["public"]["Enums"]["tenant_status"]
+          p_tenant: string
+        }
+        Returns: {
+          brand_color: string
+          city: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          kind: Database["public"]["Enums"]["tenant_kind"]
+          logo_path: string | null
+          onboarding_state: Json
+          owner_display_name: string
+          owner_title: string
+          slug: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          updated_at: string
+          whatsapp_e164: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tenants"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      am_i_platform_admin: { Args: never; Returns: boolean }
+      create_branch: {
+        Args: { p_address?: string; p_name: string; p_tenant: string }
+        Returns: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_tenant: {
         Args: {
+          p_brand_color?: string
+          p_city?: string
           p_display_name: string
-          p_kind: TenantKind
-          p_slug: string
+          p_kind: Database["public"]["Enums"]["tenant_kind"]
           p_owner_display_name?: string
           p_owner_title?: string
-          p_brand_color?: string | null
-          p_whatsapp_e164?: string | null
-          p_city?: string
+          p_slug: string
+          p_whatsapp_e164?: string
         }
-        Returns: TenantRow
+        Returns: {
+          brand_color: string
+          city: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          kind: Database["public"]["Enums"]["tenant_kind"]
+          logo_path: string | null
+          onboarding_state: Json
+          owner_display_name: string
+          owner_title: string
+          slug: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          updated_at: string
+          whatsapp_e164: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tenants"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_membership_branches: {
+        Args: { p_branch_ids: string[]; p_membership: string }
+        Returns: undefined
+      }
+      update_branch: {
+        Args: {
+          p_address?: string
+          p_branch: string
+          p_is_active?: boolean
+          p_name?: string
+        }
+        Returns: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_my_profile: {
+        Args: { p_full_name?: string; p_phone_e164?: string }
+        Returns: {
+          avatar_path: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone_e164: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_tenant_identity: {
         Args: {
+          p_brand_color?: string
+          p_city?: string
+          p_display_name?: string
+          p_logo_path?: string
+          p_owner_display_name?: string
+          p_owner_title?: string
           p_tenant: string
-          p_display_name?: string | null
-          p_owner_display_name?: string | null
-          p_owner_title?: string | null
-          p_logo_path?: string | null
-          p_brand_color?: string | null
-          p_whatsapp_e164?: string | null
-          p_city?: string | null
+          p_whatsapp_e164?: string
         }
-        Returns: TenantRow
+        Returns: {
+          brand_color: string
+          city: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          kind: Database["public"]["Enums"]["tenant_kind"]
+          logo_path: string | null
+          onboarding_state: Json
+          owner_display_name: string
+          owner_title: string
+          slug: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          updated_at: string
+          whatsapp_e164: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tenants"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      update_my_profile: {
-        Args: { p_full_name?: string | null; p_phone_e164?: string | null }
-        Returns: ProfileRow
-      }
-      create_branch: {
-        Args: { p_tenant: string; p_name: string; p_address?: string }
-        Returns: BranchRow
-      }
-      update_branch: {
-        Args: { p_branch: string; p_name?: string | null; p_address?: string | null; p_is_active?: boolean | null }
-        Returns: BranchRow
-      }
-      set_membership_branches: {
-        Args: { p_membership: string; p_branch_ids: string[] }
-        Returns: undefined
-      }
-      admin_set_tenant_status: {
-        Args: { p_tenant: string; p_status: TenantStatus; p_reason: string }
-        Returns: TenantRow
-      }
-      am_i_platform_admin: { Args: Record<string, never>; Returns: boolean }
     }
     Enums: {
-      tenant_kind: TenantKind
-      tenant_status: TenantStatus
-      tenant_role: TenantRole
-      membership_status: MembershipStatus
+      membership_status: "active" | "invited" | "revoked"
+      tenant_kind: "independent" | "clinic"
+      tenant_role: "owner" | "admin" | "reception" | "doctor" | "doctor_collab"
+      tenant_status: "active" | "suspended" | "cancelled"
     }
-    CompositeTypes: Record<never, never>
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      membership_status: ["active", "invited", "revoked"],
+      tenant_kind: ["independent", "clinic"],
+      tenant_role: ["owner", "admin", "reception", "doctor", "doctor_collab"],
+      tenant_status: ["active", "suspended", "cancelled"],
+    },
+  },
+} as const

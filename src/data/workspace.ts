@@ -1,4 +1,4 @@
-import type { Tables, TenantKind } from '@/lib/database.types'
+import type { Tables, TenantKind } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
 // Consultas del núcleo. Lecturas con RLS; escrituras solo por RPC. Origen: core-base.
@@ -66,7 +66,8 @@ export async function createClinic(input: CreateClinicInput): Promise<Tenant> {
     p_owner_display_name: input.ownerDisplayName,
     p_owner_title: input.ownerTitle,
     p_brand_color: input.brandColor,
-    p_whatsapp_e164: input.whatsappE164,
+    // La base convierte '' en NULL (sin WhatsApp).
+    p_whatsapp_e164: input.whatsappE164 ?? '',
     p_city: input.city,
   })
   if (error) throw error
