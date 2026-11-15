@@ -179,9 +179,11 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **E1-B5:** invitaciones de equipo (Edge Function), aviso de privacidad y consentimientos (`privacy_notices`, `consents`), Storage privado para el logo. Requiere correo transaccional (B4) para producción.
-- ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
+- **Aprobar E2-A** y aplicar la migración 0006 en dev.
+- **E2-B:** pasos 2 a 5 del onboarding (sucursales y sillones, equipo, tratamientos y precios, WhatsApp y Meta). Requiere tablas nuevas (`chairs`, `treatments`): se propone a Diego antes de construir.
+- **E2-C:** estados vacío, carga y error en toda la app.
+- **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
+- **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 
 ## Bloqueos y pendientes
 | # | Pendiente | Bloquea | Responsable |
