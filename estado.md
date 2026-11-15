@@ -2,7 +2,8 @@
 Última actualización: 2026-11-15 · Por: Diego (con Claude)
 
 ## Integración
-- 2026-11-15: E1-A, E1-B1, E1-B2, E1-B3 y E1-B4 integradas en `main` **local** (avance directo, sin conflictos). Verificado en `main`: lint, typecheck, 109 pruebas, `test:db` y build. **Sin push.** Las ramas `feature/*` se conservan.
+- 2026-11-15: E1-A, E1-B1, E1-B2, E1-B3 y E1-B4 integradas en `main` **local** (avance directo, sin conflictos). Verificado en `main`: lint, typecheck, 109 pruebas, `test:db` y build. Las ramas `feature/*` se conservan (solo locales).
+- 2026-11-15: **push de `main`** a `diegocxst/app-dentro` con aprobación de Diego (`cb84157..798284e`, sin forzar; revisado sin secretos).
 
 ## Fase actual
 | Fase | Estado |
@@ -107,7 +108,6 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **Push de `main`** a `diegocxst/app-dentro` (requiere aprobación de Diego).
 - **E1-B5:** invitaciones de equipo (Edge Function), aviso de privacidad y consentimientos (`privacy_notices`, `consents`), Storage privado para el logo. Requiere correo transaccional (B4) para producción.
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 

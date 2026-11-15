@@ -64,3 +64,4 @@
 | 2026-11-15 | El CLI de Supabase vive como dependencia de desarrollo del proyecto (`npx supabase`), no instalado globalmente | Diego |
 | 2026-11-15 | Los avisos del asesor de Supabase sobre RPC `SECURITY DEFINER` ejecutables por `authenticated` se aceptan: es el diseño de escrituras por RPC | Diego |
 | 2026-11-15 | E1-A a E1-B4 integradas en `main` local (sin push) | Diego |
+| 2026-11-15 | Push de `main` a `diegocxst/app-dentro` (E1-A a E1-B4) | Diego |
