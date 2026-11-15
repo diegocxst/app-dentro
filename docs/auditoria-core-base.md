@@ -1,5 +1,5 @@
 # Auditoría de `core-base` (Realt-In) — dentro
-E0-A · 2026-11-15 · Estado: PROPUESTA (pendiente de aprobación de Diego)
+E0-A · 2026-11-15 · Estado: **APROBADA** por Diego el 2026-11-15 (D1–D8 en `docs/decisiones.md`)
 
 ## 1. Qué se auditó
 - **Fuente:** `REALT-IN-BASE-DENTRO.zip` (generado a partir de Realt-In el 2026-11-14). Es una copia **depurada** con autenticación, multiempresa, roles con RLS y layout del panel. Trae 133 archivos, unas 5,900 líneas de TypeScript y una migración SQL.
@@ -85,7 +85,7 @@ E0-A · 2026-11-15 · Estado: PROPUESTA (pendiente de aprobación de Diego)
 | **E1-B5** | Invitaciones (Edge Function), aviso de privacidad y consentimientos, `audit_log` de accesos | Sí. Requiere aprobación y B4 (correo) |
 
 ## 7. Decisiones para Diego
-| # | Decisión | Recomendación |
+| # | Decisión | Aprobado (2026-11-15) |
 |---|---|---|
 | D1 | Variable de la clave pública | `VITE_SUPABASE_PUBLISHABLE_KEY` (formato nuevo) en lugar de `VITE_SUPABASE_ANON_KEY` |
 | D2 | Tipos de tenant | `independent` (consultorio) y `clinic` (clínica) |

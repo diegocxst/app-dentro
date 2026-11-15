@@ -1,19 +1,19 @@
 # Modelo de datos — dentro
-E0 · 2026-11-10 · Estado: BORRADOR (se ajusta con la auditoría de `core-base`)
+E0 · 2026-11-10 · Estado: BORRADOR (ajustado con la auditoría de `core-base` el 2026-11-15)
 
 Convenciones: `id uuid`, `tenant_id uuid NOT NULL` en toda tabla de negocio, `created_at` / `updated_at`, `created_by`. FK compuestas `(tenant_id, …)`. RLS activo en todas. Escrituras por RPC.
 
 ## Core (de `core-base`)
 | Tabla | Para qué | Notas |
 |---|---|---|
-| `tenants` | La clínica o consultorio que paga | plan, tipo (`independiente` / `clinica`), estado, identidad (`display_name`, `owner_display_name`, `owner_title`, `logo_path`, `brand_color`), `onboarding_state` |
+| `tenants` | La clínica o consultorio que paga | plan, tipo (`independent` / `clinic`, D2), estado, identidad (`display_name`, `owner_display_name`, `owner_title`, `logo_path`, `brand_color`), `onboarding_state` |
 | `profiles` | Datos de la cuenta global | 1:1 con `auth.users` |
 | `memberships` | Usuario ↔ tenant ↔ rol | rol (§3 de arquitectura), estado, sucursales permitidas |
 | `invitations` | Invitar doctores y recepción | token de un solo uso, expira |
 | `plans`, `subscriptions` | Billing (se activa con la empresa propia) | estados `trial` / `active` / `past_due` / `canceled` |
 | `feature_flags`, `tenant_features` | Encender funciones por plan o por clínica | Fase 2+ apagada por defecto |
 | `privacy_notices`, `consents` | Aviso versionado y consentimiento | consentimiento por paciente (datos de salud) |
-| `audit_log` | Operaciones críticas | sin datos personales en claro |
+| `audit_logs` | Operaciones críticas | sin datos personales en claro (nombre de `core-base`, D6) |
 | `notifications` | Notificaciones internas | |
 | `onboarding_tasks` | Guía de inicio (7 tareas) | estado por tenant |
 
@@ -73,4 +73,4 @@ Restricción: no se traslapan citas del mismo sillón o del mismo doctor (constr
 5. `doctor_collab` solo lee filas donde es el doctor asignado, más sus `commission_entries`.
 
 ## Pendiente de la auditoría
-- Qué tablas y RPC de Realt-In se reutilizan tal cual y cuáles se renombran a genéricos.
+- ~~Qué tablas y RPC de Realt-In se reutilizan~~: resuelto en `docs/auditoria-core-base.md` (2026-11-15).

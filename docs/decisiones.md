@@ -40,3 +40,12 @@
 | 2026-11-12 | Suben a `core-base`: `color.ts` (contraste y validación de `brand_color`), `useDismiss` y los componentes base | Diego |
 | 2026-11-12 | Se aceptan las 10 vulnerabilidades moderadas de `npm audit` (solo dependencias de desarrollo, ESLint); se revisan al actualizar dependencias | Diego |
 | 2026-11-15 | El superadmin (`platform_admin`) ve clínicas, perfiles y membresías de todas las clínicas; no ve datos clínicos (pacientes, documentos, citas, presupuestos, pagos) | Diego |
+| 2026-11-15 | E0-A aprobada: `core-base` = copia depurada de Realt-In (`REALT-IN-BASE-DENTRO.zip`), portada pieza por pieza según `docs/auditoria-core-base.md` | Diego |
+| 2026-11-15 | D1: la clave pública de Supabase se llama `VITE_SUPABASE_PUBLISHABLE_KEY` (formato `sb_publishable_…`) | Diego |
+| 2026-11-15 | D2: tipos de tenant `independent` (consultorio) y `clinic` (clínica) | Diego |
+| 2026-11-15 | D3: acceso con correo y contraseña; el código por correo (OTP) queda apagado hasta tener correo transaccional (B4) | Diego |
+| 2026-11-15 | D4: registro abierto para dueños; doctores y recepción solo por invitación | Diego |
+| 2026-11-15 | D5: un usuario puede crear 1 clínica en el MVP; más según el plan después | Diego |
+| 2026-11-15 | D6: la bitácora se llama `audit_logs` (como Realt-In) | Diego |
+| 2026-11-15 | D7: las migraciones se prueban primero en un PostgreSQL local desechable (`embedded-postgres`, dependencia de desarrollo) | Diego |
+| 2026-11-15 | D8: las mejoras de seguridad (escrituras por RPC, FK compuestas, `(select …)`, roles genéricos) se devuelven a `core-base` | Diego |

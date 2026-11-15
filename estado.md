@@ -8,14 +8,15 @@
 | V1 Modelo de negocio | Pendiente (pricing y cortes de plan). Supuesto: $399–$800 MXN/mes. |
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
-| **E0 Auditoría y planificación** | **EN_PRUEBAS.** Auditoría de Realt-In (E0-A) entregada el 2026-11-15 en `docs/auditoria-core-base.md`; falta la aprobación de Diego (decisiones D1–D8). |
+| **E0 Auditoría y planificación** | Auditoría de Realt-In (E0-A) **aprobada** el 2026-11-15 con D1–D8. Pendiente: que Diego dé por cerrada E0 y autorice E1-B. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
 
-## E0-A — Auditoría de `core-base` (EN_PRUEBAS)
+## E0-A — Auditoría de `core-base` (APROBADA 2026-11-15)
 - Fuente: `REALT-IN-BASE-DENTRO.zip` (copia depurada de Realt-In del 2026-11-14), revisada en modo de solo lectura fuera del repo. No se ejecutó nada ni se copió código.
 - Sin secretos ni datos de clientes. Quedan restos de marca de Realt-In/AVIOR por quitar al portar.
 - Resultado: núcleo multiempresa, auth y pruebas de RLS reutilizables. Brechas contra las reglas de dentro: escrituras directas (no por RPC), sin FK compuestas, roles distintos, sin identidad de clínica, sucursales, invitaciones desde la app ni consentimientos.
-- Plan E1-B1 a E1-B5 y decisiones D1–D8 en `docs/auditoria-core-base.md` §6–§7.
+- Plan E1-B1 a E1-B5 en `docs/auditoria-core-base.md` §6. Decisiones D1–D8 aprobadas (`docs/decisiones.md`). El superadmin ve perfiles y membresías de todas las clínicas, pero no datos clínicos.
+- Aplicado: `.env.example` usa `VITE_SUPABASE_PUBLISHABLE_KEY` (D1); `modelo-datos.md` usa `audit_logs` (D6) e `independent` / `clinic` (D2).
 
 ## E1-A — Estructura del proyecto y layout (EN_PRUEBAS)
 Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue pendiente la auditoría de Realt-In. No toca auth, base de datos ni Supabase.
@@ -42,7 +43,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 
 ## Siguiente tarea
 - **Revisar y aprobar E1-A** (correr `npm install` y `npm run dev`), y hacer merge de `feature/e1a-estructura`.
-- **Aprobar la auditoría E0-A** (decisiones D1–D8) para cerrar E0.
+- **Cerrar E0 y autorizar E1-B** (aprobación de Diego).
 - **E1-B1:** migración `0001_core_tenancy` adaptada + rollback + suite de aislamiento, probadas en PostgreSQL local desechable (sin Supabase).
 - ~~E0-A~~ (entregada): auditoría de solo lectura del código de Realt-In (respaldo de Lalo) para definir `core-base` → `docs/auditoria-core-base.md`. La ejecuta Diego con Claude Code en su Mac (prompt E0-A).
 
