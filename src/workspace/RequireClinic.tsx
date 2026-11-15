@@ -25,9 +25,9 @@ function CenteredMessage({ children }: { children: ReactNode }) {
  * Clínica cancelada → aviso, sin acceso a los datos (la RLS tampoco los entrega).
  */
 export function RequireClinic({ children }: { children: ReactNode }) {
-  const { state, active, refresh } = useWorkspace()
+  const { state, active, refresh, logoUrl } = useWorkspace()
   const tenant = active?.tenant ?? null
-  const identity = useMemo(() => (tenant ? identityFromTenant(tenant) : null), [tenant])
+  const identity = useMemo(() => (tenant ? identityFromTenant(tenant, logoUrl) : null), [tenant, logoUrl])
 
   if (state.status === 'loading') return <FullPageSpinner />
   if (state.status === 'error') {

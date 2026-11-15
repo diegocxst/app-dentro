@@ -9,7 +9,7 @@ export type ClinicIdentity = {
   ownerDisplayName: string
   ownerTitle: string
   ownerLine: string
-  /** URL del logo. `null` = iniciales sobre `brand.color` (subir logo llega con Storage). */
+  /** URL firmada del logo. `null` = iniciales sobre `brand.color`. */
   logoUrl: string | null
   initials: string
   brand: BrandColorResult
@@ -34,14 +34,14 @@ export function ownerLine(ownerDisplayName: string, ownerTitle: string): string 
 
 type IdentityFields = Pick<Tables<'tenants'>, 'id' | 'display_name' | 'owner_display_name' | 'owner_title' | 'brand_color' | 'onboarding_state'>
 
-export function identityFromTenant(t: IdentityFields): ClinicIdentity {
+export function identityFromTenant(t: IdentityFields, logoUrl: string | null = null): ClinicIdentity {
   return {
     tenantId: t.id,
     displayName: t.display_name,
     ownerDisplayName: t.owner_display_name,
     ownerTitle: t.owner_title,
     ownerLine: ownerLine(t.owner_display_name, t.owner_title),
-    logoUrl: null,
+    logoUrl,
     initials: clinicInitials(t.display_name),
     // La base ya lo guarda ajustado; se vuelve a validar por si acaso.
     brand: ensureBrandContrast(t.brand_color),

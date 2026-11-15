@@ -6,7 +6,7 @@ export function ClinicAvatar({ size = 'lg' }: { size?: 'md' | 'lg' }) {
   const clinic = useClinic()
   const box = size === 'lg' ? 'size-13 rounded-[14px] text-[18px]' : 'size-10 rounded-md text-ui'
   if (clinic.logoUrl) {
-    return <img src={clinic.logoUrl} alt={`Logo de ${clinic.displayName}`} className={cn(box, 'object-cover')} />
+    return <img src={clinic.logoUrl} alt={`Logo de ${clinic.displayName}`} className={cn(box, 'bg-white object-contain p-1')} />
   }
   return (
     <div

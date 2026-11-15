@@ -47,12 +47,26 @@ export const fakeSupabase = {
     }),
   },
   from: vi.fn((table: string) => query(table)),
+  storage: {
+    from: vi.fn((bucket: string) => ({
+      upload: vi.fn((path: string, file: File) => {
+        fakeStorage.push({ bucket, path, type: file.type })
+        return Promise.resolve({ data: { path }, error: null })
+      }),
+      remove: vi.fn((paths: string[]) => {
+        fakeStorage.splice(0, fakeStorage.length, ...fakeStorage.filter((o) => !paths.includes(o.path)))
+        return Promise.resolve({ data: [], error: null })
+      }),
+      createSignedUrl: vi.fn((path: string) => Promise.resolve({ data: { signedUrl: `https://storage.test/${bucket}/${path}?token=firmado` }, error: null })),
+    })),
+  },
   rpc: vi.fn((fn: string, args: Record<string, unknown> = {}) => rpcHandler(fn, args)),
 }
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
 type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[] }
+export const fakeStorage: { bucket: string; path: string; type: string }[] = []
 export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
@@ -135,6 +149,11 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     }
     return Promise.resolve({ data: {}, error: null })
   }
+  if (fn === 'update_tenant_identity') {
+    const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
+    if (t && typeof args.p_logo_path === 'string') t.logo_path = args.p_logo_path || null
+    return Promise.resolve({ data: t ?? null, error: null })
+  }
   if (fn === 'create_tenant') {
     const tenant = fakeTenant({
       id: '10000000-0000-4000-8000-0000000000ff',
@@ -175,5 +194,6 @@ export function resetFakeSupabase() {
   fakeSupabase.auth.updateUser.mockReset()
   fakeSupabase.auth.verifyOtp.mockReset()
   for (const k of Object.keys(fakeDb) as (keyof Db)[]) fakeDb[k] = []
+  fakeStorage.length = 0
   for (const k of Object.keys(rpcOverrides)) delete rpcOverrides[k]
 }

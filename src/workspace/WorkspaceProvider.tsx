@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAuth } from '@/auth/auth-context'
+import { signedLogoUrl, LOGO_URL_SECONDS } from '@/data/branding'
 import { fetchBranches, fetchIsPlatformAdmin, fetchMyMemberships, fetchMyProfile, type Branch } from '@/data/workspace'
 import { prefs } from './preferences'
 import { WorkspaceContext, type WorkspaceState, type WorkspaceValue } from './workspace-context'
@@ -69,6 +70,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [activeTenantId, canReadBranches])
 
+  // Logo: URL firmada que se renueva antes de vencer.
+  const logoPathActive = canReadBranches ? (active?.tenant.logo_path ?? null) : null
+  const [logo, setLogo] = useState<{ path: string; url: string } | null>(null)
+  useEffect(() => {
+    if (!logoPathActive) return
+    let current = true
+    const sign = () =>
+      void signedLogoUrl(logoPathActive).then((url) => {
+        if (current) setLogo(url ? { path: logoPathActive, url } : null)
+      })
+    sign()
+    const timer = window.setInterval(sign, (LOGO_URL_SECONDS - 300) * 1000)
+    return () => {
+      current = false
+      window.clearInterval(timer)
+    }
+  }, [logoPathActive])
+  const logoUrl = logo && logo.path === logoPathActive ? logo.url : null
+
   const value = useMemo<WorkspaceValue>(() => {
     const branches = branchState && branchState.tenantId === activeTenantId ? branchState.branches : []
     const wanted = activeTenantId ? (branchPick[activeTenantId] ?? prefs.activeBranch(activeTenantId)) : null
@@ -87,9 +107,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         prefs.setActiveBranch(activeTenantId, branchId)
         setBranchPick((p) => ({ ...p, [activeTenantId]: branchId }))
       },
+      logoUrl,
       refresh: load,
     }
-  }, [state, active, activeTenantId, branchState, branchPick, load])
+  }, [state, active, activeTenantId, branchState, branchPick, logoUrl, load])
 
   return <WorkspaceContext value={value}>{children}</WorkspaceContext>
 }

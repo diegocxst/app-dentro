@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { FullPageSpinner } from '@/components/ui/Spinner'
+import { uploadClinicLogo } from '@/data/branding'
 import { createClinic } from '@/data/workspace'
+import { useFilePreview } from '@/hooks/useFilePreview'
 import { clinicInitials, ownerLine } from '@/lib/clinic-identity'
 import { cn } from '@/lib/cn'
 import { ensureBrandContrast, isHexColor } from '@/lib/color'
@@ -20,6 +22,7 @@ import { slugify } from '@/lib/slug'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { BRAND_SWATCHES } from './brand-swatches'
 import { IdentityPreview } from './IdentityPreview'
+import { LogoPicker } from './LogoPicker'
 import { OnboardingSteps } from './OnboardingSteps'
 
 const KINDS = [
@@ -33,6 +36,9 @@ export function CreateClinicPage() {
   const navigate = useNavigate()
   const [formError, setFormError] = useState<string | null>(null)
   const [slugEdited, setSlugEdited] = useState(false)
+  const [logo, setLogo] = useFilePreview()
+  const logoFile = logo?.file ?? null
+  const logoPreview = logo?.url ?? null
   const firstName = state.status === 'ready' ? (state.profile?.full_name.trim().split(/\s+/)[0] ?? '') : ''
 
   const {
@@ -67,6 +73,10 @@ export function CreateClinicPage() {
       const { whatsapp, ...rest } = values
       const tenant = await createClinic({ ...rest, brandColor: values.brandColor.toUpperCase(), whatsappE164: normalizePhone(whatsapp) })
       setActiveTenant(tenant.id)
+      if (logoFile) {
+        // Si el logo falla, la clínica ya existe: entra con sus iniciales y lo sube después.
+        await uploadClinicLogo(tenant.id, logoFile).catch(() => undefined)
+      }
       await refresh()
       navigate('/', { replace: true })
     } catch (error) {
@@ -128,20 +138,7 @@ export function CreateClinicPage() {
                 </div>
               </fieldset>
 
-              <div className="flex items-center gap-4 rounded-md border border-dashed border-border-strong bg-surface-raised p-4">
-                <div
-                  role="img"
-                  aria-label="Logo actual"
-                  className="flex size-16 shrink-0 items-center justify-center rounded-lg font-display text-[22px] font-extrabold text-white"
-                  style={{ backgroundColor: previewColor }}
-                >
-                  {clinicInitials(displayName || 'Tu clínica')}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-ui font-semibold">Logo</span>
-                  <span className="text-label font-normal text-ink-muted">Por ahora usamos tus iniciales. Podrás subir tu logo en Configuración.</span>
-                </div>
-              </div>
+              <LogoPicker file={logoFile} previewUrl={logoPreview} onChange={setLogo} initials={clinicInitials(displayName || 'Tu clínica')} color={previewColor} />
 
               <Input label="Nombre de la clínica o consultorio" autoComplete="organization" error={errors.displayName?.message} {...register('displayName')} />
 
@@ -193,7 +190,7 @@ export function CreateClinicPage() {
               />
             </div>
 
-            <IdentityPreview displayName={displayName ?? ''} ownerLine={ownerLine(ownerName ?? '', ownerTitle ?? '')} initials={clinicInitials(displayName || 'Tu clínica')} color={previewColor} />
+            <IdentityPreview logoUrl={logoPreview} displayName={displayName ?? ''} ownerLine={ownerLine(ownerName ?? '', ownerTitle ?? '')} initials={clinicInitials(displayName || 'Tu clínica')} color={previewColor} />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -15,6 +15,8 @@ export type WorkspaceValue = {
   branches: Branch[]
   activeBranchId: string | null
   setActiveBranch: (branchId: string) => void
+  /** URL firmada del logo de la clínica activa (o `null`). */
+  logoUrl: string | null
   refresh: () => Promise<void>
 }
 

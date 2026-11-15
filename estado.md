@@ -13,12 +13,25 @@
 | V2 Estructura | ✅ **Cerrada el 2026-11-05.** Alcance del MVP congelado. |
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
+| **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo`. Migración 0004 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
 | **E1-B4 Conexión al proyecto dev** | **EN_PRUEBAS** desde el 2026-11-15. Migraciones 0001 y 0002 **aplicadas en `dentro-dentistas-app`** con aprobación de Diego. Rama local `feature/e1b4-dev-connect` (sin push). |
 | **E1-B3 Clínica activa y alta** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b3-workspace` (sin push). Supabase simulado en pruebas. Diferencias con el mockup aprobadas el 2026-11-15. |
 | **E1-B2 Auth en el frontend** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b2-auth` (sin push). Supabase simulado en pruebas; sin conexión al proyecto. |
 | **E1-B1 Migración del núcleo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b1-core-tenancy` (sin push). Probada solo en PostgreSQL local; nada aplicado en Supabase. Decisiones aprobadas el 2026-11-15. |
 | **E1-A Estructura y layout** | **EN_PRUEBAS** desde el 2026-11-11; decisiones aprobadas el 2026-11-12, falta revisión en local y merge. Rama local `feature/e1a-estructura` (sin push). Sin Supabase, auth ni base de datos. |
+
+## E1-B5b — Logo de la clínica en Storage privado (EN_PRUEBAS)
+- **Migración 0004** `20261115000400_tenant_logo`: bucket **privado** `tenant-branding` (1 MB; PNG, JPG o WebP), rutas `<clínica>/logo-<id>.<ext>`. Políticas en `storage.objects`: suben, cambian o borran solo propietario o administrador de una clínica **activa**; ven los miembros y el superadmin. `update_tenant_identity` solo acepta un logo de esa misma clínica (ni de otra ni URL externa).
+- **Alta de la clínica:** bloque «Logo» del mockup (arrastrar o subir, «Cambiar», «Quitar logo», vista previa también en el menú, el PDF y el WhatsApp de ejemplo). Al crear la clínica se sube a Storage y se asigna por RPC; si la asignación falla se borra el archivo; si la subida falla, la clínica entra con sus iniciales.
+- **Panel:** el menú muestra el logo con una URL firmada de 1 hora que se renueva sola (sobre fondo blanco para que se vea en `night`).
+- Suite `logo_rls_isolation.sql` (propietaria, recepción, otra clínica, superadmin, clínica suspendida) y `test:db` con las 4 migraciones en verde. Prueba de mutación: al quitar la regla de la ruta, la suite falla.
+- 122 pruebas de la app (antes 116), estables en 3 corridas. Revisión visual del bloque a 1440 y 390 px (con página temporal no guardada); se compactó a una fila como en el mockup.
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0004 en `dentro-dentistas-app`.
+2. **SVG no se permite** (el mockup dice «PNG o SVG»): un SVG puede llevar código; PNG, JPG y WebP bastan.
+3. Cambiar el logo después de crear la clínica llega con Configuración (M10, E3).
 
 ## E1-B5a — Aviso de privacidad y consentimientos de las cuentas (EN_PRUEBAS)
 E1-B5 se dividió en tres incrementos: **B5a** aviso y consentimientos, **B5b** logo en Storage privado, **B5c** invitaciones de equipo.
