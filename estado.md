@@ -4,6 +4,7 @@
 ## Integración
 - 2026-11-15: E1-A, E1-B1, E1-B2, E1-B3 y E1-B4 integradas en `main` **local** (avance directo, sin conflictos). Verificado en `main`: lint, typecheck, 109 pruebas, `test:db` y build. Las ramas `feature/*` se conservan (solo locales).
 - 2026-11-15: **push de `main`** a `diegocxst/app-dentro` con aprobación de Diego (`cb84157..798284e`, sin forzar; revisado sin secretos).
+- 2026-11-15: E1-B5a, E1-B5b y E1-B5c integradas en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 147 pruebas, `test:db` (5 migraciones) y build; sin secretos.
 
 ## Fase actual
 | Fase | Estado |
