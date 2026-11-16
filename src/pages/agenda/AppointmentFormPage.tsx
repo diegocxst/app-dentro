@@ -100,7 +100,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
 
   const [patient, setPatient] = useState<{ id: string; name: string } | null>(existing ? { id: existing.patient_id, name: '' } : null)
   const [doctorId, setDoctorId] = useState(existing?.doctor_id ?? (isDoctor ? (active?.id ?? '') : (params.get('doctor') ?? '')))
-  const [chairId, setChairId] = useState(existing?.chair_id ?? '')
+  const [chairId, setChairId] = useState(existing?.chair_id ?? params.get('sillon') ?? '')
   const [treatmentId, setTreatmentId] = useState(existing?.treatment_id ?? '')
   const [kind, setKind] = useState<AppointmentKind>(existing?.kind ?? 'tratamiento')
   const [date, setDate] = useState(startLocal?.date ?? params.get('fecha') ?? todayIn(tz))

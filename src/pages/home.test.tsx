@@ -27,7 +27,7 @@ describe('Inicio de primer uso (E2-A)', () => {
     expect(within(guide).getByRole('link', { name: 'Agregar sillones' })).toHaveAttribute('href', '/bienvenida/sucursales')
     expect(within(guide).getByRole('link', { name: 'Invitar' })).toHaveAttribute('href', '/bienvenida/equipo')
     expect(screen.getByText('Tu negocio, por dentro')).toBeInTheDocument()
-    expect(screen.getAllByLabelText('Sin datos')).toHaveLength(4)
+    expect(screen.getAllByLabelText('Sin datos')).toHaveLength(3) // «Citas de hoy» va en «Mi día»
   })
 
   it('marca una tarea, guarda por RPC y actualiza el contador del menú', async () => {

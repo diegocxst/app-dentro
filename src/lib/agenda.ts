@@ -125,3 +125,38 @@ export function confirmWhatsappUrl(phoneE164: string, input: { patient: string; 
 }
 
 export const OUT_OF_HOURS = 'Ese horario está fuera del horario de la sucursal. Escribe a la clínica o al doctor para revisar este caso.'
+
+/** Lunes de la semana de `date` (semana de lunes a domingo). */
+export function weekStart(date: string): string {
+  const dow = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].indexOf(dayKey(date))
+  return addDays(date, -dow)
+}
+
+/**
+ * Carriles para citas que se enciman en una misma columna (vista Semana: varios doctores
+ * a la misma hora). Devuelve, por cita, su carril y cuántos carriles tiene su grupo.
+ */
+export function assignLanes(items: readonly { id: string; from: number; to: number }[]): Map<string, { lane: number; lanes: number }> {
+  const out = new Map<string, { lane: number; lanes: number }>()
+  const sorted = [...items].sort((a, b) => a.from - b.from || a.to - b.to)
+  let group: { id: string; lane: number }[] = []
+  let laneEnds: number[] = []
+  let groupEnd = -1
+  const close = () => {
+    for (const g of group) out.set(g.id, { lane: g.lane, lanes: laneEnds.length })
+    group = []
+    laneEnds = []
+  }
+  for (const it of sorted) {
+    if (it.from >= groupEnd) close()
+    let lane = laneEnds.findIndex((end) => end <= it.from)
+    if (lane === -1) {
+      lane = laneEnds.length
+      laneEnds.push(it.to)
+    } else laneEnds[lane] = it.to
+    group.push({ id: it.id, lane })
+    groupEnd = Math.max(groupEnd, it.to)
+  }
+  close()
+  return out
+}

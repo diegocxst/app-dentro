@@ -22,6 +22,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M3-B Agenda (Semana, Por sillón y Mi día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3b-agenda-vistas` (sin push). **Sin migraciones** (usa la tabla de 0012). |
 | **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M2-B Privacidad y ARCO** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2b-arco` (sin push). Migración 0011 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M7 Documentos** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m7-documentos` (sin push). Migración 0010 **aplicada en dev** y Edge Function `document-url` **desplegada**, con aprobación de Diego. |
@@ -44,6 +45,19 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M3-B — Agenda: Semana, Por sillón y Mi día (EN_PRUEBAS)
+- **Selector Día / Semana / Por sillón** (como la maqueta; «Día» es la vista por doctor). La vista y la fecha viven en la URL.
+- **Semana:** lunes a domingo de la sucursal, una columna por día, citas de varios doctores a la misma hora **lado a lado** (carriles), días cerrados sombreados, hoy resaltado, ◀ ▶ mueven 7 días, clic en un día abre su vista Día y un hueco agenda ese día a esa hora. En celular: lista agrupada por día.
+- **Por sillón:** una columna por sillón activo de la sucursal (y los que tengan citas); el hueco abre «Nueva cita» con el sillón y la hora puestos. Sin sillones: aviso con enlace para agregarlos.
+- **Mi día (Inicio):** citas de hoy de la sucursal activa (un doctor ve solo las suyas), cuántas faltan por confirmar y las siguientes (hora, sillón, paciente, tratamiento · doctor, estado; «Valoración» en violeta), con enlace a cada cita. Sin citas: «No tienes más citas hoy». Se quitó el indicador vacío «Citas de hoy» de primer uso porque ya lo muestra Mi día. **Sin «Tareas»** hasta M8.
+- Sin migraciones ni cambios de permisos: todo usa `list_appointments` (máx. 7 días por consulta en estas vistas).
+- 245 pruebas de la app (antes 237), estables en 3 corridas: semana (rango de 7 días en la zona de la sucursal, cada cita en su día, encabezado → Día, avanzar 7 días, hueco → nueva cita), por sillón (columnas, hueco con sillón), selector, carriles y Mi día (con la fecha fijada).
+- **Revisión visual en dev** (con la cita ficticia del 17 nov): Semana a ~1000 px (los 7 días caben; se angostaron las columnas) y en celular oscuro; Por sillón; Mi día en Inicio en celular oscuro.
+
+### Puntos para aprobación
+1. «Mi día» va en **Inicio** para todos (en celular es la pantalla principal, como la maqueta). La cuadrícula «Tareas de hoy» se agrega con M8.
+2. Las vistas Semana y Por sillón son de **consulta y agenda rápida**; mover citas arrastrando queda para Fase 2+ (hoy se usa «Reagendar»).
 
 ## E3 · M3-A — Agenda: citas y vista del día (EN_PRUEBAS)
 - **Migración 0012** `20261116000700_appointments`: `branches.timezone` (zonas de México, por defecto Ciudad de México) y `appointments` (sucursal, sillón —FK compuesta que obliga a que sea de esa sucursal—, doctor, paciente, tratamiento opcional, tipo valoración/tratamiento/revisión, estado, inicio y fin por minuto, notas, motivo de cancelación).
@@ -317,7 +331,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M3-B Agenda:** vistas Semana y Por sillón, y «Mi día» en celular.
+- **E3 · M3-B Agenda:** revisar e integrar en `main` (con aprobación de Diego). Después: **M1 Leads** (siguiente módulo del roadmap).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.

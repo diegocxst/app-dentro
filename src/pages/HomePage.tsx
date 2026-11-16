@@ -6,12 +6,14 @@ import { markTourSeen } from '@/data/onboarding'
 import { guideDone, GUIDE_TOTAL } from '@/lib/onboarding'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { PageHeader } from './PageHeader'
-import { SectionPage } from './SectionPage'
+import { sectionById } from '@/app/navigation'
+import { MyDay } from '@/components/agenda/MyDay'
+import { EmptyState } from '@/components/ui/EmptyState'
 
+// «Citas de hoy» ya lo muestra «Mi día» (M3-B), con datos reales.
 const EMPTY_KPIS = [
   { label: 'Cobrado este mes', hint: 'Aparece cuando registres tu primer pago.' },
   { label: 'Presupuestos por cerrar', hint: 'Crea un presupuesto y lo verás aquí.' },
-  { label: 'Citas de hoy', hint: 'Agenda tu primera cita en Agenda.' },
   { label: 'Leads nuevos', hint: 'Conecta Meta o comparte tu perfil público.' },
 ] as const
 
@@ -26,7 +28,18 @@ export function HomePage() {
   const [tourOpen, setTourOpen] = useState(!tourSeen)
 
   const done = active ? guideDone(active.tenant.onboarding_state).size : GUIDE_TOTAL
-  if (done >= GUIDE_TOTAL) return <SectionPage id="inicio" />
+  if (done >= GUIDE_TOTAL) {
+    const section = sectionById('inicio')
+    return (
+      <>
+        <PageHeader title={section.label} />
+        <div className="flex flex-col gap-8">
+          <MyDay />
+          <EmptyState icon={section.icon} title={section.empty.title} description={section.empty.description} />
+        </div>
+      </>
+    )
+  }
 
   const fullName = state.status === 'ready' ? (state.profile?.full_name ?? '') : ''
   const firstName = fullName.trim().split(/\s+/)[0] ?? ''
@@ -62,6 +75,8 @@ export function HomePage() {
             </section>
           </aside>
         </div>
+
+        <MyDay />
 
         <section className="flex flex-col gap-3">
           <h2 className="m-0 text-subtitle">Tu negocio, por dentro</h2>
