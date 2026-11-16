@@ -429,3 +429,8 @@ enabled = true
 [functions.invite-member]
 enabled = true
 verify_jwt = true
+
+# Edge Function de enlaces firmados a documentos (E3 · M7). Exige sesión.
+[functions.document-url]
+enabled = true
+verify_jwt = true

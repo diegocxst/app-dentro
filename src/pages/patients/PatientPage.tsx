@@ -16,14 +16,14 @@ import { rpcErrorMessage } from '@/lib/errors'
 import { ageFrom, sourceLabel } from '@/lib/patients'
 import { formatPhone } from '@/lib/phone'
 import { useWorkspace } from '@/workspace/workspace-context'
+import { DocumentsTab } from './DocumentsTab'
 
 type Tab = 'resumen' | 'citas' | 'presupuestos' | 'pagos' | 'documentos' | 'notas'
 
-const SOON: Record<Exclude<Tab, 'resumen' | 'notas'>, { icon: IconName; title: string; text: string }> = {
+const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos'>, { icon: IconName; title: string; text: string }> = {
   citas: { icon: 'agenda', title: 'Citas', text: 'Las citas de este paciente aparecerán aquí cuando llegue la Agenda.' },
   presupuestos: { icon: 'presupuestos', title: 'Presupuestos', text: 'Aquí verás sus presupuestos y su estado cuando llegue el módulo de presupuestos.' },
   pagos: { icon: 'cobros', title: 'Pagos', text: 'Los pagos y el saldo del paciente aparecerán aquí cuando llegue Cobros.' },
-  documentos: { icon: 'presupuestos', title: 'Documentos', text: 'Radiografías, fotos y consentimientos llegan muy pronto. Solo tu equipo los verá y cada acceso quedará registrado.' },
 }
 
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -39,6 +39,7 @@ export function PatientPage() {
   const [attempt, setAttempt] = useState(0)
   const [tab, setTab] = useState<Tab>('resumen')
   const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
+  const [docCount, setDocCount] = useState<number | undefined>(undefined)
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export function PatientPage() {
     { id: 'citas', label: 'Citas' },
     { id: 'presupuestos', label: 'Presupuestos' },
     { id: 'pagos', label: 'Pagos' },
-    { id: 'documentos', label: 'Documentos' },
+    { id: 'documentos', label: 'Documentos', ...(docCount ? { count: docCount } : {}) },
     { id: 'notas', label: 'Notas', count: record.notes.length },
   ]
 
@@ -180,7 +181,16 @@ export function PatientPage() {
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'resumen' && <Summary record={record} onNotes={() => setTab('notas')} />}
         {tab === 'notas' && <Notes record={record} onAdded={reload} />}
-        {tab !== 'resumen' && tab !== 'notas' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
+        {tab === 'documentos' && active && (
+          <DocumentsTab
+            tenantId={active.tenant_id}
+            patientId={p.id}
+            canWrite={active.tenant.status === 'active'}
+            canArchive={canArchive}
+            onCount={setDocCount}
+          />
+        )}
+        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
       </div>
     </div>
   )

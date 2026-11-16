@@ -9,3 +9,4 @@ export type MembershipStatus = Enums<'membership_status'>
 export type ConsentSource = Enums<'consent_source'>
 export type PatientSource = Enums<'patient_source'>
 export type ConsentMethod = Enums<'consent_method'>
+export type DocumentKind = Enums<'document_kind'>

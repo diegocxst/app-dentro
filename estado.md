@@ -19,6 +19,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M7 Documentos** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m7-documentos` (sin push). Migración 0010 y Edge Function `document-url` **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes` (sin push). Migración 0009 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion` (sin push). Migración 0008 **aplicada en dev** con aprobación de Diego. |
 | **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
@@ -38,6 +39,21 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M7 — Documentos del paciente (EN_PRUEBAS) · DATOS DE SALUD
+- **Migración 0010** `20261116000500_patient_documents`: bucket **privado** `patient-documents` (`<clínica>/<paciente>/<uuid>.<ext>`; PDF, JPG, PNG, WebP y STL; hasta 25 MB), `patient_documents` (tipo, nombre, tamaño, `retain_until` = alta + 5 años, archivado) y `document_access_log` (subir, ver, descargar, archivar, reactivar).
+- **Reglas en la base:** sube quien ve al paciente en una clínica activa; **nadie lee el bucket directo** (no hay política de lectura, edición ni borrado); `register_document` comprueba que el archivo exista y sea de ese paciente; `authorize_document_access` revisa permiso y **registra cada vista y descarga**; archivan solo gerencia y recepción; **no se borra** (NOM-004); el superadmin no ve documentos.
+- **Edge Function `document-url`:** con la sesión del usuario llama a `authorize_document_access` y firma un enlace de **60 s** (`Cache-Control: no-store`). 6 pruebas del handler.
+- **Pestaña Documentos** en la ficha 360: subir (elegir archivo o **Tomar foto** en móvil), nombre y tipo, lista en tarjetas, ver (pestaña nueva), descargar, archivar/reactivar y archivados; el contador aparece en la pestaña.
+- Suite `documents_rls_isolation.sql` (6 actores) y `test:db` con 10 migraciones en verde. **Pruebas de mutación:** lectura directa del bucket, ver sin bitácora y subir a un paciente ajeno → las 3 las detecta la suite.
+- 216 pruebas de la app (antes 209) estables en 3 corridas; 20 de Edge Functions; lint, typecheck y build en verde.
+- `database.types.ts` tiene entradas **provisionales** de M7: se regeneran al aplicar 0010.
+
+### Puntos para aprobación
+1. Aplicar la migración 0010 en dev (primero `--dry-run`), correr las 10 suites en el proyecto real, desplegar `document-url`, regenerar tipos y revisar asesores. **Solo documentos ficticios.**
+2. Si el registro falla después de subir, queda un archivo huérfano en el bucket (invisible e inaccesible). Propuesta: limpiarlos con una tarea programada en Fase 2+.
+3. El STL se acepta por extensión (los navegadores no le asignan un tipo fijo); el bucket admite `application/octet-stream` solo para eso.
+4. La bitácora se escribe **antes** de firmar el enlace: si la firma falla, queda un acceso registrado sin enlace entregado (preferimos registrar de más que de menos).
 
 ## E3 · M2-A — Pacientes (EN_PRUEBAS) · DATOS DE SALUD
 - **Migración 0009** `20261116000400_patients`: `patients` (nombre, nacimiento, teléfono, correo, origen, doctor tratante con FK compuesta, etiquetas, archivado), `patient_consents` (método y versión del aviso de la clínica), `patient_notes` y `patient_access_log` (bitácora). `tenants.patient_notice_version` (borrador hasta P5).
@@ -256,7 +272,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M7 Documentos** (siguiente incremento: Storage privado, Edge Function de enlaces de 60 s y bitácora).
+- **E3 · M7 Documentos:** aprobar y aplicar en dev (migración 0010 + Edge Function `document-url`), revisión visual, integrar en `main`.
+- Después: **M2-B** (exportar datos del paciente, ARCO) y **M3 Agenda**.
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 

@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -189,6 +189,12 @@ export const functionOverrides: Record<string, (body: Record<string, unknown>) =
 function functionHandler(name: string, body: Record<string, unknown>): FnResult {
   const override = functionOverrides[name]
   if (override) return override(body)
+  if (name === 'document-url') {
+    const doc = fakeDb.patient_documents.find((d) => d.id === body.document_id)
+    if (!doc) return Promise.resolve({ data: null, error: { context: { json: () => Promise.resolve({ status: 'error', code: 'not_found', message: 'No encontramos este documento o no tienes acceso.' }) } } })
+    fakeDb.document_access_log.push({ document_id: doc.id, action: body.action })
+    return Promise.resolve({ data: { status: 'ok', url: `https://storage.test/firmado/${String(doc.id)}`, expires_in: 60 }, error: null })
+  }
   if (name === 'invite-member') {
     const existing = fakeDb.invitations.find((i) => i.tenant_id === body.tenant_id && i.email === body.email && i.status === 'pending')
     if (existing) {
@@ -227,6 +233,30 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'register_document') {
+    const obj = fakeStorage.find((o) => o.path === args.p_storage_path)
+    if (!obj) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    const row = {
+      id: `d-${fakeDb.patient_documents.length + 1}`,
+      tenant_id: String(args.p_storage_path).split('/')[0],
+      patient_id: args.p_patient,
+      kind: args.p_kind,
+      name: args.p_name,
+      storage_path: args.p_storage_path,
+      mime: obj.type,
+      size_bytes: 2048,
+      created_at: '2026-11-16T12:00:00Z',
+      archived_at: null,
+    }
+    fakeDb.patient_documents.push(row)
+    fakeDb.document_access_log.push({ document_id: row.id, action: 'upload' })
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'set_document_archived') {
+    const d = fakeDb.patient_documents.find((x) => x.id === args.p_document)
+    if (d) d.archived_at = args.p_archived ? '2026-11-16T13:00:00Z' : null
+    return Promise.resolve({ data: d ?? null, error: null })
+  }
   if (fn === 'create_patient') {
     if (!args.p_consent_method) return Promise.resolve({ data: null, error: { code: '22023', message: 'consent' } })
     const row = {
