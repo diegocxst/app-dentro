@@ -17,6 +17,8 @@ import { ConfigurationPage } from '@/pages/configuration/ConfigurationPage'
 import { TeamPage } from '@/pages/configuration/TeamPage'
 import { BranchesConfigPage } from '@/pages/configuration/BranchesConfigPage'
 import { TreatmentsConfigPage } from '@/pages/configuration/TreatmentsConfigPage'
+import { IdentityPage } from '@/pages/configuration/IdentityPage'
+import { ProfilePage } from '@/pages/configuration/ProfilePage'
 import { CreateClinicPage } from '@/pages/onboarding/CreateClinicPage'
 import { StepBranchesPage } from '@/pages/onboarding/StepBranchesPage'
 import { StepTeamPage } from '@/pages/onboarding/StepTeamPage'
@@ -81,6 +83,8 @@ export const routes: RouteObject[] = [
           { path: 'configuracion/equipo', element: <TeamPage /> },
           { path: 'configuracion/sucursales', element: <BranchesConfigPage /> },
           { path: 'configuracion/tratamientos', element: <TreatmentsConfigPage /> },
+          { path: 'configuracion/identidad', element: <IdentityPage /> },
+          { path: 'configuracion/perfil', element: <ProfilePage /> },
           { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
           { path: MORE_PATH.slice(1), element: <MorePage /> },
           { path: '*', element: <NotFoundPage /> },

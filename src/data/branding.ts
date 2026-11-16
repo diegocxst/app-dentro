@@ -27,3 +27,18 @@ export async function signedLogoUrl(path: string): Promise<string | null> {
   if (error) return null
   return data.signedUrl
 }
+
+/** Borra un logo anterior de Storage (al reemplazarlo o quitarlo). Si falla, no bloquea. */
+export async function removeLogoFile(path: string): Promise<void> {
+  await supabase.storage.from(LOGO_BUCKET).remove([path]).then(
+    () => undefined,
+    () => undefined,
+  )
+}
+
+/** Quita el logo de la clínica (vuelve a las iniciales) y borra el archivo. */
+export async function clearClinicLogo(tenantId: string, currentPath: string): Promise<void> {
+  const { error } = await supabase.rpc('update_tenant_identity', { p_tenant: tenantId, p_logo_path: '' })
+  if (error) throw error
+  await removeLogoFile(currentPath)
+}

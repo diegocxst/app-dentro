@@ -1,16 +1,17 @@
 import { Link } from 'react-router'
 import { sectionById } from '@/app/navigation'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { PageHeader } from '@/pages/PageHeader'
 
 const LINKS: { to: string; title: string; text: string; icon: IconName }[] = [
+  { to: '/configuracion/identidad', title: 'Identidad de tu clínica', text: 'Nombre, logo, color, responsable y WhatsApp.', icon: 'inicio' },
   { to: '/configuracion/equipo', title: 'Tu equipo', text: 'Invita a doctores y recepción, y decide qué puede hacer cada quien.', icon: 'doctores' },
-  { to: '/configuracion/sucursales', title: 'Sucursales y sillones', text: 'Dónde atiendes y con cuántos sillones cuenta cada sucursal.', icon: 'sucursal' },
+  { to: '/configuracion/sucursales', title: 'Sucursales y sillones', text: 'Dónde atiendes, en qué horario y con cuántos sillones.', icon: 'sucursal' },
   { to: '/configuracion/tratamientos', title: 'Tratamientos y precios', text: 'Tu catálogo para armar presupuestos en segundos.', icon: 'presupuestos' },
+  { to: '/configuracion/perfil', title: 'Mi perfil', text: 'Tu nombre y tu teléfono.', icon: 'pacientes' },
 ]
 
-/** Configuración (M10). Identidad y lo demás llegan en E3. */
+/** Configuración (M10 · P31–P33). Integraciones y perfil público (P34) llegan con E6. */
 export function ConfigurationPage() {
   const section = sectionById('configuracion')
   return (
@@ -36,7 +37,7 @@ export function ConfigurationPage() {
             </li>
           ))}
         </ul>
-        <EmptyState icon={section.icon} title={section.empty.title} description="La identidad de tu clínica y el resto de la configuración llegan muy pronto." />
+        <p className="m-0 text-caption text-ink-muted">Integraciones (Meta) y tu perfil público llegan muy pronto.</p>
       </div>
     </>
   )

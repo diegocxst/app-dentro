@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { createBranch, createChair, fetchAllBranches, fetchChairs, setChairActive, updateBranch, type Branch, type Chair } from '@/data/catalog'
+import { createBranch, createChair, fetchAllBranches, fetchChairs, setBranchHours, setChairActive, updateBranch, type Branch, type Chair } from '@/data/catalog'
+import { parseHours } from '@/lib/hours'
+import { HoursEditor } from './HoursEditor'
 import { rpcErrorMessage } from '@/lib/errors'
 import { useWorkspace } from '@/workspace/workspace-context'
 
@@ -78,6 +80,7 @@ export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
           onSave={(name, address) => act(() => updateBranch(b.id, { name, address }), { duplicate: 'Ya tienes una sucursal con ese nombre.' })}
           onAddChair={(name) => act(() => createChair(b.id, name), { duplicate: 'Ya hay un sillón con ese nombre en esta sucursal.' })}
           onRemoveChair={(id) => act(() => setChairActive(id, false))}
+          onSaveHours={(hours) => act(() => setBranchHours(b.id, hours as Record<string, [string, string][]>))}
         />
       ))}
       {canEdit && <NewBranchForm onAdd={(name) => act(() => createBranch(tenantId, name, ''), { duplicate: 'Ya tienes una sucursal con ese nombre.' })} />}
@@ -92,6 +95,7 @@ function BranchCard({
   onSave,
   onAddChair,
   onRemoveChair,
+  onSaveHours,
 }: {
   branch: Branch
   chairs: Chair[]
@@ -99,6 +103,7 @@ function BranchCard({
   onSave: (name: string, address: string) => Promise<void>
   onAddChair: (name: string) => Promise<void>
   onRemoveChair: (id: string) => Promise<void>
+  onSaveHours: (hours: ReturnType<typeof parseHours>) => Promise<void>
 }) {
   const [name, setName] = useState(branch.name)
   const [address, setAddress] = useState(branch.address)
@@ -134,6 +139,7 @@ function BranchCard({
           </Button>
         </div>
       )}
+      <HoursEditor branchName={branch.name} initial={parseHours(branch.opening_hours)} canEdit={canEdit} onSave={onSaveHours} />
       <div className="flex flex-col gap-2">
         <span className="text-ui font-medium">Sillones</span>
         {chairs.length === 0 ? (

@@ -9,7 +9,7 @@ export type GuideTask = { id: GuideTaskId; title: string; why: string; minutes: 
  * Los ids deben coincidir con private.is_onboarding_task() (migración 20261116000100).
  */
 export const GUIDE_TASKS: readonly GuideTask[] = [
-  { id: 'identity', title: 'Identidad de tu clínica', why: 'Tu logo y color en presupuestos y mensajes', minutes: 2, cta: 'Editar', path: '/configuracion' },
+  { id: 'identity', title: 'Identidad de tu clínica', why: 'Tu logo y color en presupuestos y mensajes', minutes: 2, cta: 'Editar', path: '/configuracion/identidad' },
   { id: 'branches', title: 'Sucursal y sillones', why: 'Para que la agenda sepa dónde atiendes', minutes: 2, cta: 'Agregar sillones', path: '/bienvenida/sucursales' },
   { id: 'team', title: 'Invita a tu equipo', why: 'Cada doctor ve solo sus pacientes y comisiones', minutes: 2, cta: 'Invitar', path: '/bienvenida/equipo' },
   { id: 'treatments', title: 'Tratamientos y precios', why: 'Arma presupuestos en segundos', minutes: 3, cta: 'Agregar precios', path: '/bienvenida/tratamientos' },

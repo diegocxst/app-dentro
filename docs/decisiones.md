@@ -74,3 +74,4 @@
 | 2026-11-16 | E2-A: migración 0006 aplicada en dev; sin video, manuales ni WhatsApp de soporte por ahora; «Explorar con datos de ejemplo» se diseña aparte; saludo neutro «Hola, {nombre}» | Diego |
 | 2026-11-16 | E2-B: migración 0007 aplicada en dev; duración de cita en minutos o «Varía»; pasos 2, 4 y 5 exigen sillón, tratamiento con precio y WhatsApp; el 3 es opcional; editar identidad llega con Configuración (E3) | Diego |
 | 2026-11-16 | E2-A a E2-C integradas en `main` y push a `diegocxst/app-dentro` | Diego |
+| 2026-11-16 | E2 cerrada; arranca E3 con M10 Configuración (identidad, horarios, mi perfil) | Diego |

@@ -69,3 +69,8 @@ export async function setTenantWhatsapp(tenantId: string, whatsappE164: string):
   const { error } = await supabase.rpc('update_tenant_identity', { p_tenant: tenantId, p_whatsapp_e164: whatsappE164 })
   if (error) throw error
 }
+
+export async function setBranchHours(branchId: string, hours: Record<string, [string, string][]>): Promise<void> {
+  const { error } = await supabase.rpc('set_branch_hours', { p_branch: branchId, p_hours: hours })
+  if (error) throw error
+}

@@ -7,13 +7,18 @@ type Props = {
   file: File | null
   /** URL local para previsualizar `file`. */
   previewUrl: string | null
+  /** Logo ya guardado (URL firmada), si hay. */
+  currentUrl?: string | null | undefined
+  /** Quitar el logo guardado (Configuración › Identidad). */
+  onRemoveCurrent?: (() => void) | undefined
   onChange: (file: File | null) => void
   initials: string
   color: string
 }
 
 /** Bloque «Logo» del mockup: arrastrar o subir; si no hay, iniciales sobre el color. */
-export function LogoPicker({ file, previewUrl: preview, onChange, initials, color }: Props) {
+export function LogoPicker({ file, previewUrl, currentUrl = null, onRemoveCurrent, onChange, initials, color }: Props) {
+  const preview = previewUrl ?? currentUrl
   const inputId = useId()
   const input = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +52,7 @@ export function LogoPicker({ file, previewUrl: preview, onChange, initials, colo
         )}
       >
         {preview ? (
-          <img src={preview} alt="Logo elegido" className="size-16 shrink-0 rounded-lg bg-white object-contain p-1" />
+          <img src={preview} alt={file ? "Logo elegido" : "Logo actual"} className="size-16 shrink-0 rounded-lg bg-white object-contain p-1" />
         ) : (
           <div
             role="img"
@@ -59,11 +64,15 @@ export function LogoPicker({ file, previewUrl: preview, onChange, initials, colo
           </div>
         )}
         <div className="flex min-w-0 flex-[1_1_140px] flex-col gap-1">
-          <span className="truncate text-ui font-semibold">{file ? file.name : 'Arrastra tu logo o súbelo'}</span>
+          <span className="truncate text-ui font-semibold">{file ? file.name : currentUrl ? 'Tu logo' : 'Arrastra tu logo o súbelo'}</span>
           <span className="text-label font-normal text-ink-muted">PNG, JPG o WebP de hasta 1 MB. Si aún no tienes, usamos tus iniciales.</span>
-          {file && (
-            <button type="button" onClick={() => onChange(null)} className="self-start text-caption font-semibold text-violet hover:underline">
-              Quitar logo
+          {(file || (currentUrl && onRemoveCurrent)) && (
+            <button
+              type="button"
+              onClick={() => (file ? onChange(null) : onRemoveCurrent?.())}
+              className="self-start text-caption font-semibold text-violet hover:underline"
+            >
+              {file && currentUrl ? 'Volver al logo actual' : 'Quitar logo'}
             </button>
           )}
         </div>
@@ -80,7 +89,7 @@ export function LogoPicker({ file, previewUrl: preview, onChange, initials, colo
           }}
         />
         <Button variant="secondary" onClick={() => input.current?.click()}>
-          {file ? 'Cambiar' : 'Subir'}
+          {file || currentUrl ? 'Cambiar' : 'Subir'}
         </Button>
       </div>
       {error && (

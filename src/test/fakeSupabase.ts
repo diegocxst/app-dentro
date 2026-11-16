@@ -196,6 +196,19 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'set_branch_hours') {
+    const b = fakeDb.branches.find((x) => x.id === args.p_branch)
+    if (b) b.opening_hours = args.p_hours
+    return Promise.resolve({ data: b ?? null, error: null })
+  }
+  if (fn === 'update_my_profile') {
+    const p = fakeDb.profiles.find((x) => x.id === current?.user.id)
+    if (p) {
+      if (typeof args.p_full_name === 'string') p.full_name = args.p_full_name
+      if (typeof args.p_phone_e164 === 'string') p.phone_e164 = args.p_phone_e164 || null
+    }
+    return Promise.resolve({ data: p ?? null, error: null })
+  }
   if (fn === 'create_chair') {
     const b = fakeDb.branches.find((x) => x.id === args.p_branch)
     const dup = fakeDb.chairs.some((c) => c.branch_id === args.p_branch && String(c.name).toLowerCase() === String(args.p_name).trim().toLowerCase())
@@ -256,6 +269,12 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
   if (fn === 'update_tenant_identity') {
     const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
     if (t && typeof args.p_logo_path === 'string') t.logo_path = args.p_logo_path || null
+    if (t) {
+      for (const [arg, col] of [['p_display_name', 'display_name'], ['p_owner_display_name', 'owner_display_name'], ['p_owner_title', 'owner_title'], ['p_brand_color', 'brand_color'], ['p_city', 'city']] as const) {
+        if (typeof args[arg] === 'string') t[col] = args[arg]
+      }
+      if (typeof args.p_whatsapp_e164 === 'string') t.whatsapp_e164 = args.p_whatsapp_e164 || null
+    }
     return Promise.resolve({ data: t ?? null, error: null })
   }
   if (fn === 'create_tenant') {

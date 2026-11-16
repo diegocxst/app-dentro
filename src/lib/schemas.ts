@@ -86,3 +86,16 @@ export const inviteSchema = z.object({
   branchIds: z.array(z.string()),
 })
 export type InviteValues = z.infer<typeof inviteSchema>
+
+// ── Identidad de la clínica (M10, Configuración) ────────────────────────────
+export const identitySchema = clinicSchema.pick({ displayName: true, ownerDisplayName: true, ownerTitle: true, brandColor: true, whatsapp: true, city: true })
+export type IdentityValues = z.infer<typeof identitySchema>
+
+export const profileSchema = z.object({
+  fullName: z.string().trim().min(2, 'Escribe tu nombre completo.').max(120, 'Máximo 120 caracteres.'),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v === '' || normalizePhone(v) !== null, 'Escribe 10 dígitos (México) o el número con +lada internacional.'),
+})
+export type ProfileValues = z.infer<typeof profileSchema>

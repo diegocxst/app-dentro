@@ -16,6 +16,8 @@
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
+| **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion`. Migración 0008 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
 | **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
 | **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
@@ -30,6 +32,25 @@
 
 ## E2 — Interfaz y estructura
 E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vacíos), **E2-B** pasos 2 a 5 del onboarding (dependen de tablas nuevas: se propone antes) y **E2-C** estados vacío, carga y error en toda la app.
+
+## E3 — Módulos esenciales
+Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M10 — Configuración (EN_PRUEBAS)
+M10 = P31 clínica y sucursales · P32 tratamientos y precios · P33 usuarios y roles (P34 integraciones y perfil público llega con E6). Sillones, tratamientos y equipo ya existían (E1-B5c, E2-B); M10 agrega:
+- **Migración 0008** `20261116000300_branch_hours`: `branches.opening_hours` (lunes a domingo, hasta 3 horarios por día, en orden y sin encimarse; CHECK en la tabla) y RPC `set_branch_hours`. Base para la agenda (M3).
+- **Horario de atención** en cada sucursal: resumen («Lun a Vie 09:00–18:00 · Sáb 09:00–13:00»), editor por día con abierto/cerrado y «Otro horario».
+- **Identidad de tu clínica** (`/configuracion/identidad`): nombre, responsable y cargo, color (con ajuste de contraste), WhatsApp, ciudad y **logo** (subir, cambiar o quitar; el archivo anterior se borra de Storage), con la vista previa en vivo. Solo propietario o administración la cambian.
+- **Mi perfil** (`/configuracion/perfil`): nombre y teléfono de la persona; muestra su correo y su rol.
+- Configuración lista Identidad, Tu equipo, Sucursales y sillones, Tratamientos y precios y Mi perfil. La guía de Inicio («Identidad») lleva a Identidad.
+- Suite `hours_rls_isolation.sql` y `test:db` con 8 migraciones en verde; prueba de mutación: al permitir horarios encimados, la suite falla. 187 pruebas (antes 177), estables en 3 corridas.
+- Revisión visual con la cuenta de Diego (sin guardar nada): Configuración e Identidad a 1440 px (claro); horario de la sucursal a 390 px (oscuro).
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0008 en dev.
+2. El horario es la hora local de la sucursal; la zona horaria se agrega con la agenda (M3).
+3. La dirección del perfil público (`dentro.mx/…`) se muestra pero no se cambia todavía (llega con M13, E6).
+4. Cambiar la contraseña desde «Mi perfil» queda para después (hoy se hace con «¿Olvidaste tu contraseña?»).
 
 ## E2-C — Estados vacío, carga y error (EN_PRUEBAS)
 - **Pantalla de error general** (`errorElement` del enrutador): si algo falla al mostrar cualquier pantalla, sale un aviso amable con «Volver a intentar» e «Ir a Inicio», sin rutas ni trazas. Distingue cuando no se pudo descargar una parte de la app (sin señal o versión nueva). Origen: core-base.
@@ -213,7 +234,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3** módulos esenciales, uno por uno; el primero según el roadmap es M10 Configuración (identidad, sucursales, tratamientos) y luego M2 Pacientes + M7 Documentos. Requiere aprobación para avanzar de etapa.
+- **Aprobar M10** y aplicar la migración 0008 en dev.
+- **E3 · M2 Pacientes + M7 Documentos** (siguiente módulo).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 

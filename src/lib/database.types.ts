@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0007 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: branches.opening_hours y set_branch_hours (migración 0008) agregados a mano hasta aplicarla en dev.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -93,6 +94,7 @@ export type Database = {
       }
       branches: {
         Row: {
+          opening_hours: Json
           address: string
           created_at: string
           id: string
@@ -464,6 +466,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      set_branch_hours: { Args: { p_branch: string; p_hours: Json }; Returns: Database["public"]["Tables"]["branches"]["Row"] }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
