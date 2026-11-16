@@ -1,8 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0009 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: patient_documents, document_access_log y sus RPC (migración 0010) agregados a mano hasta aplicarla en dev.
-// Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
-
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0010 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -19,12 +16,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      patient_documents: {
-        Row: { archived_at: string | null; created_at: string; id: string; kind: Database["public"]["Enums"]["document_kind"]; mime: string; name: string; patient_id: string; retain_until: string; size_bytes: number; storage_path: string; tenant_id: string; uploaded_by: string | null }
-        Insert: { kind: Database["public"]["Enums"]["document_kind"]; mime: string; name: string; patient_id: string; size_bytes: number; storage_path: string; tenant_id: string }
-        Update: { name?: string }
-        Relationships: []
-      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -181,6 +172,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_access_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          document_id: string
+          id: number
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          document_id: string
+          id?: never
+          tenant_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          document_id?: string
+          id?: never
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_log_tenant_id_document_id_fkey"
+            columns: ["tenant_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "patient_documents"
+            referencedColumns: ["tenant_id", "id"]
           },
         ]
       }
@@ -384,6 +410,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "patient_consents_tenant_id_patient_id_fkey"
+            columns: ["tenant_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      patient_documents: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["document_kind"]
+          mime: string
+          name: string
+          patient_id: string
+          retain_until: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["document_kind"]
+          mime: string
+          name: string
+          patient_id: string
+          retain_until?: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["document_kind"]
+          mime?: string
+          name?: string
+          patient_id?: string
+          retain_until?: string
+          size_bytes?: number
+          storage_path?: string
+          tenant_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_tenant_id_patient_id_fkey"
             columns: ["tenant_id", "patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
@@ -655,12 +734,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      authorize_document_access: { Args: { p_action: string; p_document: string }; Returns: Json }
-      register_document: {
-        Args: { p_kind: Database["public"]["Enums"]["document_kind"]; p_name: string; p_patient: string; p_storage_path: string }
-        Returns: Database["public"]["Tables"]["patient_documents"]["Row"]
-      }
-      set_document_archived: { Args: { p_archived: boolean; p_document: string }; Returns: Database["public"]["Tables"]["patient_documents"]["Row"] }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -730,6 +803,10 @@ export type Database = {
         }
       }
       am_i_platform_admin: { Args: never; Returns: boolean }
+      authorize_document_access: {
+        Args: { p_action: string; p_document: string }
+        Returns: Json
+      }
       create_branch: {
         Args: { p_address?: string; p_name: string; p_tenant: string }
         Returns: {
@@ -866,6 +943,34 @@ export type Database = {
         }
       }
       open_patient: { Args: { p_patient: string }; Returns: Json }
+      register_document: {
+        Args: {
+          p_kind: Database["public"]["Enums"]["document_kind"]
+          p_name: string
+          p_patient: string
+          p_storage_path: string
+        }
+        Returns: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["document_kind"]
+          mime: string
+          name: string
+          patient_id: string
+          retain_until: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploaded_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_documents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       revoke_invitation: {
         Args: { p_invitation: string }
         Returns: {
@@ -926,6 +1031,29 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_document_archived: {
+        Args: { p_archived: boolean; p_document: string }
+        Returns: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["document_kind"]
+          mime: string
+          name: string
+          patient_id: string
+          retain_until: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploaded_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "patient_documents"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1113,9 +1241,17 @@ export type Database = {
       }
     }
     Enums: {
-      document_kind: "radiografia" | "foto" | "receta" | "consentimiento" | "presupuesto" | "formulario" | "modelo" | "otro"
       consent_method: "papel" | "digital"
       consent_source: "signup" | "invite" | "renewal"
+      document_kind:
+        | "radiografia"
+        | "foto"
+        | "receta"
+        | "consentimiento"
+        | "presupuesto"
+        | "formulario"
+        | "modelo"
+        | "otro"
       invitation_status: "pending" | "accepted" | "revoked"
       membership_status: "active" | "invited" | "revoked"
       patient_source:
@@ -1257,6 +1393,16 @@ export const Constants = {
     Enums: {
       consent_method: ["papel", "digital"],
       consent_source: ["signup", "invite", "renewal"],
+      document_kind: [
+        "radiografia",
+        "foto",
+        "receta",
+        "consentimiento",
+        "presupuesto",
+        "formulario",
+        "modelo",
+        "otro",
+      ],
       invitation_status: ["pending", "accepted", "revoked"],
       membership_status: ["active", "invited", "revoked"],
       patient_source: [
