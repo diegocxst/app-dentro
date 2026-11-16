@@ -48,7 +48,10 @@ Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Do
 - Suite `documents_rls_isolation.sql` (6 actores) y `test:db` con 10 migraciones en verde. **Pruebas de mutación:** lectura directa del bucket, ver sin bitácora y subir a un paciente ajeno → las 3 las detecta la suite.
 - 216 pruebas de la app (antes 209) estables en 3 corridas; 20 de Edge Functions; lint, typecheck y build en verde.
 - **En dev (2026-11-16, aprobado por Diego):** migración 0010 aplicada (dry-run antes); las 10 suites en verde en el proyecto real, sin dejar datos (bucket y tabla en 0); `document-url` desplegada y responde 401 sin sesión; tipos regenerados (0001–0010); asesores sin avisos nuevos (solo las 3 RPC nuevas en el aviso esperado de SECURITY DEFINER).
-- **Sin revisión visual:** la clínica de Diego no tiene pacientes; para ver la pestaña hace falta un paciente ficticio (con su permiso).
+- **Revisión en dev con la cuenta de Diego (2026-11-16, con su permiso):** se creó el paciente ficticio «Paciente Ficticio Prueba» y se subió «Radiografia ficticia» (PDF de 1 KB). Verificado: subir, contador en la pestaña, ver con enlace firmado, **el enlace vence a los 60 s** (400 `exp`), bitácora con subir + 2 vistas y su actor, y con la sesión de la dueña la app **no puede** descargar, firmar ni listar el bucket directo. Móvil 390 px en oscuro: «Tomar foto» visible y la tarjeta legible.
+- **Corregido en la revisión:** (1) la cuadrícula de 2 columnas apretaba el nombre a ~1000 px → 2 columnas solo desde `xl`; (2) si el navegador bloquea la pestaña nueva, la app ya no se sale: muestra un enlace «Abrir …» que vence en un minuto (prueba nueva). 217 pruebas de la app.
+- **Sin probar en el navegador:** «Descargar» (descarga un archivo; queda cubierto por las pruebas del handler).
+- El paciente y el documento ficticios se quedan en dev (no se borran: se pueden archivar).
 
 ### Decisiones (aprobadas por Diego el 2026-11-16)
 1. Aplicar la migración 0010 y desplegar `document-url` en dev. **Solo documentos ficticios.**
@@ -273,7 +276,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M7 Documentos:** revisión visual con un paciente ficticio (con permiso de Diego) e integrar en `main`.
+- **E3 · M7 Documentos:** integrar en `main` y push (con aprobación de Diego).
 - Después: **M2-B** (exportar datos del paciente, ARCO) y **M3 Agenda**.
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.

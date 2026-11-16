@@ -24,6 +24,8 @@ export function DocumentsTab({ tenantId, patientId, canWrite, canArchive, onCoun
   const [attempt, setAttempt] = useState(0)
   const [showArchived, setShowArchived] = useState(false)
   const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
+  // Si el navegador bloquea la pestaña nueva, damos el enlace (vence en 60 s) sin salir de la app.
+  const [blockedLink, setBlockedLink] = useState<{ name: string; url: string } | null>(null)
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
 
   useEffect(() => {
@@ -48,6 +50,7 @@ export function DocumentsTab({ tenantId, patientId, canWrite, canArchive, onCoun
 
   const open = async (doc: PatientDocument, action: 'view' | 'download') => {
     setNotice(null)
+    setBlockedLink(null)
     // La ventana se abre en el clic (los navegadores bloquean ventanas abiertas después).
     const win = action === 'view' ? window.open('', '_blank') : null
     try {
@@ -55,6 +58,8 @@ export function DocumentsTab({ tenantId, patientId, canWrite, canArchive, onCoun
       if (win) {
         win.opener = null
         win.location.href = url
+      } else if (action === 'view') {
+        setBlockedLink({ name: doc.name, url })
       } else {
         window.location.assign(url)
       }
@@ -85,6 +90,15 @@ export function DocumentsTab({ tenantId, patientId, canWrite, canArchive, onCoun
     <div className="flex flex-col gap-4">
       <p className="m-0 text-caption text-ink-muted">Solo el equipo de la clínica ve estos archivos. Cada vista y descarga queda registrada.</p>
       {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
+      {blockedLink && (
+        <Alert tone="info">
+          Tu navegador bloqueó la pestaña nueva.{' '}
+          <a href={blockedLink.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-violet underline" onClick={() => setBlockedLink(null)}>
+            Abrir «{blockedLink.name}»
+          </a>{' '}
+          (el enlace vence en un minuto).
+        </Alert>
+      )}
       {canWrite && (
         <UploadForm
           tenantId={tenantId}
@@ -98,7 +112,7 @@ export function DocumentsTab({ tenantId, patientId, canWrite, canArchive, onCoun
       {shown.length === 0 ? (
         <p className="m-0 text-ui text-ink-muted">{showArchived ? 'No hay documentos.' : 'Aún no hay documentos de este paciente.'}</p>
       ) : (
-        <ul aria-label="Documentos" className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+        <ul aria-label="Documentos" className="m-0 grid list-none grid-cols-1 gap-3 p-0 xl:grid-cols-2">
           {shown.map((d) => (
             <li key={d.id}>
               <Card padding="sm" className={cn('flex items-center gap-3', d.archived_at && 'opacity-70')}>

@@ -82,6 +82,18 @@ describe('M7 · documentos del paciente', () => {
     expect(fakeDb.document_access_log).toContainEqual({ document_id: 'd-1', action: 'view' })
   })
 
+  it('si el navegador bloquea la pestaña, da el enlace sin salir de la app', async () => {
+    seedPatient()
+    seedDoc()
+    vi.spyOn(window, 'open').mockReturnValue(null)
+    const user = await openDocsTab()
+    await user.click(await screen.findByRole('button', { name: 'Panorámica' }))
+    const link = await screen.findByRole('link', { name: 'Abrir «Panorámica»' })
+    expect(link).toHaveAttribute('href', 'https://storage.test/firmado/d-1')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getByRole('tab', { name: /Documentos/ })).toBeInTheDocument()
+  })
+
   it('si no hay acceso, cierra la ventana y lo explica', async () => {
     seedPatient()
     seedDoc()
