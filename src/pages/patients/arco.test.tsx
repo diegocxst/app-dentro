@@ -73,7 +73,7 @@ describe('M2-B · privacidad y ARCO en la ficha', () => {
     }))
     const list = await screen.findByRole('list', { name: 'Solicitudes ARCO' })
     expect(within(list).getByText(/Cancelación del/)).toBeInTheDocument()
-    expect(within(list).getByText(/responde antes del/)).toBeInTheDocument()
+    expect(within(list).getByText('Vence el 14 dic 2026')).toBeInTheDocument()
   })
 
   it('responder exige texto y cierra la solicitud', async () => {
@@ -89,6 +89,7 @@ describe('M2-B · privacidad y ARCO en la ficha', () => {
     expect(fakeSupabase.rpc).toHaveBeenCalledWith('update_arco_request', { p_request: 'arco-1', p_status: 'atendida', p_response: 'Entregamos copia en PDF' })
     await waitFor(() => expect(screen.queryByRole('button', { name: /^Responder: Acceso/ })).not.toBeInTheDocument())
     expect(screen.getByText('Entregamos copia en PDF')).toBeInTheDocument()
+    expect(screen.getByText('Guardamos la respuesta. La solicitud quedó cerrada.')).toBeInTheDocument()
   })
 
   it('una solicitud vencida se marca', async () => {

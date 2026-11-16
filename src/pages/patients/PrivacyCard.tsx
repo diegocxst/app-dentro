@@ -131,7 +131,16 @@ export function PrivacyCard({ patientId, patientName, role, tenantActive }: Prop
         ) : (
           <ul aria-label="Solicitudes ARCO" className="m-0 flex list-none flex-col gap-3 p-0">
             {requests.map((r) => (
-              <RequestItem key={r.id} request={r} canEdit={tenantActive} onChanged={reload} onError={(text) => setNotice({ tone: 'error', text })} />
+              <RequestItem
+                key={r.id}
+                request={r}
+                canEdit={tenantActive}
+                onChanged={(text) => {
+                  setNotice({ tone: 'success', text })
+                  reload()
+                }}
+                onError={(text) => setNotice({ tone: 'error', text })}
+              />
             ))}
           </ul>
         ))}
@@ -218,7 +227,7 @@ function DueBadge({ request }: { request: ArcoRequest }) {
   return <Badge tone="neutral">Vence el {day(request.due_on)}</Badge>
 }
 
-function RequestItem({ request: r, canEdit, onChanged, onError }: { request: ArcoRequest; canEdit: boolean; onChanged: () => void; onError: (t: string) => void }) {
+function RequestItem({ request: r, canEdit, onChanged, onError }: { request: ArcoRequest; canEdit: boolean; onChanged: (text: string) => void; onError: (t: string) => void }) {
   const [resolving, setResolving] = useState(false)
   const [outcome, setOutcome] = useState<'atendida' | 'improcedente'>('atendida')
   const [response, setResponse] = useState('')
@@ -237,7 +246,7 @@ function RequestItem({ request: r, canEdit, onChanged, onError }: { request: Arc
     try {
       await updateArcoRequest(r.id, status, status === 'en_proceso' ? '' : response)
       setResolving(false)
-      onChanged()
+      onChanged(status === 'en_proceso' ? 'Marcamos la solicitud en proceso.' : 'Guardamos la respuesta. La solicitud quedó cerrada.')
     } catch (e) {
       onError(rpcErrorMessage(e as { code?: string }))
     } finally {
@@ -251,7 +260,7 @@ function RequestItem({ request: r, canEdit, onChanged, onError }: { request: Arc
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="text-ui font-semibold">{label}</span>
           <span className="text-caption text-ink-muted">
-            {channelLabel(r.channel)} · {resolved ? ARCO_STATUS[r.status] : `${ARCO_STATUS[r.status]} · responde antes del ${day(r.due_on)}`}
+            {channelLabel(r.channel)} · {ARCO_STATUS[r.status]}
           </span>
         </div>
         <DueBadge request={r} />

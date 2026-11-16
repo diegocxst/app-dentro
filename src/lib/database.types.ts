@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0010 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: arco_requests, sus RPC y enums (migración 0011) agregados a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0011 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -67,20 +66,20 @@ export type Database = {
           tenant_id: string
         }
         Insert: {
-          channel?: string
+          channel: string
           created_at?: string
           created_by?: string | null
           details?: string | null
-          due_on?: string
+          due_on: string
           id?: string
-          patient_id?: string
-          received_on?: string
+          patient_id: string
+          received_on: string
           resolved_at?: string | null
           resolved_by?: string | null
           response?: string | null
-          right?: Database["public"]["Enums"]["arco_right"]
+          right: Database["public"]["Enums"]["arco_right"]
           status?: Database["public"]["Enums"]["arco_status"]
-          tenant_id?: string
+          tenant_id: string
         }
         Update: {
           channel?: string
@@ -98,7 +97,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["arco_status"]
           tenant_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "arco_requests_tenant_id_patient_id_fkey"
+            columns: ["tenant_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -855,6 +862,10 @@ export type Database = {
         }
       }
       am_i_platform_admin: { Args: never; Returns: boolean }
+      authorize_document_access: {
+        Args: { p_action: string; p_document: string }
+        Returns: Json
+      }
       create_arco_request: {
         Args: {
           p_channel: string
@@ -864,40 +875,6 @@ export type Database = {
           p_right: Database["public"]["Enums"]["arco_right"]
         }
         Returns: string
-      }
-      export_patient_data: { Args: { p_patient: string }; Returns: Json }
-      update_arco_request: {
-        Args: {
-          p_request: string
-          p_response?: string
-          p_status: Database["public"]["Enums"]["arco_status"]
-        }
-        Returns: {
-          channel: string
-          created_at: string
-          created_by: string | null
-          details: string | null
-          due_on: string
-          id: string
-          patient_id: string
-          received_on: string
-          resolved_at: string | null
-          resolved_by: string | null
-          response: string | null
-          right: Database["public"]["Enums"]["arco_right"]
-          status: Database["public"]["Enums"]["arco_status"]
-          tenant_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "arco_requests"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      authorize_document_access: {
-        Args: { p_action: string; p_document: string }
-        Returns: Json
       }
       create_branch: {
         Args: { p_address?: string; p_name: string; p_tenant: string }
@@ -1034,6 +1011,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      export_patient_data: { Args: { p_patient: string }; Returns: Json }
       open_patient: { Args: { p_patient: string }; Returns: Json }
       register_document: {
         Args: {
@@ -1178,6 +1156,35 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patients"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_arco_request: {
+        Args: {
+          p_request: string
+          p_response?: string
+          p_status: Database["public"]["Enums"]["arco_status"]
+        }
+        Returns: {
+          channel: string
+          created_at: string
+          created_by: string | null
+          details: string | null
+          due_on: string
+          id: string
+          patient_id: string
+          received_on: string
+          resolved_at: string | null
+          resolved_by: string | null
+          response: string | null
+          right: Database["public"]["Enums"]["arco_right"]
+          status: Database["public"]["Enums"]["arco_status"]
+          tenant_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "arco_requests"
           isOneToOne: true
           isSetofReturn: false
         }
