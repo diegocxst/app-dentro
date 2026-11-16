@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -233,6 +233,37 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'create_arco_request') {
+    const p = fakeDb.patients.find((x) => x.id === args.p_patient)
+    const id = `arco-${fakeDb.arco_requests.length + 1}`
+    fakeDb.arco_requests.push({
+      id, tenant_id: p?.tenant_id, patient_id: args.p_patient, right: args.p_right, channel: args.p_channel,
+      received_on: args.p_received_on, due_on: '2026-12-14', details: args.p_details ?? null, status: 'recibida',
+      response: null, created_by: 'u-1', created_at: '2026-11-16T12:00:00Z', resolved_by: null, resolved_at: null,
+    })
+    return Promise.resolve({ data: id, error: null })
+  }
+  if (fn === 'update_arco_request') {
+    const r = fakeDb.arco_requests.find((x) => x.id === args.p_request)
+    if (!r) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    r.status = args.p_status
+    if (args.p_response) r.response = args.p_response
+    if (args.p_status === 'atendida' || args.p_status === 'improcedente') r.resolved_at = '2026-11-16T13:00:00Z'
+    return Promise.resolve({ data: r, error: null })
+  }
+  if (fn === 'export_patient_data') {
+    const p = fakeDb.patients.find((x) => x.id === args.p_patient)
+    if (!p) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    return Promise.resolve({
+      data: {
+        format: 'dentro.patient-export.v1', generated_at: '2026-11-16T12:00:00Z',
+        clinic: { name: 'Clínica Prueba', city: 'CDMX', notice_version: 'clinica-borrador-2026-11' },
+        patient: { ...p, primary_doctor: null, updated_at: p.created_at }, consents: [], notes: [], documents: [], access_log: [],
+        arco_requests: fakeDb.arco_requests.filter((r) => r.patient_id === p.id),
+      },
+      error: null,
+    })
+  }
   if (fn === 'register_document') {
     const obj = fakeStorage.find((o) => o.path === args.p_storage_path)
     if (!obj) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })

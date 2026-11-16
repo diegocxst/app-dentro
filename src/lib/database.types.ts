@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0010 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: arco_requests, sus RPC y enums (migración 0011) agregados a mano hasta aplicarla en dev.
 export type Json =
   | string
   | number
@@ -47,6 +48,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      arco_requests: {
+        Row: {
+          channel: string
+          created_at: string
+          created_by: string | null
+          details: string | null
+          due_on: string
+          id: string
+          patient_id: string
+          received_on: string
+          resolved_at: string | null
+          resolved_by: string | null
+          response: string | null
+          right: Database["public"]["Enums"]["arco_right"]
+          status: Database["public"]["Enums"]["arco_status"]
+          tenant_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          due_on?: string
+          id?: string
+          patient_id?: string
+          received_on?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          response?: string | null
+          right?: Database["public"]["Enums"]["arco_right"]
+          status?: Database["public"]["Enums"]["arco_status"]
+          tenant_id?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          due_on?: string
+          id?: string
+          patient_id?: string
+          received_on?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          response?: string | null
+          right?: Database["public"]["Enums"]["arco_right"]
+          status?: Database["public"]["Enums"]["arco_status"]
+          tenant_id?: string
+        }
+        Relationships: []
       }
       audit_logs: {
         Row: {
@@ -803,6 +855,46 @@ export type Database = {
         }
       }
       am_i_platform_admin: { Args: never; Returns: boolean }
+      create_arco_request: {
+        Args: {
+          p_channel: string
+          p_details?: string
+          p_patient: string
+          p_received_on: string
+          p_right: Database["public"]["Enums"]["arco_right"]
+        }
+        Returns: string
+      }
+      export_patient_data: { Args: { p_patient: string }; Returns: Json }
+      update_arco_request: {
+        Args: {
+          p_request: string
+          p_response?: string
+          p_status: Database["public"]["Enums"]["arco_status"]
+        }
+        Returns: {
+          channel: string
+          created_at: string
+          created_by: string | null
+          details: string | null
+          due_on: string
+          id: string
+          patient_id: string
+          received_on: string
+          resolved_at: string | null
+          resolved_by: string | null
+          response: string | null
+          right: Database["public"]["Enums"]["arco_right"]
+          status: Database["public"]["Enums"]["arco_status"]
+          tenant_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "arco_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       authorize_document_access: {
         Args: { p_action: string; p_document: string }
         Returns: Json
@@ -1241,6 +1333,8 @@ export type Database = {
       }
     }
     Enums: {
+      arco_right: "acceso" | "rectificacion" | "cancelacion" | "oposicion"
+      arco_status: "recibida" | "en_proceso" | "atendida" | "improcedente"
       consent_method: "papel" | "digital"
       consent_source: "signup" | "invite" | "renewal"
       document_kind:
@@ -1391,6 +1485,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      arco_right: ["acceso", "rectificacion", "cancelacion", "oposicion"],
+      arco_status: ["recibida", "en_proceso", "atendida", "improcedente"],
       consent_method: ["papel", "digital"],
       consent_source: ["signup", "invite", "renewal"],
       document_kind: [

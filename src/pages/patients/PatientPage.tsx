@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { Alert } from '@/components/ui/Alert'
@@ -17,6 +17,7 @@ import { ageFrom, sourceLabel } from '@/lib/patients'
 import { formatPhone } from '@/lib/phone'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { DocumentsTab } from './DocumentsTab'
+import { PrivacyCard } from './PrivacyCard'
 
 type Tab = 'resumen' | 'citas' | 'presupuestos' | 'pagos' | 'documentos' | 'notas'
 
@@ -179,7 +180,11 @@ export function PatientPage() {
       </div>
 
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === 'resumen' && <Summary record={record} onNotes={() => setTab('notas')} />}
+        {tab === 'resumen' && (
+          <Summary record={record} onNotes={() => setTab('notas')}>
+            <PrivacyCard patientId={p.id} patientName={p.full_name} role={active?.role} tenantActive={active?.tenant.status === 'active'} />
+          </Summary>
+        )}
         {tab === 'notas' && <Notes record={record} onAdded={reload} />}
         {tab === 'documentos' && active && (
           <DocumentsTab
@@ -196,7 +201,7 @@ export function PatientPage() {
   )
 }
 
-function Summary({ record, onNotes }: { record: PatientRecord; onNotes: () => void }) {
+function Summary({ record, onNotes, children }: { record: PatientRecord; onNotes: () => void; children?: ReactNode }) {
   const last = record.notes[0]
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -228,6 +233,7 @@ function Summary({ record, onNotes }: { record: PatientRecord; onNotes: () => vo
         </div>
         {last ? <NoteItem note={last} /> : <p className="m-0 text-ui text-ink-muted">Aún no hay notas.</p>}
       </Card>
+      {children}
     </div>
   )
 }

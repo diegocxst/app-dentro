@@ -20,6 +20,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M2-B Privacidad y ARCO** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2b-arco` (sin push). Migración 0011 **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M7 Documentos** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m7-documentos` (sin push). Migración 0010 **aplicada en dev** y Edge Function `document-url` **desplegada**, con aprobación de Diego. |
 | **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes` (sin push). Migración 0009 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion` (sin push). Migración 0008 **aplicada en dev** con aprobación de Diego. |
@@ -40,6 +41,19 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M2-B — Privacidad y derechos ARCO (EN_PRUEBAS) · DATOS DE SALUD
+- **Migración 0011** `20261116000600_arco`: `arco_requests` (derecho, canal, fecha de recepción, **vence a los 20 días hábiles**, detalles, estado, respuesta, quién y cuándo resolvió); la bitácora de pacientes admite `export`.
+- **Reglas en la base:** registran dueña, administración o recepción; **solo la gerencia ve y responde**; resolver exige respuesta y no se reabre; **cancelación = solo se registra** (decisión de Diego; el expediente se conserva 5 años); `export_patient_data` solo gerencia, **también con la clínica suspendida**, y **registra el acceso**; superadmin, doctores y otras clínicas sin acceso; auditoría sin datos en claro.
+- **Ficha 360 › Resumen › «Privacidad y derechos ARCO»:** exportar (descarga **PDF legible + JSON**), registrar solicitud (qué pide, cómo llegó, fecha, detalles) y lista con plazo («Vence en N días», «Vencida hace N días»), «Marcar en proceso» y «Responder» (atendida/improcedente + respuesta). Recepción solo registra; los doctores no ven la sección.
+- **PDF:** `@react-pdf/renderer` 4.9.0 cargado solo al exportar (chunk aparte, ~445 KB gzip). Datos, consentimientos, notas, lista de documentos (los archivos van aparte), solicitudes y quién consultó sus datos; pie con «página X de Y». Revisado con datos ficticios (se corrigió el título encimado, la división silábica y el pie fuera de la hoja).
+- Suite `arco_rls_isolation.sql` (6 actores) y `test:db` con 11 migraciones en verde. **Pruebas de mutación:** exportar sin bitácora, recepción leyendo solicitudes y doctor tratante exportando → las 3 las detecta la suite.
+- 224 pruebas de la app (antes 217), estables en 3 corridas. `database.types.ts` con entradas **provisionales** de 0011.
+
+### Puntos para aprobación
+1. Aplicar la migración 0011 en dev (primero `--dry-run`), correr las 11 suites, regenerar tipos, revisar asesores y una revisión visual con el paciente ficticio.
+2. El plazo cuenta lunes a viernes **sin feriados** y es de 20 días hábiles; se ajusta con la revisión legal (P5).
+3. No hay todavía una lista de solicitudes de toda la clínica (solo por paciente). Propuesta: «Configuración › Privacidad» con las pendientes y vencidas, en un incremento corto.
 
 ## E3 · M7 — Documentos del paciente (EN_PRUEBAS) · DATOS DE SALUD
 - **Migración 0010** `20261116000500_patient_documents`: bucket **privado** `patient-documents` (`<clínica>/<paciente>/<uuid>.<ext>`; PDF, JPG, PNG, WebP y STL; hasta 25 MB), `patient_documents` (tipo, nombre, tamaño, `retain_until` = alta + 5 años, archivado) y `document_access_log` (subir, ver, descargar, archivar, reactivar).
@@ -277,7 +291,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- Después: **M2-B** (exportar datos del paciente, ARCO) y **M3 Agenda**.
+- **E3 · M2-B ARCO:** aprobar y aplicar en dev (migración 0011), revisión visual, integrar en `main`.
+- Después: **M3 Agenda**.
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 
