@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0007 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: branches.opening_hours y set_branch_hours (migración 0008) agregados a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0008 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -94,12 +93,12 @@ export type Database = {
       }
       branches: {
         Row: {
-          opening_hours: Json
           address: string
           created_at: string
           id: string
           is_active: boolean
           name: string
+          opening_hours: Json
           tenant_id: string
           updated_at: string
         }
@@ -109,6 +108,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
+          opening_hours?: Json
           tenant_id: string
           updated_at?: string
         }
@@ -118,6 +118,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          opening_hours?: Json
           tenant_id?: string
           updated_at?: string
         }
@@ -466,7 +467,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      set_branch_hours: { Args: { p_branch: string; p_hours: Json }; Returns: Database["public"]["Tables"]["branches"]["Row"] }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -526,6 +526,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          opening_hours: Json
           tenant_id: string
           updated_at: string
         }
@@ -662,6 +663,25 @@ export type Database = {
         Args: { p_items: Json; p_tenant: string }
         Returns: number
       }
+      set_branch_hours: {
+        Args: { p_branch: string; p_hours: Json }
+        Returns: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          opening_hours: Json
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_membership_branches: {
         Args: { p_branch_ids: string[]; p_membership: string }
         Returns: undefined
@@ -683,6 +703,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          opening_hours: Json
           tenant_id: string
           updated_at: string
         }

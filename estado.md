@@ -17,7 +17,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
-| **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion`. Migración 0008 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion` (sin push). Migración 0008 **aplicada en dev** con aprobación de Diego. |
 | **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
 | **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
 | **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
@@ -45,8 +45,9 @@ M10 = P31 clínica y sucursales · P32 tratamientos y precios · P33 usuarios y 
 - Configuración lista Identidad, Tu equipo, Sucursales y sillones, Tratamientos y precios y Mi perfil. La guía de Inicio («Identidad») lleva a Identidad.
 - Suite `hours_rls_isolation.sql` y `test:db` con 8 migraciones en verde; prueba de mutación: al permitir horarios encimados, la suite falla. 187 pruebas (antes 177), estables en 3 corridas.
 - Revisión visual con la cuenta de Diego (sin guardar nada): Configuración e Identidad a 1440 px (claro); horario de la sucursal a 390 px (oscuro).
+- **En dev:** migración 0008 aplicada; las 8 suites en verde en el proyecto real; tipos regenerados; asesores sin avisos nuevos.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-16)
 1. Aplicar la migración 0008 en dev.
 2. El horario es la hora local de la sucursal; la zona horaria se agrega con la agenda (M3).
 3. La dirección del perfil público (`dentro.mx/…`) se muestra pero no se cambia todavía (llega con M13, E6).
@@ -234,7 +235,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **Aprobar M10** y aplicar la migración 0008 en dev.
+- **Integrar M10 en `main` y push** (aprobación de Diego).
 - **E3 · M2 Pacientes + M7 Documentos** (siguiente módulo).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
