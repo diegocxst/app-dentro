@@ -5,6 +5,7 @@
 - 2026-11-15: E1-A, E1-B1, E1-B2, E1-B3 y E1-B4 integradas en `main` **local** (avance directo, sin conflictos). Verificado en `main`: lint, typecheck, 109 pruebas, `test:db` y build. Las ramas `feature/*` se conservan (solo locales).
 - 2026-11-15: **push de `main`** a `diegocxst/app-dentro` con aprobación de Diego (`cb84157..798284e`, sin forzar; revisado sin secretos).
 - 2026-11-15: E1-B5a, E1-B5b y E1-B5c integradas en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 147 pruebas, `test:db` (5 migraciones) y build; sin secretos.
+- 2026-11-16: E3 · M2-A integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 203 pruebas, `test:db` (9 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M10 integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 187 pruebas, `test:db` (8 migraciones) y build; sin secretos.
 - 2026-11-16: E2-A, E2-B y E2-C integradas en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 177 pruebas, `test:db` (7 migraciones) y build; sin secretos.
 
@@ -255,7 +256,6 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **Integrar M2-A en `main` y push** (aprobación de Diego).
 - **E3 · M7 Documentos** (siguiente incremento: Storage privado, Edge Function de enlaces de 60 s y bitácora).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.

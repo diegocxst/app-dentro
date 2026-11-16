@@ -79,3 +79,4 @@
 | 2026-11-16 | E3 · M10 integrada en `main` y push a `diegocxst/app-dentro` | Diego |
 | 2026-11-16 | M2 + M7 aprobado en tres incrementos (M2-A pacientes, M7 documentos, M2-B ARCO). Doctor y colaborador ven solo a sus pacientes; superadmin sin acceso; consentimiento obligatorio al dar de alta; bitácora de fichas y documentos; sin borrado (5 años); documentos con enlace de 60 s emitido por Edge Function | Diego |
 | 2026-11-16 | M2-A: migración 0009 aplicada en dev; la lista se lee sin bitácora (sí se registran ficha, edición, archivo y notas); documentos con M7 y ARCO con M2-B | Diego |
+| 2026-11-16 | E3 · M2-A integrada en `main` y push a `diegocxst/app-dentro` | Diego |
