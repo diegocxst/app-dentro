@@ -20,7 +20,7 @@ describe('rutas protegidas', () => {
 
   it('con sesión, /ingresar y /registro mandan al inicio', async () => {
     const { router } = await renderApp('/ingresar')
-    expect(router.state.location.pathname).toBe('/')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'))
     await router.navigate('/registro')
     await waitFor(() => expect(router.state.location.pathname).toBe('/'))
   })

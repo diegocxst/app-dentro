@@ -14,7 +14,13 @@ import { HomePage } from '@/pages/HomePage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
 import { ConfigurationPage } from '@/pages/configuration/ConfigurationPage'
 import { TeamPage } from '@/pages/configuration/TeamPage'
+import { BranchesConfigPage } from '@/pages/configuration/BranchesConfigPage'
+import { TreatmentsConfigPage } from '@/pages/configuration/TreatmentsConfigPage'
 import { CreateClinicPage } from '@/pages/onboarding/CreateClinicPage'
+import { StepBranchesPage } from '@/pages/onboarding/StepBranchesPage'
+import { StepTeamPage } from '@/pages/onboarding/StepTeamPage'
+import { StepTreatmentsPage } from '@/pages/onboarding/StepTreatmentsPage'
+import { StepWhatsappPage } from '@/pages/onboarding/StepWhatsappPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
 import { MorePage } from '@/pages/MorePage'
@@ -49,6 +55,11 @@ export const routes: RouteObject[] = [
     children: [
       // P04 paso 1: alta de la clínica (solo si aún no tiene una).
       { path: '/bienvenida', element: <CreateClinicPage /> },
+      // P04 pasos 2 a 5 (con la clínica ya creada, sin el menú del panel).
+      { path: '/bienvenida/sucursales', element: <RequireClinic><StepBranchesPage /></RequireClinic> },
+      { path: '/bienvenida/equipo', element: <RequireClinic><StepTeamPage /></RequireClinic> },
+      { path: '/bienvenida/tratamientos', element: <RequireClinic><StepTreatmentsPage /></RequireClinic> },
+      { path: '/bienvenida/whatsapp', element: <RequireClinic><StepWhatsappPage /></RequireClinic> },
       // Panel de la clínica activa.
       {
         path: '/',
@@ -63,6 +74,8 @@ export const routes: RouteObject[] = [
           ),
           { path: 'configuracion', element: <ConfigurationPage /> },
           { path: 'configuracion/equipo', element: <TeamPage /> },
+          { path: 'configuracion/sucursales', element: <BranchesConfigPage /> },
+          { path: 'configuracion/tratamientos', element: <TreatmentsConfigPage /> },
           { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
           { path: MORE_PATH.slice(1), element: <MorePage /> },
           { path: '*', element: <NotFoundPage /> },

@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Navigate, useNavigate } from 'react-router'
-import { BrandLogo } from '@/brand/BrandLogo'
-import { SignOutButton } from '@/components/layout/SignOutButton'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -23,7 +21,7 @@ import { useWorkspace } from '@/workspace/workspace-context'
 import { BRAND_SWATCHES } from './brand-swatches'
 import { IdentityPreview } from './IdentityPreview'
 import { LogoPicker } from './LogoPicker'
-import { OnboardingSteps } from './OnboardingSteps'
+import { OnboardingLayout } from './OnboardingLayout'
 
 const KINDS = [
   { value: 'clinic', title: 'Clínica', text: 'Varios doctores, recepción o más de una sucursal.' },
@@ -36,6 +34,8 @@ export function CreateClinicPage() {
   const navigate = useNavigate()
   const [formError, setFormError] = useState<string | null>(null)
   const [slugEdited, setSlugEdited] = useState(false)
+  // Tras crear la clínica se sigue al paso 2; sin esto, la guarda de abajo mandaría a Inicio.
+  const [created, setCreated] = useState(false)
   const [logo, setLogo] = useFilePreview()
   const logoFile = logo?.file ?? null
   const logoPreview = logo?.url ?? null
@@ -62,7 +62,7 @@ export function CreateClinicPage() {
   }, [displayName, slugEdited, setValue])
 
   if (state.status === 'loading') return <FullPageSpinner />
-  if (state.status === 'ready' && state.memberships.length > 0) return <Navigate to="/" replace />
+  if (!created && state.status === 'ready' && state.memberships.length > 0) return <Navigate to="/" replace />
 
   const brand = ensureBrandContrast(isHexColor(color ?? '') ? color : null)
   const previewColor = isHexColor(color ?? '') ? brand.color : BRAND_SWATCHES[0].hex
@@ -71,6 +71,7 @@ export function CreateClinicPage() {
     setFormError(null)
     try {
       const { whatsapp, ...rest } = values
+      setCreated(true)
       const tenant = await createClinic({ ...rest, brandColor: values.brandColor.toUpperCase(), whatsappE164: normalizePhone(whatsapp) })
       setActiveTenant(tenant.id)
       if (logoFile) {
@@ -78,8 +79,9 @@ export function CreateClinicPage() {
         await uploadClinicLogo(tenant.id, logoFile).catch(() => undefined)
       }
       await refresh()
-      navigate('/', { replace: true })
+      navigate('/bienvenida/sucursales', { replace: true })
     } catch (error) {
+      setCreated(false)
       setFormError(clinicErrorMessage(error as { code?: string; message?: string }))
     }
   })
@@ -87,33 +89,13 @@ export function CreateClinicPage() {
   const slugField = register('slug', { onChange: () => setSlugEdited(true) })
 
   return (
-    <div className="flex min-h-dvh flex-wrap bg-surface text-ink">
-      <aside className="flex flex-[1_1_320px] flex-col gap-8 bg-night px-6 py-8 text-on-night md:gap-10 md:px-8 md:py-10">
-        <BrandLogo variant="negative" width={140} />
-        <div className="flex flex-col gap-2">
-          <h1 className="m-0 text-title text-on-night">{firstName ? `Hola, ${firstName}` : 'Te damos la bienvenida'}</h1>
-          <p className="m-0 text-body text-on-night-muted">Vamos a dejar tu clínica lista en 5 pasos. Empecemos por su identidad.</p>
-        </div>
-        <div className="hidden md:block">
-          <OnboardingSteps current={0} />
-        </div>
-        <div className="grow" />
-        <SignOutButton tone="night" className="self-start" />
-      </aside>
-
-      <main className="flex min-w-0 flex-[999_1_560px] flex-col gap-7 px-4 py-8 md:p-12">
-        <div className="flex max-w-250 flex-col gap-2.5">
-          <span className="text-label tracking-[0.06em] text-violet uppercase">Paso 1 de 5</span>
-          <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-pill bg-lavender">
-            <div className="h-1.5 w-1/5 rounded-pill bg-violet" />
-          </div>
-          <h2 className="mt-2 mb-0 text-title">Así se verá tu clínica</h2>
-          <p className="m-0 text-body text-ink-muted">
-            Tu nombre, logo y color aparecen en el menú, en los presupuestos, en los mensajes a tus pacientes y en tu perfil público.
-          </p>
-        </div>
-
-        <form onSubmit={onSubmit} noValidate className="flex max-w-250 flex-col gap-7">
+    <OnboardingLayout
+      current={0}
+      greeting={firstName ? `Hola, ${firstName}` : 'Te damos la bienvenida'}
+      title="Así se verá tu clínica"
+      description="Tu nombre, logo y color aparecen en el menú, en los presupuestos, en los mensajes a tus pacientes y en tu perfil público."
+    >
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-7">
           {formError && <Alert tone="error">{formError}</Alert>}
           <div className="flex flex-wrap items-start gap-8">
             <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-5">
@@ -200,7 +182,6 @@ export function CreateClinicPage() {
             </Button>
           </div>
         </form>
-      </main>
-    </div>
+    </OnboardingLayout>
   )
 }

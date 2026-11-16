@@ -60,3 +60,16 @@ export function clinicErrorMessage(error: ErrorLike): string {
       return authErrorMessage(error)
   }
 }
+
+/** Mensaje para errores de RPC con textos propios por caso. */
+export function rpcErrorMessage(error: ErrorLike, messages: { duplicate?: string; invalid?: string } = {}): string {
+  switch (error?.code) {
+    case '23505':
+      return messages.duplicate ?? 'Ese nombre ya existe.'
+    case '23514':
+    case '22023':
+      return messages.invalid ?? 'Revisa los datos.'
+    default:
+      return clinicErrorMessage(error)
+  }
+}

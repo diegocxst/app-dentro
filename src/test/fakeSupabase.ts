@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -196,6 +196,44 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'create_chair') {
+    const b = fakeDb.branches.find((x) => x.id === args.p_branch)
+    const dup = fakeDb.chairs.some((c) => c.branch_id === args.p_branch && String(c.name).toLowerCase() === String(args.p_name).trim().toLowerCase())
+    if (dup) return Promise.resolve({ data: null, error: { code: '23505', message: 'dup' } })
+    const row = { id: `chair-${fakeDb.chairs.length + 1}`, tenant_id: b?.tenant_id, branch_id: args.p_branch, name: String(args.p_name).trim(), is_active: true, created_at: `2026-11-16T00:00:0${fakeDb.chairs.length}Z` }
+    fakeDb.chairs.push(row)
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'update_chair') {
+    const c = fakeDb.chairs.find((x) => x.id === args.p_chair)
+    if (c && typeof args.p_is_active === 'boolean') c.is_active = args.p_is_active
+    return Promise.resolve({ data: c ?? null, error: null })
+  }
+  if (fn === 'create_branch') {
+    const row = { id: `branch-${fakeDb.branches.length + 1}`, tenant_id: args.p_tenant, name: args.p_name, address: args.p_address ?? '', is_active: true, created_at: '2026-11-16T01:00:00Z' }
+    fakeDb.branches.push(row)
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'update_branch') {
+    const b = fakeDb.branches.find((x) => x.id === args.p_branch)
+    if (b) {
+      if (typeof args.p_name === 'string') b.name = args.p_name
+      if (typeof args.p_address === 'string') b.address = args.p_address
+    }
+    return Promise.resolve({ data: b ?? null, error: null })
+  }
+  if (fn === 'save_treatments') {
+    const items = args.p_items as Row[]
+    for (const it of items) {
+      if (it.id) {
+        const t = fakeDb.treatments.find((x) => x.id === it.id)
+        if (t) Object.assign(t, it)
+      } else {
+        fakeDb.treatments.push({ ...it, id: `t-${fakeDb.treatments.length + 1}`, tenant_id: args.p_tenant })
+      }
+    }
+    return Promise.resolve({ data: items.length, error: null })
+  }
   if (fn === 'set_onboarding_task') {
     const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
     if (t) {

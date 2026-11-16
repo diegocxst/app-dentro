@@ -17,7 +17,7 @@ describe('logo en el alta de la clínica', () => {
 
   it('sube el logo al crear la clínica y lo muestra en el menú con URL firmada', async () => {
     const user = userEvent.setup()
-    await renderApp('/bienvenida', { tenant: null })
+    const { router } = await renderApp('/bienvenida', { tenant: null })
     await user.upload(await screen.findByLabelText('Subir logo'), png())
     expect(screen.getByRole('img', { name: 'Logo elegido' })).toHaveAttribute('src', expect.stringMatching(/^blob:/))
     expect(screen.getByText('logo-sonrie.png')).toBeInTheDocument()
@@ -25,6 +25,8 @@ describe('logo en el alta de la clínica', () => {
     await user.type(screen.getByLabelText('Nombre de la clínica o consultorio'), 'Clínica Dental Sonríe')
     await user.type(screen.getByLabelText('Doctora o doctor responsable'), 'Dra. Ana Ruiz')
     await user.click(screen.getByRole('button', { name: 'Continuar' }))
+    await screen.findByRole('heading', { level: 2, name: '¿Dónde atiendes?' })
+    await router.navigate('/')
 
     const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
     const newTenant = '10000000-0000-4000-8000-0000000000ff'
@@ -42,7 +44,7 @@ describe('logo en el alta de la clínica', () => {
     await user.type(await screen.findByLabelText('Nombre de la clínica o consultorio'), 'Consultorio Norte')
     await user.type(screen.getByLabelText('Doctora o doctor responsable'), 'Dr. Luis Prueba')
     await user.click(screen.getByRole('button', { name: 'Continuar' }))
-    await screen.findByRole('navigation', { name: 'Menú principal' })
+    await screen.findByRole('heading', { level: 2, name: '¿Dónde atiendes?' })
     expect(fakeSupabase.storage.from).not.toHaveBeenCalled()
   })
 

@@ -15,6 +15,7 @@
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
+| **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding`. Migración 0007 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Plantilla «Invite user» pegada por Diego. |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
@@ -27,6 +28,26 @@
 
 ## E2 — Interfaz y estructura
 E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vacíos), **E2-B** pasos 2 a 5 del onboarding (dependen de tablas nuevas: se propone antes) y **E2-C** estados vacío, carga y error en toda la app.
+
+## E2-B — Onboarding pasos 2 a 5 (EN_PRUEBAS)
+- **Migración 0007** `20261116000200_chairs_treatments`: tablas `chairs` (por sucursal, FK compuesta) y `treatments` (categoría, precio MXN, duración de la cita o «varía», activo). RPC `create_chair`, `update_chair` y `save_treatments` (varios a la vez, todo o nada). Lectura para miembros (agenda y presupuestos); escritura solo propietario o administración. No se borran: se desactivan.
+- **Onboarding (P04)** con un marco común: pasos a la izquierda (hechos con palomita turquesa y enlazados), «Paso N de 5», barra de avance, «Atrás», «Hacerlo después» y «Continuar».
+  - **Paso 1** identidad (ya existía): ahora sigue al paso 2.
+  - **Paso 2** sucursales y sillones: editar nombre y dirección, agregar sucursales, agregar y quitar sillones. Exige al menos un sillón.
+  - **Paso 3** tu equipo: el mismo formulario de invitación de «Tu equipo».
+  - **Paso 4** tratamientos y precios (mockup Onboarding): categorías, lista con «Activo», precio y duración, «Agregar otro tratamiento». **Sugerencias sin precio y sin marcar**; solo se guardan los marcados con precio.
+  - **Paso 5** WhatsApp: guarda el número normalizado. Meta (M11) solo se explica (E6).
+  - Cada «Continuar» marca su tarea en la guía; «Hacerlo después» vuelve a Inicio sin marcar.
+- **Configuración** › «Sucursales y sillones» y «Tratamientos y precios» reusan los mismos editores. La guía de Inicio lleva a los pasos del onboarding.
+- **Errores encontrados por las pruebas:** (1) al crear la clínica, la guarda de la página mandaba a Inicio en lugar del paso 2; corregido. (2) Una prueba de acceso fallaba a veces por no esperar la redirección; corregida.
+- Suite `catalog_rls_isolation.sql` y `test:db` con 7 migraciones en verde. 171 pruebas (antes 156), estables en 3 corridas.
+- **Pendiente:** revisión visual con datos reales al aplicar 0007 en dev.
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0007 en dev.
+2. **Duración:** se guarda la de una cita en minutos (la agenda la usa) o «Varía»; el mockup muestra textos como «18 meses» o «3 citas», que irán en el plan de tratamiento del presupuesto (M4).
+3. El paso 2 exige al menos un sillón; el paso 4, al menos un tratamiento con precio; el paso 5, el WhatsApp. El paso 3 se puede continuar sin invitar (consultorio sin equipo).
+4. Editar la identidad (paso 1) después de creada la clínica llega con Configuración › Identidad (E3).
 
 ## E2-A — Inicio de primer uso (EN_PRUEBAS)
 - **Migración 0006** `20261116000100_onboarding_tasks`: RPC `set_onboarding_task` (propietario o administración de clínica activa; solo las 7 tareas; con auditoría). Las clínicas nuevas (y las existentes) empiezan con «identity» hecha.

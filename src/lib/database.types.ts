@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0006 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: chairs, treatments y sus RPC (migración 0007) agregados a mano hasta aplicarla en dev.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -18,6 +19,18 @@ export type Database = {
   }
   public: {
     Tables: {
+      chairs: {
+        Row: { branch_id: string; created_at: string; id: string; is_active: boolean; name: string; tenant_id: string; updated_at: string }
+        Insert: { branch_id: string; name: string; tenant_id: string }
+        Update: { name?: string }
+        Relationships: []
+      }
+      treatments: {
+        Row: { category: string; created_at: string; duration_minutes: number | null; id: string; is_active: boolean; name: string; price_mxn: number; tenant_id: string; updated_at: string }
+        Insert: { category: string; name: string; price_mxn: number; tenant_id: string }
+        Update: { name?: string }
+        Relationships: []
+      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -375,6 +388,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_chair: { Args: { p_branch: string; p_name: string }; Returns: Database["public"]["Tables"]["chairs"]["Row"] }
+      save_treatments: { Args: { p_items: Json; p_tenant: string }; Returns: number }
+      update_chair: { Args: { p_chair: string; p_is_active?: boolean; p_name?: string }; Returns: Database["public"]["Tables"]["chairs"]["Row"] }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {

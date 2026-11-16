@@ -56,8 +56,12 @@ describe('P04 paso 1 · alta de la clínica', () => {
       p_whatsapp_e164: '+525512345678',
       p_city: 'Ciudad de México',
     })
+    // Sigue al paso 2 del onboarding…
+    expect(await screen.findByRole('heading', { level: 2, name: '¿Dónde atiendes?' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/bienvenida/sucursales')
+    // …y el panel ya muestra la clínica nueva.
+    await router.navigate('/')
     const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
-    expect(router.state.location.pathname).toBe('/')
     expect(await within(nav).findByText('Clínica Dental Sonríe')).toBeInTheDocument()
     expect(within(nav).getByText('Dra. Ana Ruiz · Directora médica')).toBeInTheDocument()
   })
