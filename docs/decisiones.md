@@ -73,3 +73,4 @@
 | 2026-11-15 | E1 cerrada con B4 (correo transaccional) pendiente; arranca E2, dividida en E2-A, E2-B y E2-C | Diego |
 | 2026-11-16 | E2-A: migración 0006 aplicada en dev; sin video, manuales ni WhatsApp de soporte por ahora; «Explorar con datos de ejemplo» se diseña aparte; saludo neutro «Hola, {nombre}» | Diego |
 | 2026-11-16 | E2-B: migración 0007 aplicada en dev; duración de cita en minutos o «Varía»; pasos 2, 4 y 5 exigen sillón, tratamiento con precio y WhatsApp; el 3 es opcional; editar identidad llega con Configuración (E3) | Diego |
+| 2026-11-16 | E2-A a E2-C integradas en `main` y push a `diegocxst/app-dentro` | Diego |
