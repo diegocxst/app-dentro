@@ -76,3 +76,4 @@
 | 2026-11-16 | E2-A a E2-C integradas en `main` y push a `diegocxst/app-dentro` | Diego |
 | 2026-11-16 | E2 cerrada; arranca E3 con M10 Configuración (identidad, horarios, mi perfil) | Diego |
 | 2026-11-16 | M10: migración 0008 aplicada en dev; horario en hora local (zona horaria con M3); dirección del perfil público fija hasta M13; cambio de contraseña desde Mi perfil después | Diego |
+| 2026-11-16 | E3 · M10 integrada en `main` y push a `diegocxst/app-dentro` | Diego |
