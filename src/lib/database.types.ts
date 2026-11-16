@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0006 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: chairs, treatments y sus RPC (migración 0007) agregados a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0007 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -19,18 +18,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      chairs: {
-        Row: { branch_id: string; created_at: string; id: string; is_active: boolean; name: string; tenant_id: string; updated_at: string }
-        Insert: { branch_id: string; name: string; tenant_id: string }
-        Update: { name?: string }
-        Relationships: []
-      }
-      treatments: {
-        Row: { category: string; created_at: string; duration_minutes: number | null; id: string; is_active: boolean; name: string; price_mxn: number; tenant_id: string; updated_at: string }
-        Insert: { category: string; name: string; price_mxn: number; tenant_id: string }
-        Update: { name?: string }
-        Relationships: []
-      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -135,6 +122,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "branches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chairs: {
+        Row: {
+          branch_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chairs_tenant_id_branch_id_fkey"
+            columns: ["tenant_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "chairs_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -383,14 +415,55 @@ export type Database = {
         }
         Relationships: []
       }
+      treatments: {
+        Row: {
+          category: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          is_active: boolean
+          name: string
+          price_mxn: number
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price_mxn: number
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_mxn?: number
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treatments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      create_chair: { Args: { p_branch: string; p_name: string }; Returns: Database["public"]["Tables"]["chairs"]["Row"] }
-      save_treatments: { Args: { p_items: Json; p_tenant: string }; Returns: number }
-      update_chair: { Args: { p_chair: string; p_is_active?: boolean; p_name?: string }; Returns: Database["public"]["Tables"]["chairs"]["Row"] }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -456,6 +529,24 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_chair: {
+        Args: { p_branch: string; p_name: string }
+        Returns: {
+          branch_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "chairs"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -564,6 +655,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      save_treatments: {
+        Args: { p_items: Json; p_tenant: string }
+        Returns: number
+      }
       set_membership_branches: {
         Args: { p_branch_ids: string[]; p_membership: string }
         Returns: undefined
@@ -591,6 +686,24 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_chair: {
+        Args: { p_chair: string; p_is_active?: boolean; p_name?: string }
+        Returns: {
+          branch_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "chairs"
           isOneToOne: true
           isSetofReturn: false
         }

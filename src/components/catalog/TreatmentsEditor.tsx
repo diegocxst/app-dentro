@@ -138,7 +138,7 @@ export function TreatmentsEditor({ tenantId, canEdit, submitLabel, onSaved, foot
             onClick={() => setFilter(c.id)}
             className={cn(
               'min-h-10 rounded-pill border px-4 text-ui font-medium',
-              filter === c.id ? 'border-night bg-night text-on-night' : 'border-border bg-surface-raised text-ink hover:bg-lavender',
+              filter === c.id ? 'border-night-active bg-night-active text-on-night' : 'border-border bg-surface-raised text-ink hover:bg-lavender',
             )}
           >
             {c.label}

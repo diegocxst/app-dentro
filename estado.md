@@ -15,7 +15,7 @@
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
-| **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding`. Migración 0007 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
 | **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Plantilla «Invite user» pegada por Diego. |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
@@ -41,9 +41,11 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 - **Configuración** › «Sucursales y sillones» y «Tratamientos y precios» reusan los mismos editores. La guía de Inicio lleva a los pasos del onboarding.
 - **Errores encontrados por las pruebas:** (1) al crear la clínica, la guarda de la página mandaba a Inicio en lugar del paso 2; corregido. (2) Una prueba de acceso fallaba a veces por no esperar la redirección; corregida.
 - Suite `catalog_rls_isolation.sql` y `test:db` con 7 migraciones en verde. 171 pruebas (antes 156), estables en 3 corridas.
-- **Pendiente:** revisión visual con datos reales al aplicar 0007 en dev.
+- **En dev:** migración 0007 aplicada; las 7 suites en verde en el proyecto real; tipos regenerados; asesores sin avisos nuevos.
+- **Revisión visual con la cuenta de Diego** (sin guardar nada): pasos 2 y 4 a 1440 px (claro) y paso 4 a 390 px (oscuro). Se corrigió: en tema oscuro la categoría elegida casi no se distinguía.
+- Observación: la clínica de Diego muestra «Identidad» sin marcar porque el 2026-11-16 a las 00:08 se marcó y desmarcó desde la guía (auditoría); no es un error. Se puede volver a marcar desde Inicio.
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-16)
 1. Aplicar la migración 0007 en dev.
 2. **Duración:** se guarda la de una cita en minutos (la agenda la usa) o «Varía»; el mockup muestra textos como «18 meses» o «3 citas», que irán en el plan de tratamiento del presupuesto (M4).
 3. El paso 2 exige al menos un sillón; el paso 4, al menos un tratamiento con precio; el paso 5, el WhatsApp. El paso 3 se puede continuar sin invitar (consultorio sin equipo).
