@@ -99,3 +99,27 @@ export const profileSchema = z.object({
     .refine((v) => v === '' || normalizePhone(v) !== null, 'Escribe 10 dígitos (México) o el número con +lada internacional.'),
 })
 export type ProfileValues = z.infer<typeof profileSchema>
+
+// ── Pacientes (M2) ──────────────────────────────────────────────────────────
+const todayIso = () => new Date().toISOString().slice(0, 10)
+
+export const patientSchema = z.object({
+  fullName: z.string().trim().min(2, 'Escribe el nombre completo.').max(160, 'Máximo 160 caracteres.'),
+  birthDate: z
+    .string()
+    .refine((v) => v === '' || (/^\d{4}-\d{2}-\d{2}$/.test(v) && v > '1900-01-01' && v <= todayIso()), 'Revisa la fecha de nacimiento.'),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v === '' || normalizePhone(v) !== null, 'Escribe 10 dígitos (México) o el número con +lada internacional.'),
+  email: z.union([z.literal(''), email]),
+  source: z.enum(['manual', 'referido', 'whatsapp', 'meta', 'perfil', 'otro']),
+  primaryDoctorId: z.string(),
+})
+export type PatientValues = z.infer<typeof patientSchema>
+
+export const newPatientSchema = patientSchema.extend({
+  consentMethod: z.enum(['papel', 'digital']),
+  consentGiven: z.boolean().refine((v) => v, 'Sin el consentimiento del paciente no podemos guardar sus datos.'),
+})
+export type NewPatientValues = z.infer<typeof newPatientSchema>

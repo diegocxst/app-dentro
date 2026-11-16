@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -116,11 +116,16 @@ export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, r
 function query(table: string) {
   const filters: [string, unknown][] = []
   const inFilters: [string, unknown[]][] = []
+  const preds: ((r: Row) => boolean)[] = []
+  let withCount = false
+  let range: [number, number] | null = null
   let single = false
   const run = () => {
     let rows = ((fakeDb as Record<string, Row[] | undefined>)[table] ?? []).filter(
-      (r) => filters.every(([k, v]) => r[k] === v) && inFilters.every(([k, vs]) => vs.includes(r[k])),
+      (r) => filters.every(([k, v]) => r[k] === v) && inFilters.every(([k, vs]) => vs.includes(r[k])) && preds.every((f) => f(r)),
     )
+    const total = rows.length
+    if (range) rows = rows.slice(range[0], range[1] + 1)
     // Como Supabase: cada respuesta trae objetos nuevos (copias), no referencias a la base.
     rows = rows.map((r) => structuredClone(r))
     if (table === 'memberships') {
@@ -129,10 +134,36 @@ function query(table: string) {
         return { ...m, tenant: tenant ? structuredClone(tenant) : null }
       })
     }
-    return Promise.resolve(single ? { data: rows[0] ?? null, error: null } : { data: rows, error: null })
+    return Promise.resolve(single ? { data: rows[0] ?? null, error: null } : { data: rows, error: null, count: withCount ? total : null })
   }
+  const like = (v: unknown, pattern: string) =>
+    String(v ?? '').toLowerCase().includes(pattern.replace(/^%|%$/g, '').replace(/\\(.)/g, '$1').toLowerCase())
   const builder = {
-    select: () => builder,
+    select: (_cols?: string, opts?: { count?: string }) => {
+      if (opts?.count) withCount = true
+      return builder
+    },
+    is: (k: string, v: unknown) => {
+      preds.push((r) => (r[k] ?? null) === v)
+      return builder
+    },
+    not: (k: string, _op: string, v: unknown) => {
+      preds.push((r) => (r[k] ?? null) !== v)
+      return builder
+    },
+    ilike: (k: string, pattern: string) => {
+      preds.push((r) => like(r[k], pattern))
+      return builder
+    },
+    or: (expr: string) => {
+      const parts = expr.split(',').map((p) => p.split('.ilike.') as [string, string])
+      preds.push((r) => parts.some(([k, pat]) => like(r[k], pat)))
+      return builder
+    },
+    range: (a: number, b: number) => {
+      range = [a, b]
+      return builder
+    },
     eq: (k: string, v: unknown) => {
       filters.push([k, v])
       return builder
@@ -196,6 +227,51 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'create_patient') {
+    if (!args.p_consent_method) return Promise.resolve({ data: null, error: { code: '22023', message: 'consent' } })
+    const row = {
+      id: `p-${fakeDb.patients.length + 1}`,
+      tenant_id: args.p_tenant,
+      full_name: String(args.p_full_name).trim(),
+      birth_date: args.p_birth_date ?? null,
+      phone_e164: args.p_phone_e164 ?? null,
+      email: args.p_email ?? null,
+      source: args.p_source ?? 'manual',
+      primary_doctor_id: args.p_primary_doctor ?? null,
+      tags: [],
+      archived_at: null,
+      created_at: '2026-11-16T10:00:00Z',
+      consent: { method: args.p_consent_method, notice_version: 'clinica-borrador-2026-11', recorded_at: '2026-11-16T10:00:00Z' },
+    }
+    fakeDb.patients.push(row)
+    fakeDb.patient_access_log.push({ patient_id: row.id, action: 'create' })
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'open_patient') {
+    const pt = fakeDb.patients.find((x) => x.id === args.p_patient)
+    if (!pt) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    fakeDb.patient_access_log.push({ patient_id: pt.id, action: 'view' })
+    const { consent, ...patient } = pt as Row & { consent?: Row }
+    const notes = fakeDb.patient_notes.filter((n) => n.patient_id === pt.id).reverse()
+    return Promise.resolve({ data: structuredClone({ patient, consent: consent ?? null, notes }), error: null })
+  }
+  if (fn === 'add_patient_note') {
+    fakeDb.patient_notes.push({ id: `n-${fakeDb.patient_notes.length + 1}`, patient_id: args.p_patient, body: args.p_body, author_id: current?.user.id, author_name: 'Dueña Prueba', created_at: '2026-11-16T11:00:00Z' })
+    return Promise.resolve({ data: {}, error: null })
+  }
+  if (fn === 'update_patient') {
+    const pt = fakeDb.patients.find((x) => x.id === args.p_patient)
+    if (pt) {
+      const map = { p_full_name: 'full_name', p_birth_date: 'birth_date', p_phone_e164: 'phone_e164', p_email: 'email', p_source: 'source', p_primary_doctor: 'primary_doctor_id' } as const
+      for (const [a, c] of Object.entries(map)) if (typeof args[a] === 'string') pt[c] = args[a] || null
+    }
+    return Promise.resolve({ data: pt ?? null, error: null })
+  }
+  if (fn === 'set_patient_archived') {
+    const pt = fakeDb.patients.find((x) => x.id === args.p_patient)
+    if (pt) pt.archived_at = args.p_archived ? '2026-11-16T12:00:00Z' : null
+    return Promise.resolve({ data: pt ?? null, error: null })
+  }
   if (fn === 'set_branch_hours') {
     const b = fakeDb.branches.find((x) => x.id === args.p_branch)
     if (b) b.opening_hours = args.p_hours

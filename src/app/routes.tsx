@@ -19,6 +19,10 @@ import { BranchesConfigPage } from '@/pages/configuration/BranchesConfigPage'
 import { TreatmentsConfigPage } from '@/pages/configuration/TreatmentsConfigPage'
 import { IdentityPage } from '@/pages/configuration/IdentityPage'
 import { ProfilePage } from '@/pages/configuration/ProfilePage'
+import { EditPatientPage } from '@/pages/patients/EditPatientPage'
+import { NewPatientPage } from '@/pages/patients/NewPatientPage'
+import { PatientPage } from '@/pages/patients/PatientPage'
+import { PatientsPage } from '@/pages/patients/PatientsPage'
 import { CreateClinicPage } from '@/pages/onboarding/CreateClinicPage'
 import { StepBranchesPage } from '@/pages/onboarding/StepBranchesPage'
 import { StepTeamPage } from '@/pages/onboarding/StepTeamPage'
@@ -76,9 +80,13 @@ export const routes: RouteObject[] = [
           </RequireClinic>
         ),
         children: [
-          ...SECTIONS.filter((s) => s.id !== 'configuracion').map((s): RouteObject =>
+          ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes').map((s): RouteObject =>
             s.path === '/' ? { index: true, element: <HomePage /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
           ),
+          { path: 'pacientes', element: <PatientsPage /> },
+          { path: 'pacientes/nuevo', element: <NewPatientPage /> },
+          { path: 'pacientes/:id', element: <PatientPage /> },
+          { path: 'pacientes/:id/editar', element: <EditPatientPage /> },
           { path: 'configuracion', element: <ConfigurationPage /> },
           { path: 'configuracion/equipo', element: <TeamPage /> },
           { path: 'configuracion/sucursales', element: <BranchesConfigPage /> },

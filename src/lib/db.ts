@@ -7,3 +7,5 @@ export type TenantStatus = Enums<'tenant_status'>
 export type TenantRole = Enums<'tenant_role'>
 export type MembershipStatus = Enums<'membership_status'>
 export type ConsentSource = Enums<'consent_source'>
+export type PatientSource = Enums<'patient_source'>
+export type ConsentMethod = Enums<'consent_method'>

@@ -134,7 +134,7 @@ export const MOBILE_TAB_IDS: readonly SectionId[] = ['inicio', 'agenda', 'pacien
 /** Opciones del botón "+ Nuevo" (llevan a la sección donde se creará cada cosa). */
 export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName }[] = [
   { label: 'Cita', path: '/agenda', icon: 'agenda' },
-  { label: 'Paciente', path: '/pacientes', icon: 'pacientes' },
+  { label: 'Paciente', path: '/pacientes/nuevo', icon: 'pacientes' },
   { label: 'Lead', path: '/leads', icon: 'leads' },
   { label: 'Presupuesto', path: '/presupuestos', icon: 'presupuestos' },
 ]

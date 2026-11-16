@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0008 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: patients, patient_access_log y sus RPC (migración 0009) agregados a mano hasta aplicarla en dev.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -18,6 +19,18 @@ export type Database = {
   }
   public: {
     Tables: {
+      patients: {
+        Row: { archived_at: string | null; birth_date: string | null; created_at: string; created_by: string | null; email: string | null; full_name: string; id: string; phone_e164: string | null; primary_doctor_id: string | null; source: Database["public"]["Enums"]["patient_source"]; tags: string[]; tenant_id: string; updated_at: string }
+        Insert: { full_name: string; tenant_id: string }
+        Update: { full_name?: string }
+        Relationships: []
+      }
+      patient_access_log: {
+        Row: { action: string; actor_id: string | null; created_at: string; id: number; patient_id: string; tenant_id: string }
+        Insert: { action: string; patient_id: string; tenant_id: string }
+        Update: { action?: string }
+        Relationships: []
+      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -366,6 +379,7 @@ export type Database = {
       }
       tenants: {
         Row: {
+          patient_notice_version: string
           brand_color: string
           city: string
           created_at: string
@@ -467,6 +481,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_patient_note: { Args: { p_body: string; p_patient: string }; Returns: Json }
+      create_patient: {
+        Args: { p_birth_date?: string; p_consent_method: Database["public"]["Enums"]["consent_method"]; p_email?: string; p_full_name: string; p_phone_e164?: string; p_primary_doctor?: string; p_source?: Database["public"]["Enums"]["patient_source"]; p_tags?: string[]; p_tenant: string }
+        Returns: Database["public"]["Tables"]["patients"]["Row"]
+      }
+      open_patient: { Args: { p_patient: string }; Returns: Json }
+      set_patient_archived: { Args: { p_archived: boolean; p_patient: string }; Returns: Database["public"]["Tables"]["patients"]["Row"] }
+      update_patient: {
+        Args: { p_birth_date?: string; p_email?: string; p_full_name?: string; p_patient: string; p_phone_e164?: string; p_primary_doctor?: string; p_source?: Database["public"]["Enums"]["patient_source"]; p_tags?: string[] }
+        Returns: Database["public"]["Tables"]["patients"]["Row"]
+      }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -807,6 +832,8 @@ export type Database = {
       }
     }
     Enums: {
+      consent_method: "papel" | "digital"
+      patient_source: "meta" | "perfil" | "referido" | "whatsapp" | "manual" | "otro"
       consent_source: "signup" | "invite" | "renewal"
       invitation_status: "pending" | "accepted" | "revoked"
       membership_status: "active" | "invited" | "revoked"

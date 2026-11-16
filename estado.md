@@ -18,6 +18,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes`. Migración 0009 probada en local; **falta aplicarla en dev** (requiere aprobación). |
 | **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion` (sin push). Migración 0008 **aplicada en dev** con aprobación de Diego. |
 | **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
 | **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
@@ -36,6 +37,22 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M2-A — Pacientes (EN_PRUEBAS) · DATOS DE SALUD
+- **Migración 0009** `20261116000400_patients`: `patients` (nombre, nacimiento, teléfono, correo, origen, doctor tratante con FK compuesta, etiquetas, archivado), `patient_consents` (método y versión del aviso de la clínica), `patient_notes` y `patient_access_log` (bitácora). `tenants.patient_notice_version` (borrador hasta P5).
+- **Reglas en la base:** gerencia y recepción ven a todos; doctor y colaborador **solo a sus pacientes**; el superadmin **no** entra; **no hay alta sin consentimiento**; notas y consentimientos solo se leen con `open_patient`, que **registra el acceso**; sin borrado (archivar). Auditoría y bitácora sin datos del paciente en claro. Un doctor que da de alta queda como tratante; solo gerencia o recepción cambian al tratante o archivan.
+- **P14 Lista:** búsqueda por nombre o teléfono y **paginación en el servidor** (25), activos y archivados, estados vacío, sin resultados, carga y error.
+- **P16 Nuevo paciente:** datos + **consentimiento obligatorio** (papel o digital, con la versión del aviso). Marca «Registra tu primer paciente» en la guía y abre la ficha.
+- **P15 Ficha 360:** encabezado (edad, teléfono, correo, origen, tratante, desde), WhatsApp, Editar, Archivar/Reactivar; pestañas Resumen (consentimiento, última nota), Notas (agregar) y Citas/Presupuestos/Pagos/Documentos explicadas hasta sus módulos. Edición manda solo lo que cambió.
+- «+ Nuevo › Paciente» y la guía llevan a `/pacientes/nuevo`.
+- Suite `patients_rls_isolation.sql` (6 actores) y `test:db` con 9 migraciones en verde. **Pruebas de mutación:** doctor que ve a todos, superadmin con acceso y abrir la ficha sin bitácora → las 3 las detecta la suite. Se corrigió el orden del rollback y el runner ahora cierra la transacción si un rollback falla.
+- 203 pruebas de la app (antes 187), estables en 3 corridas.
+- **Pendiente:** revisión visual con datos reales al aplicar 0009 en dev.
+
+### Para aprobar (Diego)
+1. Aplicar la migración 0009 en dev. **En el plan gratuito solo pacientes ficticios.**
+2. La lista (nombre, teléfono, edad, tratante) se lee sin bitácora; se registra abrir la ficha, editar, archivar y escribir notas.
+3. La pestaña Documentos y el escaneo del consentimiento firmado llegan con M7; exportar datos (ARCO), con M2-B.
 
 ## E3 · M10 — Configuración (EN_PRUEBAS)
 M10 = P31 clínica y sucursales · P32 tratamientos y precios · P33 usuarios y roles (P34 integraciones y perfil público llega con E6). Sillones, tratamientos y equipo ya existían (E1-B5c, E2-B); M10 agrega:
