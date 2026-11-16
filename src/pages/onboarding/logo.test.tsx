@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { fakeStorage, fakeSupabase, fakeTenant, TENANT_ID } from '@/test/fakeSupabase'
@@ -51,9 +51,12 @@ describe('logo en el alta de la clínica', () => {
   it('una clínica con logo lo muestra en el menú', async () => {
     await renderApp('/', { tenant: fakeTenant({ logo_path: `${TENANT_ID}/logo-0123456789ab.png` }) })
     const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
-    expect(await within(nav).findByRole('img', { name: 'Logo de Clínica Prueba' })).toHaveAttribute(
-      'src',
-      `https://storage.test/tenant-branding/${TENANT_ID}/logo-0123456789ab.png?token=firmado`,
+    // Mientras llega la URL firmada se ven las iniciales (mismo nombre accesible): esperar la imagen.
+    await waitFor(() =>
+      expect(within(nav).getByRole('img', { name: 'Logo de Clínica Prueba' })).toHaveAttribute(
+        'src',
+        `https://storage.test/tenant-branding/${TENANT_ID}/logo-0123456789ab.png?token=firmado`,
+      ),
     )
   })
 })

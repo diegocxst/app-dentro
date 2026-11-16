@@ -88,7 +88,8 @@ describe('M10 · identidad de la clínica', () => {
     const user = userEvent.setup()
     fakeStorage.push({ bucket: 'tenant-branding', path: OLD_LOGO, type: 'image/png' })
     await renderApp('/configuracion/identidad', { tenant: fakeTenant({ logo_path: OLD_LOGO }) })
-    expect(await screen.findByRole('img', { name: 'Logo actual' })).toHaveAttribute('src', expect.stringContaining(OLD_LOGO))
+    // Mientras llega la URL firmada se ven las iniciales (mismo nombre accesible): esperar la imagen.
+    await waitFor(() => expect(screen.getByRole('img', { name: 'Logo actual' })).toHaveAttribute('src', expect.stringContaining(OLD_LOGO)))
     await user.upload(screen.getByLabelText('Subir logo'), png())
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
     await screen.findByText('Listo. Guardamos la identidad de tu clínica.')

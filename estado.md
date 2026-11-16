@@ -2,6 +2,7 @@
 Última actualización: 2026-11-15 · Por: Diego (con Claude)
 
 ## Integración
+- 2026-11-16: E3 · M2-B Privacidad y ARCO integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 224 pruebas (3 corridas), `test:db` (11 migraciones) y build; sin secretos. Se estabilizaron 2 pruebas del logo que fallaban de forma intermitente (encontraban las iniciales antes que la imagen firmada); 15 corridas sin fallas.
 - 2026-11-16: E3 · M7 Documentos integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 217 pruebas, `test:db` (10 migraciones) y build; sin secretos.
 - 2026-11-15: E1-A, E1-B1, E1-B2, E1-B3 y E1-B4 integradas en `main` **local** (avance directo, sin conflictos). Verificado en `main`: lint, typecheck, 109 pruebas, `test:db` y build. Las ramas `feature/*` se conservan (solo locales).
 - 2026-11-15: **push de `main`** a `diegocxst/app-dentro` con aprobación de Diego (`cb84157..798284e`, sin forzar; revisado sin secretos).
@@ -294,8 +295,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M2-B ARCO:** integrar en `main` y push (con aprobación de Diego).
-- Después: **M3 Agenda**.
+- **E3 · M3 Agenda** (siguiente módulo).
+- **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 
