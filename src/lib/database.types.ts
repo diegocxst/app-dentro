@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0011 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: appointments, branches.timezone, sus RPC y enums (migración 0012) agregados a mano hasta aplicarla en dev.
 export type Json =
   | string
   | number
@@ -47,6 +48,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      appointments: {
+        Row: {
+          branch_id: string
+          cancel_reason: string | null
+          chair_id: string
+          created_at: string
+          created_by: string | null
+          doctor_id: string
+          ends_at: string
+          id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
+          notes: string | null
+          patient_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          tenant_id: string
+          treatment_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string
+          cancel_reason?: string | null
+          chair_id?: string
+          created_at?: string
+          created_by?: string | null
+          doctor_id?: string
+          ends_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["appointment_kind"]
+          notes?: string | null
+          patient_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          tenant_id?: string
+          treatment_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          cancel_reason?: string | null
+          chair_id?: string
+          created_at?: string
+          created_by?: string | null
+          doctor_id?: string
+          ends_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["appointment_kind"]
+          notes?: string | null
+          patient_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          tenant_id?: string
+          treatment_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       arco_requests: {
         Row: {
@@ -157,6 +215,7 @@ export type Database = {
           name: string
           opening_hours: Json
           tenant_id: string
+          timezone: string
           updated_at: string
         }
         Insert: {
@@ -167,6 +226,7 @@ export type Database = {
           name: string
           opening_hours?: Json
           tenant_id: string
+          timezone?: string
           updated_at?: string
         }
         Update: {
@@ -177,6 +237,7 @@ export type Database = {
           name?: string
           opening_hours?: Json
           tenant_id?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: [
@@ -866,6 +927,145 @@ export type Database = {
         Args: { p_action: string; p_document: string }
         Returns: Json
       }
+      create_appointment: {
+        Args: {
+          p_branch: string
+          p_chair: string
+          p_doctor: string
+          p_ends_at: string
+          p_kind?: Database["public"]["Enums"]["appointment_kind"]
+          p_notes?: string
+          p_starts_at: string
+          p_treatment?: string
+          p_patient: string
+        }
+        Returns: {
+          branch_id: string
+          cancel_reason: string | null
+          chair_id: string
+          created_at: string
+          created_by: string | null
+          doctor_id: string
+          ends_at: string
+          id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
+          notes: string | null
+          patient_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          tenant_id: string
+          treatment_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appointments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      list_appointments: {
+        Args: { p_branch?: string; p_from: string; p_patient?: string; p_to: string }
+        Returns: {
+          branch_id: string
+          cancel_reason: string | null
+          chair_id: string
+          doctor_id: string
+          ends_at: string
+          id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
+          notes: string | null
+          patient_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          tenant_id: string
+          treatment_id: string | null
+          branch_name: string
+          chair_name: string
+          doctor_name: string
+          patient_name: string
+          patient_phone: string | null
+          treatment_name: string | null
+        }[]
+      }
+      set_appointment_status: {
+        Args: {
+          p_appointment: string
+          p_reason?: string
+          p_status: Database["public"]["Enums"]["appointment_status"]
+        }
+        Returns: {
+          branch_id: string
+          cancel_reason: string | null
+          chair_id: string
+          created_at: string
+          created_by: string | null
+          doctor_id: string
+          ends_at: string
+          id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
+          notes: string | null
+          patient_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          tenant_id: string
+          treatment_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appointments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_branch_timezone: {
+        Args: { p_branch: string; p_timezone: string }
+        Returns: Database["public"]["Tables"]["branches"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "branches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_appointment: {
+        Args: {
+          p_appointment: string
+          p_branch: string
+          p_chair: string
+          p_doctor: string
+          p_ends_at: string
+          p_kind: Database["public"]["Enums"]["appointment_kind"]
+          p_notes?: string
+          p_starts_at: string
+          p_treatment?: string
+        }
+        Returns: {
+          branch_id: string
+          cancel_reason: string | null
+          chair_id: string
+          created_at: string
+          created_by: string | null
+          doctor_id: string
+          ends_at: string
+          id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
+          notes: string | null
+          patient_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          tenant_id: string
+          treatment_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appointments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_arco_request: {
         Args: {
           p_channel: string
@@ -1340,6 +1540,8 @@ export type Database = {
       }
     }
     Enums: {
+      appointment_kind: "valoracion" | "tratamiento" | "revision"
+      appointment_status: "programada" | "confirmada" | "llego" | "no_asistio" | "cancelada"
       arco_right: "acceso" | "rectificacion" | "cancelacion" | "oposicion"
       arco_status: "recibida" | "en_proceso" | "atendida" | "improcedente"
       consent_method: "papel" | "digital"
@@ -1492,6 +1694,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      appointment_kind: ["valoracion", "tratamiento", "revision"],
+      appointment_status: ["programada", "confirmada", "llego", "no_asistio", "cancelada"],
       arco_right: ["acceso", "rectificacion", "cancelacion", "oposicion"],
       arco_status: ["recibida", "en_proceso", "atendida", "improcedente"],
       consent_method: ["papel", "digital"],

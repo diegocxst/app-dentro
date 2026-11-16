@@ -149,8 +149,8 @@ describe('P15 · ficha del paciente', () => {
     const user = userEvent.setup()
     seedPatients(1)
     await renderApp('/pacientes/p-1')
-    await user.click(await screen.findByRole('tab', { name: 'Citas' }))
-    expect(screen.getByText(/cuando llegue la Agenda/)).toBeInTheDocument()
+    await user.click(await screen.findByRole('tab', { name: 'Pagos' }))
+    expect(screen.getByText(/cuando llegue Cobros/)).toBeInTheDocument()
   })
 
   it('recepción archiva; un doctor no ve el botón', async () => {

@@ -63,8 +63,8 @@ describe('AppLayout', () => {
 describe('navegación', () => {
   it('cada sección tiene su página vacía con estado explicativo', async () => {
     // Inicio muestra la guía de primer uso (ver pages/home.test.tsx).
-    // Inicio y Configuración ya tienen contenido propio (guía y secciones de M10).
-    for (const s of SECTIONS.filter((x) => !['inicio', 'configuracion', 'pacientes'].includes(x.id))) {
+    // Inicio, Configuración, Pacientes y Agenda ya tienen contenido propio.
+    for (const s of SECTIONS.filter((x) => !['inicio', 'configuracion', 'pacientes', 'agenda'].includes(x.id))) {
       const { unmount } = await renderApp(s.path)
       expect(screen.getByRole('heading', { level: 1, name: s.label })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 2, name: s.empty.title })).toBeInTheDocument()

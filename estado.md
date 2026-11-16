@@ -21,6 +21,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M2-B Privacidad y ARCO** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2b-arco` (sin push). Migración 0011 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M7 Documentos** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m7-documentos` (sin push). Migración 0010 **aplicada en dev** y Edge Function `document-url` **desplegada**, con aprobación de Diego. |
 | **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes` (sin push). Migración 0009 **aplicada en dev** con aprobación de Diego. |
@@ -42,6 +43,24 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M3-A — Agenda: citas y vista del día (EN_PRUEBAS)
+- **Migración 0012** `20261116000700_appointments`: `branches.timezone` (zonas de México, por defecto Ciudad de México) y `appointments` (sucursal, sillón —FK compuesta que obliga a que sea de esa sucursal—, doctor, paciente, tratamiento opcional, tipo valoración/tratamiento/revisión, estado, inicio y fin por minuto, notas, motivo de cancelación).
+- **Reglas en la base:** **nunca se traslapan** el mismo sillón ni el mismo doctor (EXCLUDE con `btree_gist`; las canceladas liberan el lugar); **no se agenda fuera del horario** de la sucursal ni en día cerrado, leído en su zona (error `DH001`); ni en el pasado. Gerencia y recepción agendan a cualquier doctor; **un doctor solo en su agenda y con sus pacientes**; se respetan las sucursales de cada membresía; el superadmin no ve citas. Estados: programada → confirmada → llegó / no asistió; cancelada es final; **reagendar = mover** y vuelve a «programada». Sin borrado; auditoría sin datos del paciente.
+- **P08 Agenda (`/agenda`):** día por doctor como la maqueta (columnas por doctor, horas del horario, bloques por estado, leyenda), Hoy / anterior / siguiente / fecha, clic en un hueco para agendar ahí; en celular, lista por hora. Día cerrado explicado.
+- **P10 Detalle:** estado, cuándo, doctor, lugar, motivo y notas; «Marcar confirmada», **«Confirmar por WhatsApp»** (mensaje listo para el paciente), «Llegó» / «No asistió» (desde 2 h antes), corregir, «Reagendar», «Cancelar cita» con motivo y «Abrir ficha del paciente».
+- **P09 Nueva cita / Reagendar:** paciente (búsqueda), doctor, sillón, tratamiento (pone la duración), tipo, fecha, duración y **solo horas dentro del horario**; si no hay horario o el servidor lo rechaza: «Escribe a la clínica o al doctor para revisar este caso» con enlace al WhatsApp de la clínica.
+- **Ficha 360:** «Próxima cita» en Resumen y pestaña **Citas** (próximas y anteriores, «Agendar cita»). «+ Nuevo › Cita» abre la nueva cita. **Configuración › Sucursales:** zona horaria.
+- Suite `appointments_rls_isolation.sql` (6 actores) y `test:db` con 12 migraciones en verde. **Pruebas de mutación:** sin revisar horario, sin regla de traslape del doctor y doctor viendo todas las citas → las 3 las detecta la suite.
+- 237 pruebas de la app (antes 224), estables en 3 corridas. Las pruebas encontraron un error real: al abrir «Nueva cita» directo, la sucursal aún no cargaba y no salían sillones (corregido). `database.types.ts` con entradas **provisionales** de 0012.
+- **Sin revisión visual:** requiere aplicar 0012 en dev.
+
+### Puntos para aprobación
+1. Aplicar la migración 0012 en dev (primero `--dry-run`), correr las 12 suites, regenerar tipos, revisar asesores y revisión visual con el paciente ficticio (crear 1–2 citas ficticias).
+2. «Fuera de horario» aplica a todos (también a la dueña). Para un caso especial hoy hay que ampliar el horario de la sucursal ese día. ¿Quieres que la gerencia pueda saltarse el horario con un motivo?
+3. El horario es el de la **sucursal**; el horario de cada doctor llega con M6 (Doctores).
+4. Las citas de **leads** (valoración sin paciente) llegan con M1; en M3-A cada cita es de un paciente registrado.
+5. **M3-B:** vistas Semana y Por sillón, y «Mi día» en celular.
 
 ## E3 · M2-B — Privacidad y derechos ARCO (EN_PRUEBAS) · DATOS DE SALUD
 - **Migración 0011** `20261116000600_arco`: `arco_requests` (derecho, canal, fecha de recepción, **vence a los 20 días hábiles**, detalles, estado, respuesta, quién y cuándo resolvió); la bitácora de pacientes admite `export`.
@@ -295,7 +314,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M3 Agenda** (siguiente módulo).
+- **E3 · M3-A Agenda:** aprobar y aplicar en dev (migración 0012), revisión visual, integrar en `main`. Después **M3-B** (Semana, Por sillón, Mi día).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.

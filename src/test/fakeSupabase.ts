@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -106,11 +106,11 @@ export function fakeTenant(overrides: Row = {}): Row {
 }
 
 /** Siembra una clínica con la persona de la sesión como dueña y una sucursal. */
-export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, role = 'owner') {
+export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, role = 'owner', branch: Row = {}) {
   fakeDb.tenants.push(tenant)
   fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role, status: 'active', created_at: '2026-11-15T00:00:00Z' })
   if (!fakeDb.profiles.some((p) => p.id === userId)) fakeDb.profiles.push({ id: userId, full_name: 'Dueña Prueba', phone_e164: null, avatar_path: null })
-  fakeDb.branches.push({ id: tenant.id === TENANT_ID ? BRANCH_ID : `b-${String(tenant.id)}`, tenant_id: tenant.id, name: 'Sucursal principal', address: '', is_active: true })
+  fakeDb.branches.push({ id: tenant.id === TENANT_ID ? BRANCH_ID : `b-${String(tenant.id)}`, tenant_id: tenant.id, name: 'Sucursal principal', address: '', is_active: true, timezone: 'America/Mexico_City', opening_hours: {}, ...branch })
 }
 
 function query(table: string) {
@@ -233,6 +233,69 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'list_appointments') {
+    const from = Date.parse(String(args.p_from))
+    const to = Date.parse(String(args.p_to))
+    const rows = fakeDb.appointments
+      .filter((a) => (!args.p_branch || a.branch_id === args.p_branch) && (!args.p_patient || a.patient_id === args.p_patient))
+      .filter((a) => Date.parse(String(a.starts_at)) < to && Date.parse(String(a.ends_at)) > from)
+      .sort((a, b) => String(a.starts_at).localeCompare(String(b.starts_at)))
+      .map((a) => {
+        const p = fakeDb.patients.find((x) => x.id === a.patient_id)
+        const m = fakeDb.memberships.find((x) => x.id === a.doctor_id)
+        return {
+          ...a,
+          patient_name: p?.full_name ?? '',
+          patient_phone: p?.phone_e164 ?? null,
+          doctor_name: fakeDb.profiles.find((x) => x.id === m?.user_id)?.full_name ?? '',
+          chair_name: fakeDb.chairs.find((x) => x.id === a.chair_id)?.name ?? '',
+          branch_name: fakeDb.branches.find((x) => x.id === a.branch_id)?.name ?? '',
+          treatment_name: fakeDb.treatments.find((x) => x.id === a.treatment_id)?.name ?? null,
+        }
+      })
+    return Promise.resolve({ data: rows, error: null })
+  }
+  if (fn === 'create_appointment' || fn === 'update_appointment') {
+    const s0 = Date.parse(String(args.p_starts_at))
+    const e0 = Date.parse(String(args.p_ends_at))
+    const clash = fakeDb.appointments.some(
+      (a) =>
+        a.id !== args.p_appointment &&
+        a.status !== 'cancelada' &&
+        (a.chair_id === args.p_chair || a.doctor_id === args.p_doctor) &&
+        Date.parse(String(a.starts_at)) < e0 &&
+        Date.parse(String(a.ends_at)) > s0,
+    )
+    if (clash) return Promise.resolve({ data: null, error: { code: '23P01', message: 'conflicting key value violates exclusion constraint' } })
+    const fields = {
+      doctor_id: args.p_doctor, branch_id: args.p_branch, chair_id: args.p_chair, starts_at: args.p_starts_at, ends_at: args.p_ends_at,
+      kind: args.p_kind ?? 'tratamiento', treatment_id: args.p_treatment ?? null, notes: args.p_notes ?? null,
+    }
+    if (fn === 'update_appointment') {
+      const a = fakeDb.appointments.find((x) => x.id === args.p_appointment)
+      if (!a) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+      Object.assign(a, fields, { status: 'programada' })
+      return Promise.resolve({ data: a, error: null })
+    }
+    const row = {
+      id: `cita-${fakeDb.appointments.length + 1}`, tenant_id: TENANT_ID, patient_id: args.p_patient, status: 'programada',
+      cancel_reason: null, created_by: 'u-1', created_at: '2026-11-16T12:00:00Z', updated_at: '2026-11-16T12:00:00Z', ...fields,
+    }
+    fakeDb.appointments.push(row)
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'set_appointment_status') {
+    const a = fakeDb.appointments.find((x) => x.id === args.p_appointment)
+    if (!a) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    a.status = args.p_status
+    if (args.p_status === 'cancelada') a.cancel_reason = args.p_reason ?? null
+    return Promise.resolve({ data: a, error: null })
+  }
+  if (fn === 'set_branch_timezone') {
+    const b = fakeDb.branches.find((x) => x.id === args.p_branch)
+    if (b) b.timezone = args.p_timezone
+    return Promise.resolve({ data: b ?? null, error: null })
+  }
   if (fn === 'create_arco_request') {
     const p = fakeDb.patients.find((x) => x.id === args.p_patient)
     const id = `arco-${fakeDb.arco_requests.length + 1}`

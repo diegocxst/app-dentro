@@ -80,4 +80,5 @@
 | 2026-11-16 | M2 + M7 aprobado en tres incrementos (M2-A pacientes, M7 documentos, M2-B ARCO). Doctor y colaborador ven solo a sus pacientes; superadmin sin acceso; consentimiento obligatorio al dar de alta; bitácora de fichas y documentos; sin borrado (5 años); documentos con enlace de 60 s emitido por Edge Function | Diego |
 | 2026-11-16 | M2-A: migración 0009 aplicada en dev; la lista se lee sin bitácora (sí se registran ficha, edición, archivo y notas); documentos con M7 y ARCO con M2-B | Diego |
 | 2026-11-16 | M2-B ARCO: cancelación = solo registrar la solicitud y su respuesta (sin bloqueo ni borrado automático); exportar y responder solo dueña y administración, recepción registra; exportación en PDF legible + JSON | Diego |
+| 2026-11-16 | M3 Agenda en dos incrementos (M3-A citas y día por doctor; M3-B semana, por sillón y Mi día); zona horaria por sucursal; **no se agenda fuera del horario** (se manda a escribir a la clínica o al doctor); gerencia y recepción agendan a cualquier doctor, un doctor solo en su agenda y con sus pacientes | Diego |
 | 2026-11-16 | E3 · M2-A integrada en `main` y push a `diegocxst/app-dentro` | Diego |

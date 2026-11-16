@@ -12,15 +12,17 @@ type Options = {
   consented?: boolean
   /** Rol de la persona en la clínica (por omisión, propietaria). */
   role?: string
+  /** Campos de la sucursal principal (p. ej. `opening_hours`, `timezone`). */
+  branch?: Record<string, unknown>
   /** Metadatos de Auth de la persona (p. ej. `tour_seen_at`). */
   userMeta?: Record<string, unknown>
 }
 
 /** Monta la app completa en una ruta, con sesión y clínica simuladas por omisión. */
-export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant(), consented = true, role = 'owner', userMeta = {} }: Options = {}) {
+export async function renderApp(path = '/', { signedIn = true, tenant = fakeTenant(), consented = true, role = 'owner', userMeta = {}, branch = {} }: Options = {}) {
   setInitialSession(signedIn ? fakeSession(fakeUser({ user_metadata: userMeta })) : null)
   // La clínica existe en la base aunque la persona aún no haya entrado.
-  if (tenant) seedClinic(tenant, undefined, role)
+  if (tenant) seedClinic(tenant, undefined, role, branch)
   seedNotice({ accepted: consented })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const utils = render(

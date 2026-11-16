@@ -17,12 +17,13 @@ import { ageFrom, sourceLabel } from '@/lib/patients'
 import { formatPhone } from '@/lib/phone'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { DocumentsTab } from './DocumentsTab'
+import { usePatientAppointments } from '@/hooks/usePatientAppointments'
+import { AppointmentsTab, NextAppointment } from './PatientAppointments'
 import { PrivacyCard } from './PrivacyCard'
 
 type Tab = 'resumen' | 'citas' | 'presupuestos' | 'pagos' | 'documentos' | 'notas'
 
-const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos'>, { icon: IconName; title: string; text: string }> = {
-  citas: { icon: 'agenda', title: 'Citas', text: 'Las citas de este paciente aparecerán aquí cuando llegue la Agenda.' },
+const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos' | 'citas'>, { icon: IconName; title: string; text: string }> = {
   presupuestos: { icon: 'presupuestos', title: 'Presupuestos', text: 'Aquí verás sus presupuestos y su estado cuando llegue el módulo de presupuestos.' },
   pagos: { icon: 'cobros', title: 'Pagos', text: 'Los pagos y el saldo del paciente aparecerán aquí cuando llegue Cobros.' },
 }
@@ -42,6 +43,7 @@ export function PatientPage() {
   const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
   const [docCount, setDocCount] = useState<number | undefined>(undefined)
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
+  const appts = usePatientAppointments(id)
 
   useEffect(() => {
     let current = true
@@ -95,7 +97,7 @@ export function PatientPage() {
 
   const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: 'resumen', label: 'Resumen' },
-    { id: 'citas', label: 'Citas' },
+    { id: 'citas', label: 'Citas', ...(appts.items?.length ? { count: appts.items.length } : {}) },
     { id: 'presupuestos', label: 'Presupuestos' },
     { id: 'pagos', label: 'Pagos' },
     { id: 'documentos', label: 'Documentos', ...(docCount ? { count: docCount } : {}) },
@@ -181,9 +183,18 @@ export function PatientPage() {
 
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'resumen' && (
-          <Summary record={record} onNotes={() => setTab('notas')}>
+          <Summary record={record} onNotes={() => setTab('notas')} next={<NextAppointment items={appts.items} />}>
             <PrivacyCard patientId={p.id} patientName={p.full_name} role={active?.role} tenantActive={active?.tenant.status === 'active'} />
           </Summary>
+        )}
+        {tab === 'citas' && (
+          <AppointmentsTab
+            patientId={p.id}
+            items={appts.items}
+            failed={appts.failed}
+            retry={appts.retry}
+            canSchedule={active?.tenant.status === 'active' && !p.archived_at}
+          />
         )}
         {tab === 'notas' && <Notes record={record} onAdded={reload} />}
         {tab === 'documentos' && active && (
@@ -195,19 +206,19 @@ export function PatientPage() {
             onCount={setDocCount}
           />
         )}
-        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
+        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && tab !== 'citas' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
       </div>
     </div>
   )
 }
 
-function Summary({ record, onNotes, children }: { record: PatientRecord; onNotes: () => void; children?: ReactNode }) {
+function Summary({ record, onNotes, next, children }: { record: PatientRecord; onNotes: () => void; next: ReactNode; children?: ReactNode }) {
   const last = record.notes[0]
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card className="flex flex-col gap-1">
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Próxima cita</span>
-        <span className="text-ui text-ink-muted">Las citas llegan con la Agenda.</span>
+        {next}
       </Card>
       <Card className="flex flex-col gap-1">
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Cuenta</span>
