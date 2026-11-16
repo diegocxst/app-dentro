@@ -30,7 +30,7 @@ export function AppLayout() {
       </div>
       <div className="flex min-w-0 grow flex-col">
         <Topbar />
-        <main id="contenido" tabIndex={-1} className="w-full max-w-310 grow px-4 pt-6 pb-32 outline-none md:px-6 lg:px-8 lg:pt-8 lg:pb-12">
+        <main id="contenido" tabIndex={-1} className="w-full max-w-310 grow px-4 pt-6 pb-44 outline-none md:px-6 lg:px-8 lg:pt-8 lg:pb-12">
           <div className="mb-6 empty:hidden">
             <OfflineBanner />
           </div>

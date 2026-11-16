@@ -18,7 +18,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
-| **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes`. Migración 0009 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes` (sin push). Migración 0009 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M10 Configuración** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m10-configuracion` (sin push). Migración 0008 **aplicada en dev** con aprobación de Diego. |
 | **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
 | **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
@@ -47,9 +47,11 @@ Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Do
 - «+ Nuevo › Paciente» y la guía llevan a `/pacientes/nuevo`.
 - Suite `patients_rls_isolation.sql` (6 actores) y `test:db` con 9 migraciones en verde. **Pruebas de mutación:** doctor que ve a todos, superadmin con acceso y abrir la ficha sin bitácora → las 3 las detecta la suite. Se corrigió el orden del rollback y el runner ahora cierra la transacción si un rollback falla.
 - 203 pruebas de la app (antes 187), estables en 3 corridas.
-- **Pendiente:** revisión visual con datos reales al aplicar 0009 en dev.
+- **En dev:** migración 0009 aplicada; las 9 suites en verde en el proyecto real; tipos regenerados; asesores sin avisos nuevos.
+- **Revisión visual con la cuenta de Diego** (sin crear pacientes): lista vacía y nuevo paciente a 1440 px (claro) y 390 px (oscuro). Se corrigió: en móvil el botón «+» tapaba el botón final de los formularios (más espacio abajo en todo el panel).
+- **Sin revisar con datos reales:** la ficha 360, porque la clínica de Diego aún no tiene pacientes (se puede crear uno ficticio).
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-16)
 1. Aplicar la migración 0009 en dev. **En el plan gratuito solo pacientes ficticios.**
 2. La lista (nombre, teléfono, edad, tratante) se lee sin bitácora; se registra abrir la ficha, editar, archivar y escribir notas.
 3. La pestaña Documentos y el escaneo del consentimiento firmado llegan con M7; exportar datos (ARCO), con M2-B.
@@ -253,6 +255,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
+- **Integrar M2-A en `main` y push** (aprobación de Diego).
+- **E3 · M7 Documentos** (siguiente incremento: Storage privado, Edge Function de enlaces de 60 s y bitácora).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 
