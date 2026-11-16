@@ -1,4 +1,6 @@
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
+import { OfflineBanner } from '@/components/feedback/OfflineBanner'
+import { SectionErrorBoundary } from '@/components/feedback/SectionErrorBoundary'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
 import { NewMenu } from '@/components/layout/NewMenu'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -13,6 +15,7 @@ import { useWorkspace } from '@/workspace/workspace-context'
  */
 export function AppLayout() {
   const { active } = useWorkspace()
+  const { pathname } = useLocation()
   const suspended = active?.tenant.status === 'suspended'
   return (
     <div className="flex min-h-dvh bg-surface text-ink">
@@ -28,12 +31,17 @@ export function AppLayout() {
       <div className="flex min-w-0 grow flex-col">
         <Topbar />
         <main id="contenido" tabIndex={-1} className="w-full max-w-310 grow px-4 pt-6 pb-32 outline-none md:px-6 lg:px-8 lg:pt-8 lg:pb-12">
+          <div className="mb-6 empty:hidden">
+            <OfflineBanner />
+          </div>
           {suspended && (
             <Alert tone="warning" title="Tu clínica está en solo lectura" className="mb-6">
               Puedes consultar tu información, pero no hacer cambios. Escríbenos a soporte para reactivarla.
             </Alert>
           )}
-          <Outlet />
+          <SectionErrorBoundary resetKey={pathname}>
+            <Outlet />
+          </SectionErrorBoundary>
         </main>
       </div>
       <MobileTabBar />

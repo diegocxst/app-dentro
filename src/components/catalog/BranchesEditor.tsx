@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { LoadError } from '@/components/feedback/LoadError'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -21,6 +22,7 @@ export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
   const [branches, setBranches] = useState<Branch[] | null>(null)
   const [chairs, setChairs] = useState<Chair[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [version, setVersion] = useState(0)
   const reload = useCallback(() => setVersion((v) => v + 1), [])
 
@@ -29,10 +31,11 @@ export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
     Promise.all([fetchAllBranches(tenantId), fetchChairs(tenantId)]).then(
       ([b, c]) => {
         if (!current) return
+        setLoadFailed(false)
         setBranches(b.filter((x) => x.is_active))
         setChairs(c.filter((x) => x.is_active))
       },
-      () => current && setError('No pudimos cargar tus sucursales. Revisa tu conexión.'),
+      () => current && setLoadFailed(true),
     )
     return () => {
       current = false
@@ -54,7 +57,8 @@ export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
     }
   }
 
-  if (branches === null && !error) {
+  if (branches === null && loadFailed) return <LoadError title="No pudimos cargar tus sucursales" onRetry={reload} />
+  if (branches === null) {
     return (
       <div className="flex flex-col gap-3" aria-hidden="true">
         <Skeleton className="h-32 w-full" />

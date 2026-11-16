@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { BrandLogo } from '@/brand/BrandLogo'
+import { OfflineBanner } from '@/components/feedback/OfflineBanner'
 import { SignOutButton } from '@/components/layout/SignOutButton'
 import type { GuideTaskId } from '@/lib/onboarding'
 import { ONBOARDING_STEPS } from '@/lib/onboarding-steps'
@@ -35,6 +36,7 @@ export function OnboardingLayout({ current, greeting, done, linked = false, titl
       </aside>
 
       <main className="flex min-w-0 flex-[999_1_560px] flex-col gap-7 px-4 py-8 md:p-12">
+        <OfflineBanner />
         <div className="flex max-w-250 flex-col gap-2.5">
           <span className="text-label tracking-[0.06em] text-violet uppercase">
             Paso {current + 1} de {total}

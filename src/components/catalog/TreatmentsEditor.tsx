@@ -1,4 +1,5 @@
 import { useEffect, useId, useState, type ReactNode } from 'react'
+import { LoadError } from '@/components/feedback/LoadError'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -39,6 +40,8 @@ export function TreatmentsEditor({ tenantId, canEdit, submitLabel, onSaved, foot
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   const baseId = useId()
 
   useEffect(() => {
@@ -68,12 +71,12 @@ export function TreatmentsEditor({ tenantId, canEdit, submitLabel, onSaved, foot
         }))
         setRows([...existing, ...suggested])
       },
-      () => current && setFormError('No pudimos cargar tus tratamientos. Revisa tu conexión.'),
+      () => current && setLoadFailed(true),
     )
     return () => {
       current = false
     }
-  }, [tenantId])
+  }, [tenantId, attempt])
 
   const patch = (key: string, change: Partial<Row>) => {
     setRows((rs) => (rs ?? []).map((r) => (r.key === key ? { ...r, ...change } : r)))
@@ -122,7 +125,18 @@ export function TreatmentsEditor({ tenantId, canEdit, submitLabel, onSaved, foot
   }
 
   if (rows === null) {
-    return formError ? <Alert tone="error">{formError}</Alert> : <Skeleton className="h-64 w-full" label="Cargando tratamientos" />
+    if (loadFailed) {
+      return (
+        <LoadError
+          title="No pudimos cargar tus tratamientos"
+          onRetry={() => {
+            setLoadFailed(false)
+            setAttempt((n) => n + 1)
+          }}
+        />
+      )
+    }
+    return <Skeleton className="h-64 w-full" label="Cargando tratamientos" />
   }
 
   const visible = rows.filter((r) => filter === 'todos' || r.category === filter)

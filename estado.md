@@ -15,6 +15,7 @@
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
+| **E2-C Estados vacío, carga y error** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2c-estados` (sin push). Sin migraciones. |
 | **E2-B Onboarding pasos 2 a 5** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2b-onboarding` (sin push). Migración 0007 **aplicada en dev** con aprobación de Diego. |
 | **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Plantilla «Invite user» pegada por Diego. |
@@ -28,6 +29,14 @@
 
 ## E2 — Interfaz y estructura
 E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vacíos), **E2-B** pasos 2 a 5 del onboarding (dependen de tablas nuevas: se propone antes) y **E2-C** estados vacío, carga y error en toda la app.
+
+## E2-C — Estados vacío, carga y error (EN_PRUEBAS)
+- **Pantalla de error general** (`errorElement` del enrutador): si algo falla al mostrar cualquier pantalla, sale un aviso amable con «Volver a intentar» e «Ir a Inicio», sin rutas ni trazas. Distingue cuando no se pudo descargar una parte de la app (sin señal o versión nueva). Origen: core-base.
+- **Error de sección** en el panel: si falla una pantalla, el menú sigue disponible; se limpia al cambiar de sección.
+- **Aviso «Sin conexión»** en el panel y en el onboarding mientras el navegador no tenga internet.
+- **Errores de carga con «Volver a intentar»** en Sucursales y sillones, Tratamientos y Tu equipo.
+- Los estados vacíos de cada sección y los de carga (esqueletos) ya existían desde E1-A, E1-B3 y E2-A.
+- 177 pruebas (antes 171), estables en 3 corridas. Revisión visual: pantalla de error a 390 px (claro) y aviso sin conexión a 1440 px (oscuro).
 
 ## E2-B — Onboarding pasos 2 a 5 (EN_PRUEBAS)
 - **Migración 0007** `20261116000200_chairs_treatments`: tablas `chairs` (por sucursal, FK compuesta) y `treatments` (categoría, precio MXN, duración de la cita o «varía», activo). RPC `create_chair`, `update_chair` y `save_treatments` (varios a la vez, todo o nada). Lectura para miembros (agenda y presupuestos); escritura solo propietario o administración. No se borran: se desactivan.
@@ -203,8 +212,8 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E2-B:** pasos 2 a 5 del onboarding (sucursales y sillones, equipo, tratamientos y precios, WhatsApp y Meta). Requiere tablas nuevas (`chairs`, `treatments`): se propone a Diego antes de construir.
-- **E2-C:** estados vacío, carga y error en toda la app.
+- **Integrar E2 (A, B y C) en `main` y push** (aprobación de Diego).
+- **E3** módulos esenciales, uno por uno; el primero según el roadmap es M10 Configuración (identidad, sucursales, tratamientos) y luego M2 Pacientes + M7 Documentos. Requiere aprobación para avanzar de etapa.
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
 

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Outlet, type RouteObject } from 'react-router'
 import { ConsentGate } from '@/auth/ConsentGate'
 import { GuestOnly, RequireAuth } from '@/auth/guards'
+import { RouteErrorElement } from '@/components/feedback/RouteErrorElement'
 import { AppLayout } from '@/layouts/AppLayout'
 import { AcceptInvitePage } from '@/pages/auth/AcceptInvitePage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
@@ -32,6 +33,10 @@ import { GUIDE_PATH, MORE_PATH, SECTIONS } from './navigation'
 const guest = (page: ReactNode) => <GuestOnly>{page}</GuestOnly>
 
 export const routes: RouteObject[] = [
+  {
+    // Si algo falla al mostrar cualquier pantalla: pantalla amable en lugar de la técnica.
+    errorElement: <RouteErrorElement />,
+    children: [
   // Acceso (públicas)
   { path: '/ingresar', element: guest(<LoginPage />) },
   { path: '/registro', element: guest(<RegisterPage />) },
@@ -81,6 +86,8 @@ export const routes: RouteObject[] = [
           { path: '*', element: <NotFoundPage /> },
         ],
       },
+    ],
+  },
     ],
   },
 ]

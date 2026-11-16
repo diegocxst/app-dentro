@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Select } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { LoadError } from '@/components/feedback/LoadError'
 import { InviteForm } from '@/components/team/InviteForm'
 import { outcomeNotice, type Notice } from '@/components/team/notice'
 import {
@@ -73,14 +74,7 @@ export function TeamPage() {
       <div className="flex flex-col gap-6">
         {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
         {!manager && <Alert tone="info">Solo la dueña, el dueño o la administración pueden invitar y cambiar el equipo.</Alert>}
-        {loadError && (
-          <Alert tone="error" title="No pudimos cargar tu equipo">
-            Revisa tu conexión.{' '}
-            <button type="button" className="font-semibold underline" onClick={reload}>
-              Volver a intentar
-            </button>
-          </Alert>
-        )}
+        {loadError && <LoadError title="No pudimos cargar tu equipo" onRetry={reload} />}
 
         <div className="flex flex-wrap items-start gap-6">
           {manager && (
