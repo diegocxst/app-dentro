@@ -99,7 +99,12 @@ try {
   })
   for (const r of rollbacks) {
     await step(`Rollback ${r}`, async () => {
-      await db.query(read(r))
+      try {
+        await db.query(read(r))
+      } catch (e) {
+        await db.query('rollback') // no dejar la transacción abierta para los pasos siguientes
+        throw e
+      }
     })
   }
   await step('El rollback no deja tablas en public ni private', async () => {

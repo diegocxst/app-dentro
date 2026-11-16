@@ -77,3 +77,4 @@
 | 2026-11-16 | E2 cerrada; arranca E3 con M10 Configuración (identidad, horarios, mi perfil) | Diego |
 | 2026-11-16 | M10: migración 0008 aplicada en dev; horario en hora local (zona horaria con M3); dirección del perfil público fija hasta M13; cambio de contraseña desde Mi perfil después | Diego |
 | 2026-11-16 | E3 · M10 integrada en `main` y push a `diegocxst/app-dentro` | Diego |
+| 2026-11-16 | M2 + M7 aprobado en tres incrementos (M2-A pacientes, M7 documentos, M2-B ARCO). Doctor y colaborador ven solo a sus pacientes; superadmin sin acceso; consentimiento obligatorio al dar de alta; bitácora de fichas y documentos; sin borrado (5 años); documentos con enlace de 60 s emitido por Edge Function | Diego |
