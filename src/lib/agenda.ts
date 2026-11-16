@@ -112,7 +112,9 @@ export function startOptions(ranges: [string, string][], duration: number): stri
 const dayFmt = new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })
 const longDayFmt = new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
 const asUtcDate = (date: string) => new Date(`${date}T12:00:00Z`)
-export const dayLabel = (date: string) => dayFmt.format(asUtcDate(date)).replace(/\./g, '')
+/** Solo la primera letra en mayúscula («Martes, 17 de noviembre»), no cada palabra. */
+export const capitalize = (t: string) => t.charAt(0).toUpperCase() + t.slice(1)
+export const dayLabel = (date: string) => capitalize(dayFmt.format(asUtcDate(date)).replace(/\./g, ''))
 export const longDayLabel = (date: string) => longDayFmt.format(asUtcDate(date))
 
 /** Mensaje de WhatsApp para pedir la confirmación (la clínica lo envía desde su teléfono). */

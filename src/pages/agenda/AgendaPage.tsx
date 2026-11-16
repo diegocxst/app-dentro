@@ -113,7 +113,7 @@ export function AgendaPage() {
         <button type="button" onClick={() => go({ fecha: addDays(date, 1), cita: null })} aria-label="Día siguiente" className={buttonClasses('secondary', 'sm')}>
           <Icon name="chevronRight" className="size-4" />
         </button>
-        <h2 className="m-0 grow text-subtitle capitalize">{date === today ? `Hoy, ${dayLabel(date)}` : dayLabel(date)}</h2>
+        <h2 className="m-0 grow text-subtitle">{date === today ? `Hoy, ${dayLabel(date).toLowerCase()}` : dayLabel(date)}</h2>
         <label className="flex items-center gap-2 text-caption text-ink-muted">
           <span className="sr-only">Ir a la fecha</span>
           <input

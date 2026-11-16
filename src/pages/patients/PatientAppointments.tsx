@@ -30,7 +30,7 @@ export function NextAppointment({ items }: { items: AgendaItem[] | null }) {
       {items === null ? (
         <span className="text-ink-muted">Cargando…</span>
       ) : next ? (
-        <Link to={`/agenda?${new URLSearchParams({ fecha: zonedParts(new Date(next.starts_at), tzOf(next)).date, cita: next.id }).toString()}`} className="font-semibold text-violet capitalize">
+        <Link to={`/agenda?${new URLSearchParams({ fecha: zonedParts(new Date(next.starts_at), tzOf(next)).date, cita: next.id }).toString()}`} className="font-semibold text-violet">
           {when(next, tzOf(next))}
         </Link>
       ) : (
@@ -51,7 +51,7 @@ export function AppointmentsTab({ patientId, items, failed, retry, canSchedule }
       Agendar cita
     </Link>
   ) : undefined
-  if (items.length === 0) return <EmptyState icon="agenda" title="Sin citas" description="Este paciente aún no tiene citas en el último año." action={action} />
+  if (items.length === 0) return <EmptyState icon="agenda" title="Sin citas" description="Este paciente no tiene citas en los últimos 6 meses ni en los próximos." action={action} />
   const upcoming = items.filter((a) => isUpcoming(a, now))
   const past = items.filter((a) => !isUpcoming(a, now)).reverse()
   return (
@@ -69,7 +69,7 @@ export function AppointmentsTab({ patientId, items, failed, retry, canSchedule }
                 {g.list.map((a) => (
                   <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2 last:border-0 last:pb-0">
                     <span className="flex flex-col">
-                      <span className="text-ui font-semibold capitalize">{when(a, tzOf(a))}</span>
+                      <span className="text-ui font-semibold">{when(a, tzOf(a))}</span>
                       <span className="text-caption text-ink-muted">
                         {a.doctor_name} · {a.branch_name} · {a.treatment_name ?? a.chair_name}
                       </span>

@@ -21,7 +21,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
-| **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **sin aplicar en dev** (pendiente de aprobación). |
+| **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M2-B Privacidad y ARCO** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2b-arco` (sin push). Migración 0011 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M7 Documentos** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m7-documentos` (sin push). Migración 0010 **aplicada en dev** y Edge Function `document-url` **desplegada**, con aprobación de Diego. |
 | **E3 · M2-A Pacientes** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2a-pacientes` (sin push). Migración 0009 **aplicada en dev** con aprobación de Diego. |
@@ -53,11 +53,13 @@ Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Do
 - **Ficha 360:** «Próxima cita» en Resumen y pestaña **Citas** (próximas y anteriores, «Agendar cita»). «+ Nuevo › Cita» abre la nueva cita. **Configuración › Sucursales:** zona horaria.
 - Suite `appointments_rls_isolation.sql` (6 actores) y `test:db` con 12 migraciones en verde. **Pruebas de mutación:** sin revisar horario, sin regla de traslape del doctor y doctor viendo todas las citas → las 3 las detecta la suite.
 - 237 pruebas de la app (antes 224), estables en 3 corridas. Las pruebas encontraron un error real: al abrir «Nueva cita» directo, la sucursal aún no cargaba y no salían sillones (corregido). `database.types.ts` con entradas **provisionales** de 0012.
-- **Sin revisión visual:** requiere aplicar 0012 en dev.
+- **En dev (2026-11-16, aprobado por Diego):** migración 0012 aplicada (dry-run antes; `btree_gist` instalada); las 12 suites en verde en el proyecto real; tipos regenerados (0001–0012); asesores sin avisos nuevos (solo las 5 RPC nuevas en el aviso esperado de SECURITY DEFINER).
+- **Revisión con la cuenta de Diego:** se agendó una **cita ficticia** (Paciente Ficticio Prueba, mar 17 nov 10:00, sillón No.1, «Valoración inicial» —la duración se puso sola en 30 min—) desde un hueco de la agenda; la base **rechazó un traslape** real (mismo doctor 10:15) con el mensaje correcto; se marcó confirmada; la ficha muestra «Próxima cita» y la pestaña Citas; móvil 390 px en oscuro con la lista por hora.
+- **Corregido en la revisión:** (1) **la pestaña Citas de la ficha fallaba**: pedía 2 años y el servidor admite 400 días → ahora 6 meses atrás y 6 adelante, y el Supabase simulado aplica el mismo límite (una prueba lo detecta); (2) «De» en mayúscula en las fechas; (3) por debajo de 1280 px el detalle de la cita quedaba fuera de la vista → ahora se desplaza solo.
 
 ### Puntos para aprobación
-1. Aplicar la migración 0012 en dev (primero `--dry-run`), correr las 12 suites, regenerar tipos, revisar asesores y revisión visual con el paciente ficticio (crear 1–2 citas ficticias).
-2. «Fuera de horario» aplica a todos (también a la dueña). Para un caso especial hoy hay que ampliar el horario de la sucursal ese día. ¿Quieres que la gerencia pueda saltarse el horario con un motivo?
+1. Aplicar la migración 0012 en dev: **aprobado y hecho** el 2026-11-16.
+2. «Fuera de horario» aplica a todos (también a la dueña); por ahora sin excepción para la gerencia (Diego siguió sin pedirla). Sillones: se quedan con ese nombre y obligatorios.
 3. El horario es el de la **sucursal**; el horario de cada doctor llega con M6 (Doctores).
 4. Las citas de **leads** (valoración sin paciente) llegan con M1; en M3-A cada cita es de un paciente registrado.
 5. **M3-B:** vistas Semana y Por sillón, y «Mi día» en celular.
@@ -314,7 +316,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M3-A Agenda:** aprobar y aplicar en dev (migración 0012), revisión visual, integrar en `main`. Después **M3-B** (Semana, Por sillón, Mi día).
+- **E3 · M3-A Agenda:** integrar en `main` y push (con aprobación de Diego). Después **M3-B** (Semana, Por sillón, Mi día).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.

@@ -236,6 +236,8 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
   if (fn === 'list_appointments') {
     const from = Date.parse(String(args.p_from))
     const to = Date.parse(String(args.p_to))
+    // Igual que el servidor: hasta 400 días por consulta.
+    if (!(to > from) || to - from > 400 * 86_400_000) return Promise.resolve({ data: null, error: { code: '22023', message: 'Rango de fechas inválido' } })
     const rows = fakeDb.appointments
       .filter((a) => (!args.p_branch || a.branch_id === args.p_branch) && (!args.p_patient || a.patient_id === args.p_patient))
       .filter((a) => Date.parse(String(a.starts_at)) < to && Date.parse(String(a.ends_at)) > from)
