@@ -71,3 +71,4 @@
 | 2026-11-15 | B5c: migración 0005 aplicada en dev, secreto SITE_URL y Edge Function invite-member desplegada; las invitaciones a cualquier correo esperan el correo transaccional (B4) | Diego |
 | 2026-11-15 | E1-B5a a E1-B5c integradas en `main` y push a `diegocxst/app-dentro` | Diego |
 | 2026-11-15 | E1 cerrada con B4 (correo transaccional) pendiente; arranca E2, dividida en E2-A, E2-B y E2-C | Diego |
+| 2026-11-16 | E2-A: migración 0006 aplicada en dev; sin video, manuales ni WhatsApp de soporte por ahora; «Explorar con datos de ejemplo» se diseña aparte; saludo neutro «Hola, {nombre}» | Diego |

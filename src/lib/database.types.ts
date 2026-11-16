@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0005 · 2026-11-15. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: set_onboarding_task (migración 0006) agregado a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0006 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
 // Nota: las tablas traen Insert/Update, pero la base NO da escrituras directas (todo por RPC).
 
 export type Json =
@@ -376,7 +375,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      set_onboarding_task: { Args: { p_done: boolean; p_task: string; p_tenant: string }; Returns: Json }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -553,6 +551,10 @@ export type Database = {
       set_membership_branches: {
         Args: { p_branch_ids: string[]; p_membership: string }
         Returns: undefined
+      }
+      set_onboarding_task: {
+        Args: { p_done: boolean; p_task: string; p_tenant: string }
+        Returns: Json
       }
       update_branch: {
         Args: {

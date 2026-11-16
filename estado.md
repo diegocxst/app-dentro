@@ -15,7 +15,7 @@
 | V3 Diseño y demo | ✅ **Cerrada el 2026-11-10.** Demo navegable en el lienzo "dentro — Pantallas clave V3". Se omite la validación previa con prospectos: se valida durante el desarrollo (riesgo aceptado). |
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
-| **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida`. Migración 0006 probada en local; **falta aplicarla en dev** (requiere aprobación). |
+| **E2-A Inicio de primer uso** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e2a-bienvenida` (sin push). Migración 0006 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5c Invitaciones de equipo** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5c-invitations` (sin push). Migración 0005 aplicada, secreto `SITE_URL` y Edge Function `invite-member` desplegada en dev, con aprobación de Diego. Plantilla «Invite user» pegada por Diego. |
 | **E1-B5b Logo en Storage privado** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5b-logo` (sin push). Migración 0004 **aplicada en dev** con aprobación de Diego. |
 | **E1-B5a Aviso y consentimientos** | **EN_PRUEBAS** desde el 2026-11-15. Rama local `feature/e1b5a-consents` (sin push). Migración 0003 **aplicada en dev** con aprobación de Diego. |
@@ -35,8 +35,9 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 - Doctores y recepción ven la guía pero no la marcan.
 - Suite `onboarding_rls_isolation.sql` y `test:db` con 6 migraciones en verde. 156 pruebas (antes 147), estables en 3 corridas; una verifica que las 7 tareas coincidan con la base.
 - Revisión visual con la cuenta de Diego a 1440 px (claro) y 390 px (oscuro), sin marcar nada. Se corrigió: en móvil el recorrido tapaba el botón «+».
+- **En dev:** migración 0006 aplicada; las 6 suites en verde en el proyecto real; la clínica de Diego quedó con «identity» hecha (1 de 7). Tipos regenerados. Asesores: solo los avisos ya conocidos (RPC por diseño y contraseñas filtradas).
 
-### Para aprobar (Diego)
+### Decisiones (aprobadas por Diego el 2026-11-16)
 1. Aplicar la migración 0006 en dev.
 2. **Diferencias con el mockup:** se omitieron el video «Aprende dentro en 3 minutos», «Manuales paso a paso» y «Escríbenos por WhatsApp» (aún no existen) y la casilla **«Explorar con datos de ejemplo»** (choca con la regla «nada con datos simulados»; se propone diseñarla aparte).
 3. Saludo neutro «Hola, Diego» en lugar de «Bienvenida, Ana».
@@ -179,7 +180,6 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **Aprobar E2-A** y aplicar la migración 0006 en dev.
 - **E2-B:** pasos 2 a 5 del onboarding (sucursales y sillones, equipo, tratamientos y precios, WhatsApp y Meta). Requiere tablas nuevas (`chairs`, `treatments`): se propone a Diego antes de construir.
 - **E2-C:** estados vacío, carga y error en toda la app.
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
