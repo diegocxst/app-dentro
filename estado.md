@@ -24,7 +24,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
-| **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **sin aplicar en dev** (pendiente de aprobación). |
+| **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-A Leads (Kanban y seguimiento)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1-leads` (sin push). Migración 0013 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M3-B Agenda (Semana, Por sillón y Mi día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3b-agenda-vistas` (sin push). **Sin migraciones** (usa la tabla de 0012). |
 | **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **aplicada en dev** con aprobación de Diego. |
@@ -55,11 +55,12 @@ Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Do
 - **Permisos:** el doctor de la valoración la ve en su agenda (nombre y teléfono), pero no ve el Kanban ni puede agendar o convertir leads; otras clínicas y el superadmin, nada.
 - **Interfaz:** en el detalle del lead, «Agendar valoración» (abre Nueva cita con el lead fijo y tipo Valoración) y «Convertir en paciente», más la lista de sus valoraciones y el historial («Agendó su valoración», «Lo convirtió en paciente»). En la agenda, la cita de lead lleva «Paciente nuevo» y, para gerencia y recepción, «Convertir en paciente» y «Abrir lead»; el doctor ve «Aún no es paciente». **P13 Convertir:** datos del lead, fecha de nacimiento y doctor tratante opcionales, consentimiento (papel o digital) obligatorio, y aviso si ya existe un paciente con su teléfono o correo con «Vincular con…».
 - Suite `lead_conversion_rls_isolation.sql` (6 actores) y `test:db` con 14 migraciones en verde. **Pruebas de mutación:** convertir sin consentimiento, doctor agendando valoraciones de leads y citas que no pasan a la ficha → las 3 las detecta la suite.
-- 261 pruebas de la app (antes 254), estables en 5 corridas (se estabilizó una prueba de la vista Semana que revisaba la consulta antes de que cargara la sucursal). `database.types.ts` con entradas **provisionales** de 0014.
-- **Sin revisión visual:** requiere aplicar 0014 en dev.
+- 261 pruebas de la app (antes 254), estables en 5 corridas (se estabilizó una prueba de la vista Semana que revisaba la consulta antes de que cargara la sucursal).
+- **En dev (2026-11-16, aprobado por Diego):** migración 0014 aplicada (dry-run antes); las 14 suites en verde en el proyecto real; tipos regenerados (0001–0014); asesores sin avisos nuevos (solo las 3 RPC nuevas en el aviso esperado de SECURITY DEFINER).
+- **Revisión con la cuenta de Diego:** desde el lead ficticio se agendó su **valoración** (mar 17 nov 11:00, sillón No.2, «Valoración inicial»): la agenda la muestra con «Paciente nuevo», «Confirmar por WhatsApp» a su teléfono y «Convertir en paciente». Se **convirtió** con consentimiento en papel (sin aviso de duplicado: nadie tenía su teléfono): la ficha nueva trae origen «Facebook o Instagram», el consentimiento con la versión del aviso y la valoración como «Próxima cita»; el lead quedó «Convertido en paciente» con el historial completo. Queda un **2.º paciente ficticio** («Lead Ficticio Prueba»).
 
 ### Puntos para aprobación
-1. Aplicar la migración 0014 en dev (primero `--dry-run`), correr las 14 suites, regenerar tipos, revisar asesores y revisión visual: agendar la valoración del lead ficticio y convertirlo en paciente (crea un 2.º paciente ficticio).
+1. Aplicar la migración 0014 en dev: **aprobado y hecho** el 2026-11-16.
 2. El botón manual «Valoración agendada» se reemplazó por «Agendar valoración» (ahora el estado lo pone la cita).
 
 ## E3 · M1-A — Leads: Kanban y seguimiento (EN_PRUEBAS)
@@ -365,7 +366,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M1-B Leads:** aprobar y aplicar en dev (migración 0014), revisión visual, integrar en `main`. Después: **M4 Presupuestos + PDF**.
+- **E3 · M1-B Leads:** integrar en `main` y push (con aprobación de Diego). Con eso queda **M1 Leads completo**. Después: **M4 Presupuestos + PDF**.
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
