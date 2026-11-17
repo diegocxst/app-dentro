@@ -140,6 +140,11 @@ select pg_temp.login_as('owner_a');
 select public.export_patient_data(pg_temp.v('p1'));
 select pg_temp.expect_error(format($$select public.create_arco_request(%L, 'acceso', 'correo', current_date)$$, pg_temp.v('p1')), '42501', 'suspendida: no registra');
 
+-- El CHECK protege aunque se escriba como dueño de la base (desde 0013).
+select pg_temp.logout();
+select pg_temp.expect_error(format($$update public.arco_requests set status = 'improcedente', response = null, resolved_at = now() where id = %L$$, pg_temp.v('r1')), '23514', 'CHECK: resuelta exige respuesta');
+select pg_temp.login_as('owner_a');
+
 -- Sin escritura directa.
 select pg_temp.expect_error(format($$update public.arco_requests set status = 'recibida' where id = %L$$, pg_temp.v('r1')), '42501', 'sin UPDATE directo');
 select pg_temp.expect_error(format($$delete from public.arco_requests where id = %L$$, pg_temp.v('r1')), '42501', 'sin DELETE');
