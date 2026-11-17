@@ -81,4 +81,5 @@
 | 2026-11-16 | M2-A: migración 0009 aplicada en dev; la lista se lee sin bitácora (sí se registran ficha, edición, archivo y notas); documentos con M7 y ARCO con M2-B | Diego |
 | 2026-11-16 | M2-B ARCO: cancelación = solo registrar la solicitud y su respuesta (sin bloqueo ni borrado automático); exportar y responder solo dueña y administración, recepción registra; exportación en PDF legible + JSON | Diego |
 | 2026-11-16 | M3 Agenda en dos incrementos (M3-A citas y día por doctor; M3-B semana, por sillón y Mi día); zona horaria por sucursal; **no se agenda fuera del horario** (se manda a escribir a la clínica o al doctor); gerencia y recepción agendan a cualquier doctor, un doctor solo en su agenda y con sus pacientes | Diego |
+| 2026-11-16 | M1 Leads en dos incrementos (M1-A Kanban y seguimiento; M1-B valoración y conversión); leads solo para gerencia y recepción; la valoración se agenda al lead sin crearlo como paciente; alta manual con casilla obligatoria del aviso de privacidad | Diego |
 | 2026-11-16 | E3 · M2-A integrada en `main` y push a `diegocxst/app-dentro` | Diego |

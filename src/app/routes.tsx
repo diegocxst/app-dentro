@@ -34,6 +34,9 @@ import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
+import { LeadPage } from '@/pages/leads/LeadPage'
+import { LeadsPage } from '@/pages/leads/LeadsPage'
+import { NewLeadPage } from '@/pages/leads/NewLeadPage'
 import { AppointmentFormPage } from '@/pages/agenda/AppointmentFormPage'
 import { PRIVACY_PATH } from '@/lib/privacy'
 import { GUIDE_PATH, MORE_PATH, SECTIONS } from './navigation'
@@ -82,12 +85,15 @@ export const routes: RouteObject[] = [
           </RequireClinic>
         ),
         children: [
-          ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes' && s.id !== 'agenda').map((s): RouteObject =>
+          ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes' && s.id !== 'agenda' && s.id !== 'leads').map((s): RouteObject =>
             s.path === '/' ? { index: true, element: <HomePage /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
           ),
           { path: 'agenda', element: <AgendaPage /> },
           { path: 'agenda/nueva', element: <AppointmentFormPage /> },
           { path: 'agenda/:id/editar', element: <AppointmentFormPage /> },
+          { path: 'leads', element: <LeadsPage /> },
+          { path: 'leads/nuevo', element: <NewLeadPage /> },
+          { path: 'leads/:id', element: <LeadPage /> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

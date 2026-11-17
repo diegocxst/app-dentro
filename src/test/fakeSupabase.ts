@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -233,6 +233,42 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'create_lead') {
+    if (args.p_notice_shared !== true) return Promise.resolve({ data: null, error: { code: '22023', message: 'aviso' } })
+    const row = {
+      id: `lead-${fakeDb.leads.length + 1}`, tenant_id: args.p_tenant, full_name: args.p_full_name, phone_e164: args.p_phone_e164 ?? null,
+      email: args.p_email ?? null, interest: args.p_interest ?? '', source: args.p_source ?? 'manual', status: 'nuevo', lost_reason: null,
+      assigned_to: args.p_assigned_to ?? null, notice_version: 'clinica-borrador-2026-11', converted_patient_id: null, first_response_at: null,
+      status_changed_at: '2026-11-16T12:00:00Z', created_by: 'u-1', created_at: '2026-11-16T12:00:00Z', updated_at: '2026-11-16T12:00:00Z',
+    }
+    fakeDb.leads.push(row)
+    fakeDb.lead_activity.push({ id: fakeDb.lead_activity.length + 1, tenant_id: row.tenant_id, lead_id: row.id, actor_id: 'u-1', kind: 'created', from_status: null, to_status: 'nuevo', body: null, created_at: '2026-11-16T12:00:00Z' })
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'set_lead_status' || fn === 'update_lead' || fn === 'add_lead_note') {
+    const l = fakeDb.leads.find((x) => x.id === args.p_lead)
+    if (!l) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    const log = (kind: string, extra: Row = {}) =>
+      fakeDb.lead_activity.push({ id: fakeDb.lead_activity.length + 1, tenant_id: l.tenant_id, lead_id: l.id, actor_id: 'u-1', kind, from_status: null, to_status: null, body: null, created_at: '2026-11-16T13:00:00Z', ...extra })
+    if (fn === 'set_lead_status') {
+      if (args.p_status === 'perdido' && !args.p_reason) return Promise.resolve({ data: null, error: { code: '22023', message: 'motivo' } })
+      log('status', { from_status: l.status, to_status: args.p_status, body: args.p_reason ?? null })
+      l.first_response_at ??= l.status === 'nuevo' ? '2026-11-16T13:00:00Z' : null
+      l.status = args.p_status
+      l.lost_reason = args.p_status === 'perdido' ? args.p_reason : null
+    } else if (fn === 'add_lead_note') {
+      log('note', { body: args.p_body })
+    } else {
+      const map: Record<string, string> = { p_full_name: 'full_name', p_phone_e164: 'phone_e164', p_email: 'email', p_interest: 'interest', p_source: 'source', p_assigned_to: 'assigned_to' }
+      for (const [k, col] of Object.entries(map)) if (k in args) l[col] = args[k] === '' ? null : args[k]
+      l.updated_at = '2026-11-16T13:30:00Z'
+      log('p_assigned_to' in args ? 'assigned' : 'updated')
+    }
+    return Promise.resolve({ data: fn === 'add_lead_note' ? null : l, error: null })
+  }
+  if (fn === 'lead_stats') {
+    return Promise.resolve({ data: { leads: fakeDb.leads.length, reached_valoracion: fakeDb.leads.filter((l) => l.status === 'valoracion' || l.status === 'convertido').length, median_response_minutes: 130, unanswered_24h: 0 }, error: null })
+  }
   if (fn === 'list_appointments') {
     const from = Date.parse(String(args.p_from))
     const to = Date.parse(String(args.p_to))

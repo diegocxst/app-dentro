@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0012 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: leads, lead_activity, sus RPC y el enum lead_status (migración 0013) agregados a mano hasta aplicarla en dev.
 export type Json =
   | string
   | number
@@ -460,6 +461,102 @@ export type Database = {
             referencedColumns: ["tenant_id", "id"]
           },
         ]
+      }
+      lead_activity: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          from_status: Database["public"]["Enums"]["lead_status"] | null
+          id: number
+          kind: string
+          lead_id: string
+          tenant_id: string
+          to_status: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["lead_status"] | null
+          id?: number
+          kind?: string
+          lead_id?: string
+          tenant_id?: string
+          to_status?: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["lead_status"] | null
+          id?: number
+          kind?: string
+          lead_id?: string
+          tenant_id?: string
+          to_status?: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          converted_patient_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          first_response_at: string | null
+          full_name: string
+          id: string
+          interest: string
+          lost_reason: string | null
+          notice_version: string
+          phone_e164: string | null
+          source: Database["public"]["Enums"]["patient_source"]
+          status: Database["public"]["Enums"]["lead_status"]
+          status_changed_at: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          converted_patient_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          first_response_at?: string | null
+          full_name?: string
+          id?: string
+          interest?: string
+          lost_reason?: string | null
+          notice_version?: string
+          phone_e164?: string | null
+          source?: Database["public"]["Enums"]["patient_source"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          status_changed_at?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          converted_patient_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          first_response_at?: string | null
+          full_name?: string
+          id?: string
+          interest?: string
+          lost_reason?: string | null
+          notice_version?: string
+          phone_e164?: string | null
+          source?: Database["public"]["Enums"]["patient_source"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          status_changed_at?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       memberships: {
         Row: {
@@ -965,6 +1062,113 @@ export type Database = {
         }
       }
       am_i_platform_admin: { Args: never; Returns: boolean }
+      add_lead_note: { Args: { p_body: string; p_lead: string }; Returns: undefined }
+      create_lead: {
+        Args: {
+          p_assigned_to?: string
+          p_email?: string
+          p_full_name: string
+          p_interest?: string
+          p_notice_shared: boolean
+          p_phone_e164?: string
+          p_source?: Database["public"]["Enums"]["patient_source"]
+          p_tenant: string
+        }
+        Returns: {
+          assigned_to: string | null
+          converted_patient_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          first_response_at: string | null
+          full_name: string
+          id: string
+          interest: string
+          lost_reason: string | null
+          notice_version: string
+          phone_e164: string | null
+          source: Database["public"]["Enums"]["patient_source"]
+          status: Database["public"]["Enums"]["lead_status"]
+          status_changed_at: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      lead_stats: { Args: { p_since: string; p_tenant: string }; Returns: Json }
+      set_lead_status: {
+        Args: {
+          p_lead: string
+          p_reason?: string
+          p_status: Database["public"]["Enums"]["lead_status"]
+        }
+        Returns: {
+          assigned_to: string | null
+          converted_patient_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          first_response_at: string | null
+          full_name: string
+          id: string
+          interest: string
+          lost_reason: string | null
+          notice_version: string
+          phone_e164: string | null
+          source: Database["public"]["Enums"]["patient_source"]
+          status: Database["public"]["Enums"]["lead_status"]
+          status_changed_at: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_lead: {
+        Args: {
+          p_assigned_to?: string
+          p_email?: string
+          p_full_name?: string
+          p_interest?: string
+          p_lead: string
+          p_phone_e164?: string
+          p_source?: Database["public"]["Enums"]["patient_source"]
+        }
+        Returns: {
+          assigned_to: string | null
+          converted_patient_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          first_response_at: string | null
+          full_name: string
+          id: string
+          interest: string
+          lost_reason: string | null
+          notice_version: string
+          phone_e164: string | null
+          source: Database["public"]["Enums"]["patient_source"]
+          status: Database["public"]["Enums"]["lead_status"]
+          status_changed_at: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       authorize_document_access: {
         Args: { p_action: string; p_document: string }
         Returns: Json
@@ -1621,6 +1825,7 @@ export type Database = {
         | "modelo"
         | "otro"
       invitation_status: "pending" | "accepted" | "revoked"
+      lead_status: "nuevo" | "contactado" | "valoracion" | "convertido" | "perdido"
       membership_status: "active" | "invited" | "revoked"
       patient_source:
         | "meta"
@@ -1782,6 +1987,7 @@ export const Constants = {
         "otro",
       ],
       invitation_status: ["pending", "accepted", "revoked"],
+      lead_status: ["nuevo", "contactado", "valoracion", "convertido", "perdido"],
       membership_status: ["active", "invited", "revoked"],
       patient_source: [
         "meta",

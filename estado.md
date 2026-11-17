@@ -23,6 +23,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M1-A Leads (Kanban y seguimiento)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1-leads` (sin push). Migración 0013 **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M3-B Agenda (Semana, Por sillón y Mi día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3b-agenda-vistas` (sin push). **Sin migraciones** (usa la tabla de 0012). |
 | **E3 · M3-A Agenda (citas y vista del día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3-agenda` (sin push). Migración 0012 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M2-B Privacidad y ARCO** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m2b-arco` (sin push). Migración 0011 **aplicada en dev** con aprobación de Diego. |
@@ -46,6 +47,22 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M1-A — Leads: Kanban y seguimiento (EN_PRUEBAS)
+- **Migración 0013** `20261116000800_leads`: `leads` (nombre, teléfono y/o correo, interés, origen, estado, motivo de pérdida, responsable —gerencia o recepción—, versión del aviso de privacidad, primera respuesta, `converted_patient_id` para M1-B) y `lead_activity` (alta, cambios de estado, notas, asignación, edición).
+- **Reglas en la base:** solo **gerencia y recepción** ven y trabajan leads (doctores, otras clínicas y superadmin no); **alta manual solo confirmando el aviso de privacidad** (se guarda la versión vigente); teléfono o correo obligatorio; «perdido» exige motivo; «convertido» solo por la conversión (M1-B); el **tiempo de respuesta** es la primera salida de «nuevo» o la primera nota; indicadores del mes por RPC (`lead_stats`). Sin borrado; auditoría sin datos personales; con la clínica suspendida se leen pero no se mueven.
+- **Corrección de 0011 (ARCO):** el CHECK «resuelta exige respuesta» dejaba pasar NULL (con NULL, `char_length(...) > 0` no falla). Se reemplazó por uno con `coalesce`; el mismo error se evitó en leads. Lo detectó una prueba nueva que escribe directo en la tabla.
+- **P11 Kanban (`/leads`):** indicadores (leads este mes, % que llegó a valoración, tiempo de respuesta mediano, sin contestar hace más de 24 h en rojo), filtro por origen y cinco columnas como la maqueta (paginadas en el servidor, 50 por columna); tarjetas con nombre, antigüedad (roja si lleva más de 24 h sin respuesta), interés o motivo y origen. En celular las columnas se deslizan.
+- **Nuevo lead (`/leads/nuevo`):** nombre, teléfono o correo, interés, origen, responsable y **casilla obligatoria del aviso** con su versión. «+ Nuevo › Lead» abre aquí.
+- **P12 Detalle:** «Escribir por WhatsApp» (mensaje listo), estado y origen, aviso si nadie le ha contestado, **Seguimiento** (Marcar contactado → Valoración agendada; Marcar perdido con motivo; Reabrir), notas, historial con quién y cuándo, responsable y edición (manda solo lo que cambió).
+- Suite `leads_rls_isolation.sql` (6 actores) y `test:db` con 13 migraciones en verde. **Pruebas de mutación:** alta sin aviso, doctores viendo leads y «perdido» sin motivo en la tabla → las 3 las detecta la suite.
+- 254 pruebas de la app (antes 245), estables en 3 corridas. `database.types.ts` con entradas **provisionales** de 0013.
+- **Sin revisión visual:** requiere aplicar 0013 en dev.
+
+### Puntos para aprobación
+1. Aplicar la migración 0013 en dev (primero `--dry-run`), correr las 13 suites, regenerar tipos, revisar asesores y revisión visual con 1–2 leads ficticios.
+2. En el Kanban las tarjetas se mueven desde el detalle (botones de Seguimiento); **arrastrar entre columnas** queda para Fase 2+.
+3. **M1-B:** agendar la valoración del lead (cita con el lead, sin crearlo como paciente; pasa solo a «Valoración agendada») y **convertir en paciente** con consentimiento (la cita pasa a su ficha).
 
 ## E3 · M3-B — Agenda: Semana, Por sillón y Mi día (EN_PRUEBAS)
 - **Selector Día / Semana / Por sillón** (como la maqueta; «Día» es la vista por doctor). La vista y la fecha viven en la URL.
@@ -332,7 +349,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M1 Leads** (siguiente módulo del roadmap; incluye las citas de valoración de leads).
+- **E3 · M1-A Leads:** aprobar y aplicar en dev (migración 0013), revisión visual, integrar en `main`. Después **M1-B** (valoración del lead y conversión a paciente).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
