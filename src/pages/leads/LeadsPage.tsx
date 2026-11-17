@@ -72,25 +72,15 @@ export function LeadsPage() {
     <>
       <PageHeader
         title="Leads"
+        description="Personas interesadas que todavía no son pacientes."
         actions={
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="w-48">
-              <Select
-                label="Origen"
-                options={[{ value: '', label: 'Todos' }, ...LEAD_SOURCES.map(({ value, label }) => ({ value, label }))]}
-                value={source}
-                onChange={(e) => setSource(e.target.value as PatientSource | '')}
-              />
-            </div>
-            {active.tenant.status === 'active' && (
-              <Link to="/leads/nuevo" className={buttonClasses('primary')}>
-                Nuevo lead
-              </Link>
-            )}
-          </div>
+          active.tenant.status === 'active' && (
+            <Link to="/leads/nuevo" className={buttonClasses('primary')}>
+              Nuevo lead
+            </Link>
+          )
         }
       />
-      <p className="-mt-4 mb-6 text-ui text-ink-muted lg:-mt-6">Personas interesadas que todavía no son pacientes.</p>
 
       {failed ? (
         <LoadError title="No pudimos cargar los leads" onRetry={reload} />
@@ -107,6 +97,15 @@ export function LeadsPage() {
               </div>
             ))}
           </dl>
+
+          <div className="w-full sm:w-56">
+            <Select
+              label="Origen"
+              options={[{ value: '', label: 'Todos' }, ...LEAD_SOURCES.map(({ value, label }) => ({ value, label }))]}
+              value={source}
+              onChange={(e) => setSource(e.target.value as PatientSource | '')}
+            />
+          </div>
 
           <div className="-mx-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
             <div className="grid snap-x snap-mandatory auto-cols-[minmax(260px,1fr)] grid-flow-col gap-3">
