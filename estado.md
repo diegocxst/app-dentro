@@ -2,6 +2,7 @@
 Última actualización: 2026-11-15 · Por: Diego (con Claude)
 
 ## Integración
+- 2026-11-16: E3 · M1-A Leads integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 254 pruebas (3 corridas), `test:db` (13 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M3-B Agenda (Semana, Por sillón, Mi día) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M3 Agenda completo.** Verificado en `main`: lint, typecheck, 245 pruebas (3 corridas), `test:db` (12 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M3-A Agenda integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 237 pruebas (3 corridas), `test:db` (12 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M2-B Privacidad y ARCO integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 224 pruebas (3 corridas), `test:db` (11 migraciones) y build; sin secretos. Se estabilizaron 2 pruebas del logo que fallaban de forma intermitente (encontraban las iniciales antes que la imagen firmada); 15 corridas sin fallas.
@@ -351,7 +352,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M1-A Leads:** integrar en `main` y push (con aprobación de Diego). Después **M1-B** (valoración del lead y conversión a paciente).
+- **E3 · M1-B Leads:** agendar la valoración del lead (cita con el lead) y convertirlo en paciente con consentimiento.
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
 - **Decidir (Diego):** activar la protección contra contraseñas filtradas en Supabase Auth.
