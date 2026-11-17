@@ -34,6 +34,7 @@ import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
+import { ConvertLeadPage } from '@/pages/leads/ConvertLeadPage'
 import { LeadPage } from '@/pages/leads/LeadPage'
 import { LeadsPage } from '@/pages/leads/LeadsPage'
 import { NewLeadPage } from '@/pages/leads/NewLeadPage'
@@ -94,6 +95,7 @@ export const routes: RouteObject[] = [
           { path: 'leads', element: <LeadsPage /> },
           { path: 'leads/nuevo', element: <NewLeadPage /> },
           { path: 'leads/:id', element: <LeadPage /> },
+          { path: 'leads/:id/convertir', element: <ConvertLeadPage /> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

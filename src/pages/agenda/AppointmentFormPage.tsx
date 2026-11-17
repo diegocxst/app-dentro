@@ -9,7 +9,8 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { agendaErrorMessage, createAppointment, getAppointment, getPatientName, updateAppointment, type Appointment } from '@/data/agenda'
+import { agendaErrorMessage, createAppointment, createLeadAppointment, getAppointment, getPatientName, updateAppointment, type Appointment } from '@/data/agenda'
+import { getLead } from '@/data/leads'
 import { fetchChairs, fetchTreatments, type Chair, type Treatment } from '@/data/catalog'
 import { listPatients, type PatientListItem } from '@/data/patients'
 import { useDebounced } from '@/hooks/useDebounced'
@@ -98,11 +99,15 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
   const startLocal = existing ? zonedParts(new Date(existing.starts_at), tz) : null
   const initialDuration = existing ? Math.round((new Date(existing.ends_at).getTime() - new Date(existing.starts_at).getTime()) / 60000) : 60
 
-  const [patient, setPatient] = useState<{ id: string; name: string } | null>(existing ? { id: existing.patient_id, name: '' } : null)
+  // Cita de un lead (valoración sin ser paciente) o de un paciente.
+  const presetLead = existing?.lead_id ?? (existing ? null : params.get('lead'))
+  const isLead = Boolean(presetLead)
+  const [lead, setLead] = useState<{ id: string; name: string } | null>(null)
+  const [patient, setPatient] = useState<{ id: string; name: string } | null>(existing?.patient_id ? { id: existing.patient_id, name: '' } : null)
   const [doctorId, setDoctorId] = useState(existing?.doctor_id ?? (isDoctor ? (active?.id ?? '') : (params.get('doctor') ?? '')))
   const [chairId, setChairId] = useState(existing?.chair_id ?? params.get('sillon') ?? '')
   const [treatmentId, setTreatmentId] = useState(existing?.treatment_id ?? '')
-  const [kind, setKind] = useState<AppointmentKind>(existing?.kind ?? 'tratamiento')
+  const [kind, setKind] = useState<AppointmentKind>(existing?.kind ?? (isLead ? 'valoracion' : 'tratamiento'))
   const [date, setDate] = useState(startLocal?.date ?? params.get('fecha') ?? todayIn(tz))
   const [duration, setDuration] = useState(initialDuration)
   const [time, setTime] = useState(startLocal?.time ?? params.get('hora') ?? '')
@@ -127,8 +132,20 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     }
   }, [tenantId])
 
+  useEffect(() => {
+    if (!presetLead) return
+    let current = true
+    getLead(presetLead).then(
+      (l) => current && l && setLead({ id: l.id, name: l.full_name }),
+      () => undefined,
+    )
+    return () => {
+      current = false
+    }
+  }, [presetLead])
+
   // Paciente que viene de la ficha (?paciente=) o de la cita que se reagenda.
-  const presetPatient = existing?.patient_id ?? params.get('paciente')
+  const presetPatient = existing?.patient_id ?? (isLead ? null : params.get('paciente'))
   useEffect(() => {
     if (!presetPatient) return
     let current = true
@@ -151,7 +168,8 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     e.preventDefault()
     setError(null)
     setOutOfHours(false)
-    if (!patient) return setError('Elige al paciente.')
+    if (!isLead && !patient) return setError('Elige al paciente.')
+    if (isLead && !existing && !lead) return setError('No encontramos el lead.')
     if (!doctorId) return setError('Elige al doctor.')
     if (!chairId) return setError('Elige el sillón.')
     if (!time) return setError('Elige la hora.')
@@ -162,7 +180,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     }
     if (!branch) return setError('Elige la sucursal.')
     const input = {
-      patientId: patient.id,
+      patientId: patient?.id ?? '',
       doctorId,
       branchId,
       chairId,
@@ -174,7 +192,11 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     }
     setBusy(true)
     try {
-      const saved = existing ? await updateAppointment(existing.id, input) : await createAppointment(input)
+      const saved = existing
+        ? await updateAppointment(existing.id, input)
+        : isLead && lead
+          ? await createLeadAppointment(lead.id, input)
+          : await createAppointment(input)
       navigate(`/agenda?${new URLSearchParams({ fecha: date, cita: saved.id }).toString()}`)
     } catch (err) {
       const ex = err as { code?: string; message?: string }
@@ -190,7 +212,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     <>
       <PageHeader
         eyebrow="Agenda"
-        title={existing ? 'Reagendar cita' : 'Nueva cita'}
+        title={existing ? 'Reagendar cita' : isLead ? 'Agendar valoración' : 'Nueva cita'}
         actions={
           <Link to="/agenda" className="text-ui font-semibold text-violet">
             Volver
@@ -198,9 +220,14 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
         }
       />
       <form onSubmit={(e) => void submit(e)} noValidate className="flex max-w-3xl flex-col gap-6">
-        <Card as="section" aria-label="Paciente" className="flex flex-col gap-3">
-          <h2 className="m-0 text-subtitle">Paciente</h2>
-          {patient ? (
+        <Card as="section" aria-label={isLead ? 'Lead' : 'Paciente'} className="flex flex-col gap-3">
+          <h2 className="m-0 text-subtitle">{isLead ? 'Lead (paciente nuevo)' : 'Paciente'}</h2>
+          {isLead ? (
+            <div className="flex flex-col gap-1">
+              <span className="text-ui font-semibold">{lead?.name || 'Cargando…'}</span>
+              <span className="text-caption text-ink-muted">Es su valoración. Cuando llegue y firme el aviso, conviértelo en paciente desde su ficha de lead.</span>
+            </div>
+          ) : patient ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-ui font-semibold">{patient.name || 'Cargando…'}</span>
               {!existing && (
@@ -252,7 +279,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
               if (t?.duration_minutes) setDuration(t.duration_minutes)
             }}
           />
-          <Select label="Tipo de cita" options={APPOINTMENT_KINDS} value={kind} onChange={(e) => setKind(e.target.value as AppointmentKind)} />
+          <Select label="Tipo de cita" options={APPOINTMENT_KINDS} value={kind} disabled={isLead} onChange={(e) => setKind(e.target.value as AppointmentKind)} />
           <Input label="Fecha" type="date" min={todayIn(tz)} value={date} onChange={(e) => setDate(e.target.value)} />
           <Select
             label="Duración"

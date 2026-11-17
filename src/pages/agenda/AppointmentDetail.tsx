@@ -26,6 +26,8 @@ type Props = {
   tz: string;
   clinicName: string;
   canWrite: boolean;
+  /** Gerencia y recepción: pueden abrir el lead y convertirlo. */
+  canSeeLeads?: boolean;
   onChanged: () => void;
   onClose: () => void;
 };
@@ -36,6 +38,7 @@ export function AppointmentDetail({
   tz,
   clinicName,
   canWrite,
+  canSeeLeads = false,
   onChanged,
   onClose,
 }: Props) {
@@ -83,6 +86,11 @@ export function AppointmentDetail({
               <Badge tone={STATUS[a.status].badge}>
                 {STATUS[a.status].label}
               </Badge>
+              {a.lead_id && (
+                <Badge tone="violet" className="ml-1.5">
+                  Paciente nuevo
+                </Badge>
+              )}
             </span>
             <h2 id="cita-titulo" className="m-0 text-subtitle">
               {a.patient_name}
@@ -236,12 +244,33 @@ export function AppointmentDetail({
           </button>
         )}
 
-        <Link
-          to={`/pacientes/${a.patient_id}`}
-          className={buttonClasses("ghost", "md", "self-start")}
-        >
-          Abrir ficha del paciente
-        </Link>
+        {a.patient_id ? (
+          <Link
+            to={`/pacientes/${a.patient_id}`}
+            className={buttonClasses("ghost", "md", "self-start")}
+          >
+            Abrir ficha del paciente
+          </Link>
+        ) : a.lead_id && canSeeLeads ? (
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to={`/leads/${a.lead_id}/convertir`}
+              className={buttonClasses("secondary", "md")}
+            >
+              Convertir en paciente
+            </Link>
+            <Link
+              to={`/leads/${a.lead_id}`}
+              className={buttonClasses("ghost", "md")}
+            >
+              Abrir lead
+            </Link>
+          </div>
+        ) : (
+          <p className="m-0 text-caption text-ink-muted">
+            Aún no es paciente: recepción lo registra cuando llegue.
+          </p>
+        )}
       </Card>
     </div>
   );

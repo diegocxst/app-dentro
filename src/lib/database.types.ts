@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0013 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: appointments.lead_id, list_appointments(p_lead), create_lead_appointment, convert_lead y lead_patient_matches (migración 0014) agregados a mano hasta aplicarla en dev.
 export type Json =
   | string
   | number
@@ -58,9 +59,10 @@ export type Database = {
           doctor_id: string
           ends_at: string
           id: string
+          lead_id: string | null
           kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string | null
-          patient_id: string
+          patient_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           tenant_id: string
@@ -76,9 +78,10 @@ export type Database = {
           doctor_id: string
           ends_at: string
           id?: string
+          lead_id?: string | null
           kind?: Database["public"]["Enums"]["appointment_kind"]
           notes?: string | null
-          patient_id: string
+          patient_id?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
           tenant_id: string
@@ -94,9 +97,10 @@ export type Database = {
           doctor_id?: string
           ends_at?: string
           id?: string
+          lead_id?: string | null
           kind?: Database["public"]["Enums"]["appointment_kind"]
           notes?: string | null
-          patient_id?: string
+          patient_id?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
           tenant_id?: string
@@ -1099,6 +1103,50 @@ export type Database = {
         Args: { p_action: string; p_document: string }
         Returns: Json
       }
+      convert_lead: {
+        Args: {
+          p_birth_date?: string
+          p_consent_method?: Database["public"]["Enums"]["consent_method"]
+          p_lead: string
+          p_patient?: string
+          p_primary_doctor?: string
+        }
+        Returns: Database["public"]["Tables"]["patients"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "patients"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_lead_appointment: {
+        Args: {
+          p_branch: string
+          p_chair: string
+          p_doctor: string
+          p_ends_at: string
+          p_lead: string
+          p_notes?: string
+          p_starts_at: string
+          p_treatment?: string
+        }
+        Returns: Database["public"]["Tables"]["appointments"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "appointments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      lead_patient_matches: {
+        Args: { p_lead: string }
+        Returns: {
+          email: string | null
+          full_name: string
+          id: string
+          phone_e164: string | null
+        }[]
+      }
       create_appointment: {
         Args: {
           p_branch: string
@@ -1120,9 +1168,10 @@ export type Database = {
           doctor_id: string
           ends_at: string
           id: string
+          lead_id: string | null
           kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string | null
-          patient_id: string
+          patient_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           tenant_id: string
@@ -1325,6 +1374,7 @@ export type Database = {
         Args: {
           p_branch?: string
           p_from: string
+          p_lead?: string
           p_patient?: string
           p_to: string
         }
@@ -1338,9 +1388,10 @@ export type Database = {
           doctor_name: string
           ends_at: string
           id: string
+          lead_id: string | null
           kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string
-          patient_id: string
+          patient_id: string | null
           patient_name: string
           patient_phone: string
           starts_at: string
@@ -1439,9 +1490,10 @@ export type Database = {
           doctor_id: string
           ends_at: string
           id: string
+          lead_id: string | null
           kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string | null
-          patient_id: string
+          patient_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           tenant_id: string
@@ -1603,9 +1655,10 @@ export type Database = {
           doctor_id: string
           ends_at: string
           id: string
+          lead_id: string | null
           kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string | null
-          patient_id: string
+          patient_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           tenant_id: string

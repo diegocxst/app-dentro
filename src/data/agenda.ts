@@ -20,12 +20,13 @@ export type AppointmentInput = {
 }
 
 /** Citas visibles de una sucursal o de un paciente en [from, to). RLS + filtro en el servidor. */
-export async function listAppointments(opts: { from: string; to: string; branchId?: string; patientId?: string }): Promise<AgendaItem[]> {
+export async function listAppointments(opts: { from: string; to: string; branchId?: string; patientId?: string; leadId?: string }): Promise<AgendaItem[]> {
   const { data, error } = await supabase.rpc('list_appointments', {
     p_from: opts.from,
     p_to: opts.to,
     ...(opts.branchId ? { p_branch: opts.branchId } : {}),
     ...(opts.patientId ? { p_patient: opts.patientId } : {}),
+    ...(opts.leadId ? { p_lead: opts.leadId } : {}),
   })
   if (error) throw error
   return (data ?? []) as AgendaItem[]
@@ -46,6 +47,23 @@ function args(i: AppointmentInput) {
 
 export async function createAppointment(i: AppointmentInput): Promise<Appointment> {
   const { data, error } = await supabase.rpc('create_appointment', { p_patient: i.patientId, ...args(i) })
+  if (error) throw error
+  return data as Appointment
+}
+
+/** Valoración de un lead (sin crearlo como paciente). Pasa el lead a «Valoración agendada». */
+export async function createLeadAppointment(leadId: string, i: AppointmentInput): Promise<Appointment> {
+  const a = args(i)
+  const { data, error } = await supabase.rpc('create_lead_appointment', {
+    p_lead: leadId,
+    p_doctor: a.p_doctor,
+    p_branch: a.p_branch,
+    p_chair: a.p_chair,
+    p_starts_at: a.p_starts_at,
+    p_ends_at: a.p_ends_at,
+    ...(i.treatmentId ? { p_treatment: i.treatmentId } : {}),
+    ...(i.notes.trim() ? { p_notes: i.notes.trim() } : {}),
+  })
   if (error) throw error
   return data as Appointment
 }
@@ -81,13 +99,15 @@ export function agendaErrorMessage(e: { code?: string; message?: string } | null
     case '42501':
       return e.message?.includes('tu agenda') ? 'Solo puedes agendar citas en tu agenda.' : 'No tienes permiso para hacer este cambio.'
     case 'P0002':
-      return 'No encontramos la cita o el paciente, o no tienes acceso.'
+      return 'No encontramos la cita, el paciente o el lead, o no tienes acceso.'
     case '22023':
       return e.message === 'Todavía no es la hora de la cita'
         ? 'Todavía no es la hora de la cita.'
         : e.message === 'No se agendan citas en el pasado'
           ? 'No se agendan citas en el pasado.'
-          : 'Revisa los datos de la cita.'
+          : e.message === 'Este lead ya no está activo'
+            ? 'Este lead ya no está activo (perdido o convertido).'
+            : 'Revisa los datos de la cita.'
     default:
       return rpcErrorMessage(e as { code?: string })
   }

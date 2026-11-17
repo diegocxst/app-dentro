@@ -295,6 +295,7 @@ export function AgendaPage() {
                 tz={tz}
                 clinicName={active.tenant.display_name}
                 canWrite={canWrite}
+                canSeeLeads={['owner', 'admin', 'reception'].includes(active.role)}
                 onChanged={reload}
                 onClose={() => go({ cita: null })}
               />

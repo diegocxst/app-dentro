@@ -1,5 +1,5 @@
 import type { LeadStats, LeadStatus } from '@/lib/leads'
-import type { PatientSource, Tables } from '@/lib/db'
+import type { ConsentMethod, PatientSource, Tables } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
 export type Lead = Tables<'leads'>
@@ -79,4 +79,35 @@ export async function leadStats(tenantId: string, since: string): Promise<LeadSt
   const { data, error } = await supabase.rpc('lead_stats', { p_tenant: tenantId, p_since: since })
   if (error) throw error
   return data as unknown as LeadStats
+}
+
+export type PatientMatch = { id: string; full_name: string; phone_e164: string | null; email: string | null }
+
+/** Pacientes con el mismo teléfono o correo que el lead (para no duplicar). */
+export async function leadPatientMatches(leadId: string): Promise<PatientMatch[]> {
+  const { data, error } = await supabase.rpc('lead_patient_matches', { p_lead: leadId })
+  if (error) throw error
+  return (data ?? []) as PatientMatch[]
+}
+
+/**
+ * Convierte el lead en paciente. Con `existingPatientId` lo vincula con un paciente que ya
+ * existe; si no, lo crea con su consentimiento. Sus citas pasan a la ficha.
+ */
+export async function convertLead(
+  leadId: string,
+  opts: { consentMethod: ConsentMethod; birthDate: string; primaryDoctorId: string } | { existingPatientId: string },
+): Promise<{ id: string }> {
+  const args =
+    'existingPatientId' in opts
+      ? { p_lead: leadId, p_patient: opts.existingPatientId }
+      : {
+          p_lead: leadId,
+          p_consent_method: opts.consentMethod,
+          ...(opts.birthDate ? { p_birth_date: opts.birthDate } : {}),
+          ...(opts.primaryDoctorId ? { p_primary_doctor: opts.primaryDoctorId } : {}),
+        }
+  const { data, error } = await supabase.rpc('convert_lead', args)
+  if (error) throw error
+  return data as { id: string }
 }

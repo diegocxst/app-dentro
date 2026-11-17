@@ -53,7 +53,10 @@ describe('M3-B · vistas de la agenda', () => {
     const user = userEvent.setup()
     const { router } = await renderApp('/agenda?fecha=2030-01-09&vista=semana', { branch: BRANCH })
     expect(await screen.findByRole('heading', { name: 'Semana del lun 7 de ene al dom 13 de ene' })).toBeInTheDocument()
-    expect(fakeSupabase.rpc).toHaveBeenCalledWith('list_appointments', { p_from: '2030-01-07T06:00:00.000Z', p_to: '2030-01-14T06:00:00.000Z', p_branch: BRANCH_ID })
+    // La consulta sale cuando carga la sucursal (el encabezado aparece antes).
+    await waitFor(() =>
+      expect(fakeSupabase.rpc).toHaveBeenCalledWith('list_appointments', { p_from: '2030-01-07T06:00:00.000Z', p_to: '2030-01-14T06:00:00.000Z', p_branch: BRANCH_ID }),
+    )
     expect(await screen.findByRole('button', { name: '10:00 Laura Méndez Prueba · Sin confirmar' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '11:00 Jorge Ramírez Prueba · Confirmada' })).toBeInTheDocument()
     // Clic en el encabezado de un día → vista Día de esa fecha.

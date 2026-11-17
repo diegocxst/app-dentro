@@ -275,14 +275,15 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     // Igual que el servidor: hasta 400 días por consulta.
     if (!(to > from) || to - from > 400 * 86_400_000) return Promise.resolve({ data: null, error: { code: '22023', message: 'Rango de fechas inválido' } })
     const rows = fakeDb.appointments
-      .filter((a) => (!args.p_branch || a.branch_id === args.p_branch) && (!args.p_patient || a.patient_id === args.p_patient))
+      .filter((a) => (!args.p_branch || a.branch_id === args.p_branch) && (!args.p_patient || a.patient_id === args.p_patient) && (!args.p_lead || a.lead_id === args.p_lead))
       .filter((a) => Date.parse(String(a.starts_at)) < to && Date.parse(String(a.ends_at)) > from)
       .sort((a, b) => String(a.starts_at).localeCompare(String(b.starts_at)))
       .map((a) => {
-        const p = fakeDb.patients.find((x) => x.id === a.patient_id)
+        const p = fakeDb.patients.find((x) => x.id === a.patient_id) ?? fakeDb.leads.find((x) => x.id === a.lead_id)
         const m = fakeDb.memberships.find((x) => x.id === a.doctor_id)
         return {
           ...a,
+          lead_id: a.lead_id ?? null,
           patient_name: p?.full_name ?? '',
           patient_phone: p?.phone_e164 ?? null,
           doctor_name: fakeDb.profiles.find((x) => x.id === m?.user_id)?.full_name ?? '',
@@ -292,6 +293,39 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
         }
       })
     return Promise.resolve({ data: rows, error: null })
+  }
+  if (fn === 'create_lead_appointment') {
+    const l = fakeDb.leads.find((x) => x.id === args.p_lead)
+    if (!l) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    const row = {
+      id: `cita-${fakeDb.appointments.length + 1}`, tenant_id: TENANT_ID, patient_id: null, lead_id: l.id, status: 'programada', kind: 'valoracion',
+      doctor_id: args.p_doctor, branch_id: args.p_branch, chair_id: args.p_chair, starts_at: args.p_starts_at, ends_at: args.p_ends_at,
+      treatment_id: args.p_treatment ?? null, notes: args.p_notes ?? null, cancel_reason: null,
+    }
+    fakeDb.appointments.push(row)
+    l.status = 'valoracion'
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'lead_patient_matches') {
+    const l = fakeDb.leads.find((x) => x.id === args.p_lead)
+    return Promise.resolve({ data: fakeDb.patients.filter((p) => l && ((l.phone_e164 && p.phone_e164 === l.phone_e164) || (l.email && p.email === l.email))), error: null })
+  }
+  if (fn === 'convert_lead') {
+    const l = fakeDb.leads.find((x) => x.id === args.p_lead)
+    if (!l) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    let p = fakeDb.patients.find((x) => x.id === args.p_patient)
+    if (!p) {
+      if (!args.p_consent_method) return Promise.resolve({ data: null, error: { code: '22023', message: 'consentimiento' } })
+      p = {
+        id: `p-conv-${fakeDb.patients.length + 1}`, tenant_id: l.tenant_id, full_name: l.full_name, phone_e164: l.phone_e164, email: l.email,
+        source: l.source, primary_doctor_id: args.p_primary_doctor ?? null, birth_date: args.p_birth_date ?? null, tags: [], archived_at: null,
+        created_at: '2026-11-16T14:00:00Z', consent: { method: args.p_consent_method, notice_version: 'clinica-borrador-2026-11', recorded_at: '2026-11-16T14:00:00Z' },
+      }
+      fakeDb.patients.push(p)
+    }
+    for (const a of fakeDb.appointments) if (a.lead_id === l.id) Object.assign(a, { patient_id: p.id, lead_id: null })
+    Object.assign(l, { status: 'convertido', converted_patient_id: p.id })
+    return Promise.resolve({ data: p, error: null })
   }
   if (fn === 'create_appointment' || fn === 'update_appointment') {
     const s0 = Date.parse(String(args.p_starts_at))

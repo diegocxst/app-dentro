@@ -10,8 +10,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { listAppointments, type AgendaItem } from '@/data/agenda'
 import { addLeadNote, getLead, listLeadActivity, setLeadStatus, updateLead, type Lead, type LeadActivity } from '@/data/leads'
 import { fetchTeam, type TeamMember } from '@/data/team'
+import { DEFAULT_TZ, STATUS, zonedParts } from '@/lib/agenda'
 import type { PatientSource } from '@/lib/db'
 import { rpcErrorMessage } from '@/lib/errors'
 import { isLate, LEAD_COLUMNS, LEAD_SOURCES, leadSource, leadStatusLabel, leadWhatsappUrl, relativeAge, type LeadStatus } from '@/lib/leads'
@@ -134,6 +136,7 @@ export function LeadPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         <div className="flex min-w-0 flex-col gap-6">
           {canWrite && <StatusActions lead={lead} onRun={run} />}
+          <LeadAppointments leadId={lead.id} />
           {canWrite && <NoteForm leadId={lead.id} onRun={run} />}
           <Card as="section" aria-labelledby="historial" className="flex flex-col gap-3">
             <h2 id="historial" className="m-0 text-subtitle">
@@ -158,6 +161,45 @@ export function LeadPage() {
   )
 }
 
+/** Valoraciones agendadas del lead (antes de convertirlo). */
+function LeadAppointments({ leadId }: { leadId: string }) {
+  const [items, setItems] = useState<AgendaItem[]>([])
+  useEffect(() => {
+    let current = true
+    const now = Date.now()
+    listAppointments({ leadId, from: new Date(now - 183 * 86_400_000).toISOString(), to: new Date(now + 183 * 86_400_000).toISOString() }).then(
+      (r) => current && setItems(r),
+      () => undefined,
+    )
+    return () => {
+      current = false
+    }
+  }, [leadId])
+  if (items.length === 0) return null
+  return (
+    <Card as="section" aria-labelledby="valoraciones" className="flex flex-col gap-2">
+      <h2 id="valoraciones" className="m-0 text-subtitle">
+        Valoraciones
+      </h2>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {items.map((a) => {
+          const d = new Date(a.starts_at)
+          return (
+            <li key={a.id} className="flex flex-wrap items-center justify-between gap-2">
+              <Link to={`/agenda?${new URLSearchParams({ fecha: zonedParts(d, DEFAULT_TZ).date, cita: a.id }).toString()}`} className="text-ui font-semibold text-violet">
+                {dateTimeFmt.format(d)}
+              </Link>
+              <span className="text-caption text-ink-muted">
+                {a.doctor_name} · {STATUS[a.status].label}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </Card>
+  )
+}
+
 function describe(a: LeadActivity): string {
   switch (a.kind) {
     case 'created':
@@ -168,6 +210,10 @@ function describe(a: LeadActivity): string {
       return 'Escribió una nota'
     case 'assigned':
       return 'Cambió al responsable'
+    case 'appointment':
+      return 'Agendó su valoración'
+    case 'converted':
+      return 'Lo convirtió en paciente'
     default:
       return 'Editó los datos'
   }
@@ -201,8 +247,15 @@ function StatusActions({ lead, onRun }: { lead: Lead; onRun: Run }) {
       </h2>
       <div className="flex flex-wrap gap-2">
         {lead.status === 'nuevo' && <Button onClick={() => void move('contactado', 'Listo. Lo marcamos como contactado.')}>Marcar contactado</Button>}
-        {lead.status === 'contactado' && (
-          <Button onClick={() => void move('valoracion', 'Listo. Lo pasamos a «Valoración agendada».')}>Valoración agendada</Button>
+        {lead.status !== 'perdido' && (
+          <Link to={`/agenda/nueva?lead=${lead.id}`} className={buttonClasses(lead.status === 'nuevo' ? 'secondary' : 'primary')}>
+            Agendar valoración
+          </Link>
+        )}
+        {lead.status !== 'perdido' && (
+          <Link to={`/leads/${lead.id}/convertir`} className={buttonClasses('secondary')}>
+            Convertir en paciente
+          </Link>
         )}
         {lead.status === 'perdido' && (
           <Button variant="secondary" onClick={() => void move('contactado', 'Reabrimos el lead.')}>
@@ -215,7 +268,6 @@ function StatusActions({ lead, onRun }: { lead: Lead; onRun: Run }) {
           </Button>
         )}
       </div>
-      {lead.status === 'contactado' && <p className="m-0 text-caption text-ink-muted">Pronto podrás agendar la valoración desde aquí y convertirlo en paciente.</p>}
       {lead.status === 'perdido' && lead.lost_reason && <p className="m-0 text-ui text-ink-muted">Motivo: {lead.lost_reason}</p>}
       {losing && (
         <div className="flex flex-col gap-2 border-t border-border pt-3">
