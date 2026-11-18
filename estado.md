@@ -2,6 +2,7 @@
 Última actualización: 2026-11-15 · Por: Diego (con Claude)
 
 ## Integración
+- 2026-11-18: E3 · M4-A Presupuestos integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 269 pruebas (3 corridas), `test:db` (15 migraciones) y build; sin secretos.
 - 2026-11-18: E3 · M1-B Leads (valoración y conversión) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M1 Leads completo.** Verificado en `main`: lint, typecheck, 261 pruebas (3 corridas), `test:db` (14 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M1-A Leads integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 254 pruebas (3 corridas), `test:db` (13 migraciones) y build; sin secretos.
 - 2026-11-16: E3 · M3-B Agenda (Semana, Por sillón, Mi día) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M3 Agenda completo.** Verificado en `main`: lint, typecheck, 245 pruebas (3 corridas), `test:db` (12 migraciones) y build; sin secretos.
@@ -389,7 +390,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M4-A Presupuestos:** integrar en `main` y push (con aprobación de Diego). Después **M4-B** (PDF y WhatsApp).
+- **E3 · M4-B Presupuestos:** PDF con la marca de la clínica y envío por WhatsApp compartiendo el archivo.
 - Para revisar la app con datos usa `dentro-dev` (`localhost:5173`).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
