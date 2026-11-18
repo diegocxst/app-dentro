@@ -16,6 +16,8 @@ import { fetchTreatments, type Treatment } from '@/data/catalog'
 import { setGuideTask } from '@/data/onboarding'
 import { getQuote, markQuoteFollowup, saveQuote, setQuoteStatus, type QuoteCard, type QuoteItem } from '@/data/quotes'
 import { useDoctors } from '@/hooks/useDoctors'
+import { useQuotePdf } from '@/hooks/useQuotePdf'
+import { downloadBlob } from '@/lib/quoteShare'
 import { rpcErrorMessage } from '@/lib/errors'
 import { isManager } from '@/lib/roles'
 import { canLose, EDITABLE, folioLabel, lineTotal, money, NEXT_STAGES, PLAN_OPTIONS, planText, quoteColumn, quoteTotal, type ItemDraft, type QuoteStatus } from '@/lib/quotes'
@@ -168,9 +170,12 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
         eyebrow={q ? `Presupuestos · ${folioLabel(q.folio)}` : 'Presupuestos'}
         title={q ? q.patientName : 'Nuevo presupuesto'}
         actions={
-          <Link to="/presupuestos" className="text-ui font-semibold text-violet">
-            Volver
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {q && <PdfActions quote={q} items={existing?.items ?? []} />}
+            <Link to="/presupuestos" className="text-ui font-semibold text-violet">
+              Volver
+            </Link>
+          </div>
         }
       />
       {notice && (
@@ -352,6 +357,35 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   )
 }
 
+/** Descargar el PDF con la marca de la clínica y abrir el envío por WhatsApp (P20). */
+function PdfActions({ quote, items }: { quote: QuoteCard; items: QuoteItem[] }) {
+  const { build } = useQuotePdf(quote, items)
+  const [busy, setBusy] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const download = async () => {
+    setBusy(true)
+    setFailed(false)
+    try {
+      const f = await build()
+      downloadBlob(f, f.name)
+    } catch {
+      setFailed(true)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <>
+      <Button variant="secondary" size="sm" loading={busy} onClick={() => void download()}>
+        {failed ? 'Reintentar PDF' : 'Descargar PDF'}
+      </Button>
+      <Link to={`/presupuestos/${quote.id}/enviar`} className={buttonClasses('primary', 'sm')}>
+        Enviar por WhatsApp
+      </Link>
+    </>
+  )
+}
+
 function StageCard({ quote, canWrite, onChanged, badge }: { quote: QuoteCard; canWrite: boolean; onChanged: () => void; badge: ReactNode }) {
   const [losing, setLosing] = useState(false)
   const [reason, setReason] = useState('')
@@ -484,7 +518,6 @@ function Preview(p: PreviewProps) {
         </p>
         <p className="m-0 text-caption text-ink-muted">Vigencia: hasta el {day(p.validUntil)}. Precios en MXN.</p>
       </Card>
-      <p className="m-0 text-caption text-ink-muted">El PDF con tu logo y el envío por WhatsApp llegan en la siguiente entrega.</p>
     </aside>
   )
 }

@@ -36,6 +36,7 @@ import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
 import { QuotePage } from '@/pages/quotes/QuotePage'
 import { QuotesPage } from '@/pages/quotes/QuotesPage'
+import { SendQuotePage } from '@/pages/quotes/SendQuotePage'
 import { ConvertLeadPage } from '@/pages/leads/ConvertLeadPage'
 import { LeadPage } from '@/pages/leads/LeadPage'
 import { LeadsPage } from '@/pages/leads/LeadsPage'
@@ -101,6 +102,7 @@ export const routes: RouteObject[] = [
           { path: 'presupuestos', element: <QuotesPage /> },
           { path: 'presupuestos/nuevo', element: <QuotePage /> },
           { path: 'presupuestos/:id', element: <QuotePage /> },
+          { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

@@ -4,16 +4,16 @@ import { supabase } from '@/lib/supabase'
 
 export type Quote = Tables<'quotes'>
 export type QuoteItem = Tables<'quote_items'>
-export type QuoteCard = Quote & { patientName: string }
+export type QuoteCard = Quote & { patientName: string; patientPhone: string | null }
 export const QUOTES_PER_COLUMN = 50
 
 async function withPatientNames(rows: Quote[]): Promise<QuoteCard[]> {
   const ids = [...new Set(rows.map((r) => r.patient_id))]
   if (ids.length === 0) return []
-  const { data, error } = await supabase.from('patients').select('id, full_name').in('id', ids)
+  const { data, error } = await supabase.from('patients').select('id, full_name, phone_e164').in('id', ids)
   if (error) throw error
-  const names = new Map(((data ?? []) as { id: string; full_name: string }[]).map((p) => [p.id, p.full_name]))
-  return rows.map((r) => ({ ...r, patientName: names.get(r.patient_id) ?? 'Paciente' }))
+  const byId = new Map(((data ?? []) as { id: string; full_name: string; phone_e164: string | null }[]).map((p) => [p.id, p]))
+  return rows.map((r) => ({ ...r, patientName: byId.get(r.patient_id)?.full_name ?? 'Paciente', patientPhone: byId.get(r.patient_id)?.phone_e164 ?? null }))
 }
 
 /** Una columna del Kanban (RLS: el doctor ve solo los de sus pacientes). Paginada en el servidor. */

@@ -26,6 +26,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M4-B Presupuestos (PDF y WhatsApp)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4b-pdf-whatsapp` (sin push). **Sin migraciones.** |
 | **E3 · M4-A Presupuestos (crear, Kanban y ficha)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4-presupuestos` (sin push). Migración 0015 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-A Leads (Kanban y seguimiento)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1-leads` (sin push). Migración 0013 **aplicada en dev** con aprobación de Diego. |
@@ -52,6 +53,19 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M4-B — Presupuestos: PDF con la marca y envío por WhatsApp (EN_PRUEBAS)
+- **PDF con la identidad de la clínica** (`@react-pdf/renderer`, se carga solo al usarlo): franja con el **color de marca** (ya garantiza contraste con blanco) y el **logo** (PNG, JPG o **WebP convertido a PNG** en el navegador; si no hay o falla, las iniciales), nombre, dirección de la sucursal y WhatsApp; folio y fecha; paciente, doctor y tratamiento; partidas con nota (descuentos en verde), total, plan de pagos, vigencia («Precios en MXN.»), notas y pie con «página X de Y · hecho con dentro». Nombre de archivo limpio: «Presupuesto P-0142 Laura Mendez.pdf».
+- **P20 Enviar (`/presupuestos/:id/enviar`):** paciente, teléfono y total; **mensaje editable** como la maqueta («Hola, Laura. Te comparto tu presupuesto de ortodoncia invisible con… Puedes apartar tu lugar con un anticipo de… y pagar el resto en N mensualidades de…»); casilla «Adjuntar PDF». **En el celular** abre el menú de compartir con el PDF adjunto (WhatsApp); **en la computadora** descarga el PDF y abre WhatsApp con el mensaje (se indica adjuntar el archivo). Sin teléfono, se elige el chat en WhatsApp. **Sin enlaces públicos.** El PDF se prepara al abrir la pantalla para que «Compartir» ocurra dentro del clic (lo exigen los navegadores).
+- **Al enviar:** un borrador pasa a «Presentado»; uno presentado o en duda registra un **seguimiento**. Si se cancela el menú de compartir, no cambia nada.
+- **Detalle del presupuesto:** «Descargar PDF» y «Enviar por WhatsApp».
+- **Corregido al revisar:** (1) el signo «−» de los descuentos no existe en la fuente base del PDF y desaparecía (y desalineaba la fila) → en el PDF va «-»; (2) en la computadora el aviso «Adjúntalo en el chat de WhatsApp» se perdía detrás del de la etapa → ahora van juntos; (3) el mensaje decía «presupuesto de presupuesto…» si el título ya empezaba así.
+- 274 pruebas de la app (antes 269), estables en 3 corridas (celular con compartir, cancelar, computadora con descarga + WhatsApp, descarga desde el detalle, mensaje y nombre de archivo). `test:db` sin cambios (15 migraciones) y build en verde.
+- **Revisión en dev** (sin enviar nada): la pantalla de envío de P-0001 arma el PDF con los datos reales (la clínica no tiene logo cargado: usa iniciales con el color #0E5E8A) y la conversión WebP → PNG se comprobó en el navegador.
+
+### Puntos para aprobación
+1. El **link de pago del anticipo** en el mensaje y el PDF llega con **M5 / E6** (cuentas de la clínica); «Recordarme si no responde» con **M8 Tareas**.
+2. El PDF usa Helvetica (sin descargar fuentes); se puede cambiar por la tipografía del sistema «dentro» más adelante.
 
 ## E3 · M4-A — Presupuestos: crear, Kanban y ficha (EN_PRUEBAS)
 - **Migración 0015** `20261118000100_quotes`: `quotes` (folio consecutivo por clínica P-0001…, paciente, doctor, tratamiento principal, etapa, total, anticipo, mensualidades, vigencia —30 días por omisión—, notas, motivo de pérdida, fecha de presentación y último seguimiento) y `quote_items` (del catálogo o libres; precio negativo = descuento).
@@ -390,7 +404,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M4-B Presupuestos:** PDF con la marca de la clínica y envío por WhatsApp compartiendo el archivo.
+- **E3 · M4-B Presupuestos:** revisar e integrar en `main` (con aprobación de Diego). Con eso queda **M4 completo**. Después: **M5 Pagos (registro)**.
 - Para revisar la app con datos usa `dentro-dev` (`localhost:5173`).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
