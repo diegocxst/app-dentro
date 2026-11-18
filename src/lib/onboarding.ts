@@ -15,7 +15,7 @@ export const GUIDE_TASKS: readonly GuideTask[] = [
   { id: 'treatments', title: 'Tratamientos y precios', why: 'Arma presupuestos en segundos', minutes: 3, cta: 'Agregar precios', path: '/bienvenida/tratamientos' },
   { id: 'whatsapp', title: 'Conecta tu WhatsApp', why: 'Envía recordatorios y presupuestos desde dentro', minutes: 1, cta: 'Conectar', path: '/bienvenida/whatsapp' },
   { id: 'first_patient', title: 'Registra tu primer paciente', why: 'O importa tu lista desde Excel', minutes: 2, cta: 'Agregar paciente', path: '/pacientes/nuevo' },
-  { id: 'first_quote', title: 'Crea tu primer presupuesto', why: 'Con PDF de tu clínica y link de pago', minutes: 3, cta: 'Crear presupuesto', path: '/presupuestos' },
+  { id: 'first_quote', title: 'Crea tu primer presupuesto', why: 'Con PDF de tu clínica y link de pago', minutes: 3, cta: 'Crear presupuesto', path: '/presupuestos/nuevo' },
 ]
 
 export const GUIDE_TOTAL = GUIDE_TASKS.length

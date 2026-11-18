@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -233,6 +233,44 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'save_quote') {
+    const items = (args.p_items as Row[]) ?? []
+    if (items.length === 0) return Promise.resolve({ data: null, error: { code: '22023', message: 'partidas' } })
+    const total = items.reduce((t, i) => t + Number(i.quantity) * Number(i.unit_price), 0)
+    const fields = {
+      patient_id: args.p_patient, doctor_id: args.p_doctor ?? null, title: args.p_title ?? '', total,
+      down_payment: Number(args.p_installments) > 0 ? Number(args.p_down_payment ?? 0) : 0, installments: Number(args.p_installments ?? 0),
+      valid_until: args.p_valid_until ?? '2026-12-18', notes: args.p_notes ?? null, updated_at: '2026-11-18T12:30:00Z',
+    }
+    let q = fakeDb.quotes.find((x) => x.id === args.p_quote)
+    if (q) Object.assign(q, fields)
+    else {
+      q = { id: `q-${fakeDb.quotes.length + 1}`, tenant_id: TENANT_ID, folio: fakeDb.quotes.length + 1, status: 'borrador', lost_reason: null, sent_at: null, last_followup_at: null, status_changed_at: '2026-11-18T12:00:00Z', created_by: 'u-1', created_at: '2026-11-18T12:00:00Z', ...fields }
+      fakeDb.quotes.push(q)
+    }
+    fakeDb.quote_items = fakeDb.quote_items.filter((i) => i.quote_id !== q.id)
+    items.forEach((i, position) => fakeDb.quote_items.push({ id: `${String(q.id)}-${position}`, tenant_id: TENANT_ID, quote_id: q.id, position, treatment_id: i.treatment_id ?? null, concept: i.concept, note: i.note ?? '', quantity: i.quantity, unit_price: i.unit_price }))
+    return Promise.resolve({ data: q, error: null })
+  }
+  if (fn === 'set_quote_status' || fn === 'mark_quote_followup') {
+    const q = fakeDb.quotes.find((x) => x.id === args.p_quote)
+    if (!q) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+    if (fn === 'mark_quote_followup') q.last_followup_at = '2026-11-18T13:00:00Z'
+    else {
+      if (args.p_status === 'perdido' && !args.p_reason) return Promise.resolve({ data: null, error: { code: '22023', message: 'motivo' } })
+      q.status = args.p_status
+      q.lost_reason = args.p_status === 'perdido' ? args.p_reason : null
+      if (args.p_status === 'presentado') q.sent_at ??= '2026-11-18T12:45:00Z'
+    }
+    q.updated_at = '2026-11-18T13:05:00Z'
+    return Promise.resolve({ data: q, error: null })
+  }
+  if (fn === 'quote_stats') {
+    const won = fakeDb.quotes.filter((q) => ['aceptado', 'en_tratamiento', 'terminado'].includes(String(q.status)))
+    const decided = won.length + fakeDb.quotes.filter((q) => q.status === 'perdido').length
+    const doubt = fakeDb.quotes.filter((q) => q.status === 'en_duda').reduce((t, q) => t + Number(q.total), 0)
+    return Promise.resolve({ data: { won: won.length, decided, in_doubt_total: doubt, avg_ticket: won.length ? won.reduce((t, q) => t + Number(q.total), 0) / won.length : 0 }, error: null })
+  }
   if (fn === 'create_lead') {
     if (args.p_notice_shared !== true) return Promise.resolve({ data: null, error: { code: '22023', message: 'aviso' } })
     const row = {

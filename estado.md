@@ -25,6 +25,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M4-A Presupuestos (crear, Kanban y ficha)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4-presupuestos` (sin push). Migración 0015 **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-A Leads (Kanban y seguimiento)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1-leads` (sin push). Migración 0013 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M3-B Agenda (Semana, Por sillón y Mi día)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m3b-agenda-vistas` (sin push). **Sin migraciones** (usa la tabla de 0012). |
@@ -50,6 +51,23 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M4-A — Presupuestos: crear, Kanban y ficha (EN_PRUEBAS)
+- **Migración 0015** `20261118000100_quotes`: `quotes` (folio consecutivo por clínica P-0001…, paciente, doctor, tratamiento principal, etapa, total, anticipo, mensualidades, vigencia —30 días por omisión—, notas, motivo de pérdida, fecha de presentación y último seguimiento) y `quote_items` (del catálogo o libres; precio negativo = descuento).
+- **Reglas en la base:** los hacen y ven gerencia y recepción (cualquier paciente) y el **doctor solo de sus pacientes** (queda como doctor del presupuesto); superadmin y otras clínicas, nada. Al guardar se **recalcula el total** en la base (nunca negativo) y el anticipo no lo supera; de contado no hay anticipo. Etapas: borrador → presentado ⇄ en duda → aceptado → en tratamiento → terminado; abiertos → perdido (con motivo); perdido → reabrir. **Solo se edita** en borrador, presentado o en duda. Indicadores por RPC (`quote_stats`). Sin borrado; auditoría sin montos ni datos del paciente.
+- **P18 Kanban (`/presupuestos`):** indicadores del mes (tasa de aceptación, en duda por recuperar, ticket promedio), filtro por doctor (no para doctores), siete columnas con cantidad y monto; tarjetas con paciente, monto, tratamiento · doctor y **seguimiento** («Enviado hace 1 día», «Sin respuesta 9 días» en ámbar/rojo).
+- **P19 Crear / detalle (`/presupuestos/nuevo`, `/presupuestos/:id`):** paciente (búsqueda o desde la ficha), doctor, tratamiento principal; partidas **del catálogo**, concepto libre o **descuento**, con cantidad, precio e importe; **plan de pagos** (Contado, 6, 12, 18, 24 meses + anticipo, con la mensualidad redondeada hacia arriba); vigencia y notas; vista **«Así lo verá el paciente»**. En el detalle: etapa con sus botones (Marcar presentado, Aceptó, En duda, Empezó el tratamiento, Terminado, Reabrir), «Registrar seguimiento» y «Marcar perdido» con motivo. Crear el primero marca la tarea de la guía.
+- **Ficha 360 › Presupuestos:** lista con folio, total y etapa, y «Nuevo presupuesto». «+ Nuevo › Presupuesto» abre el editor. La búsqueda de paciente se extrajo a `components/patients/PatientPicker` (Agenda y Presupuestos).
+- **Precio final en MXN, sin desglose de IVA** («Precios en MXN.»). Revisarlo con su contador; CFDI en Fase 2.
+- Suite `quotes_rls_isolation.sql` (6 actores) y `test:db` con 15 migraciones en verde. **Pruebas de mutación:** doctor viendo todos los presupuestos, doctor asignando a otro doctor y editar uno aceptado → las 3 las detecta la suite.
+- 269 pruebas de la app (antes 261), estables en 3 corridas. `database.types.ts` con entradas **provisionales** de 0015.
+- **Sin revisión visual:** requiere aplicar 0015 en dev.
+
+### Puntos para aprobación
+1. Aplicar la migración 0015 en dev (primero `--dry-run`), correr las 15 suites, regenerar tipos, revisar asesores y revisión visual con un presupuesto ficticio.
+2. Las tarjetas se mueven desde el detalle; **arrastrar** entre columnas queda para Fase 2+ (como en Leads).
+3. El indicador «Anticipos cobrados» de la maqueta llega con **M5 Pagos**; el link de pago del anticipo, con M5/E6; «Recordarme si no responde», con **M8 Tareas**.
+4. **M4-B:** PDF con la marca de la clínica (logo y color) y envío por WhatsApp compartiendo el archivo (sin enlaces públicos).
 
 ## E3 · M1-B — Leads: valoración y conversión a paciente (EN_PRUEBAS)
 - **Migración 0014** `20261116000900_lead_conversion`: una cita es **de un paciente o de un lead** (exactamente uno; las de lead son de valoración); `create_lead_appointment` (gerencia y recepción; mismas reglas de horario, sillón, doctor y traslapes; pasa el lead a «Valoración agendada»); `convert_lead` (crea el paciente **con su consentimiento** —mismas reglas que el alta— o lo **vincula con uno existente**; sus citas pasan a la ficha; el lead queda «Convertido» con el enlace); `lead_patient_matches` (mismo teléfono o correo); `list_appointments` muestra las citas de lead (nombre y teléfono del lead) y filtra por lead.
@@ -367,7 +385,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M4 Presupuestos + PDF** (siguiente módulo del roadmap).
+- **E3 · M4-A Presupuestos:** aprobar y aplicar en dev (migración 0015), revisión visual, integrar en `main`. Después **M4-B** (PDF y WhatsApp).
 - Para revisar la app con datos usa `dentro-dev` (`localhost:5173`); `dentro-dev-sin-backend` (5174) no conecta a Supabase y no deja entrar.
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.

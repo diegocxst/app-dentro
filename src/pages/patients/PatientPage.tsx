@@ -19,12 +19,12 @@ import { useWorkspace } from '@/workspace/workspace-context'
 import { DocumentsTab } from './DocumentsTab'
 import { usePatientAppointments } from '@/hooks/usePatientAppointments'
 import { AppointmentsTab, NextAppointment } from './PatientAppointments'
+import { PatientQuotes } from './PatientQuotes'
 import { PrivacyCard } from './PrivacyCard'
 
 type Tab = 'resumen' | 'citas' | 'presupuestos' | 'pagos' | 'documentos' | 'notas'
 
-const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos' | 'citas'>, { icon: IconName; title: string; text: string }> = {
-  presupuestos: { icon: 'presupuestos', title: 'Presupuestos', text: 'Aquí verás sus presupuestos y su estado cuando llegue el módulo de presupuestos.' },
+const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos' | 'citas' | 'presupuestos'>, { icon: IconName; title: string; text: string }> = {
   pagos: { icon: 'cobros', title: 'Pagos', text: 'Los pagos y el saldo del paciente aparecerán aquí cuando llegue Cobros.' },
 }
 
@@ -196,6 +196,7 @@ export function PatientPage() {
             canSchedule={active?.tenant.status === 'active' && !p.archived_at}
           />
         )}
+        {tab === 'presupuestos' && <PatientQuotes patientId={p.id} canCreate={active?.tenant.status === 'active' && !p.archived_at} />}
         {tab === 'notas' && <Notes record={record} onAdded={reload} />}
         {tab === 'documentos' && active && (
           <DocumentsTab
@@ -206,7 +207,7 @@ export function PatientPage() {
             onCount={setDocCount}
           />
         )}
-        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && tab !== 'citas' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
+        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && tab !== 'citas' && tab !== 'presupuestos' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
       </div>
     </div>
   )
