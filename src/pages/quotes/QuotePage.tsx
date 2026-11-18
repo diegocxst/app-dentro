@@ -17,6 +17,7 @@ import { setGuideTask } from '@/data/onboarding'
 import { getQuote, markQuoteFollowup, saveQuote, setQuoteStatus, type QuoteCard, type QuoteItem } from '@/data/quotes'
 import { useDoctors } from '@/hooks/useDoctors'
 import { rpcErrorMessage } from '@/lib/errors'
+import { isManager } from '@/lib/roles'
 import { canLose, EDITABLE, folioLabel, lineTotal, money, NEXT_STAGES, PLAN_OPTIONS, planText, quoteColumn, quoteTotal, type ItemDraft, type QuoteStatus } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -71,7 +72,7 @@ export function QuotePage() {
 }
 
 function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; items: QuoteItem[] } | null; onChanged: () => void }) {
-  const { active } = useWorkspace()
+  const { active, refresh } = useWorkspace()
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const tenantId = active?.tenant_id ?? ''
@@ -142,8 +143,12 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
     try {
       const saved = await saveQuote(q?.id ?? null, { patientId: patient.id, doctorId: doctorId || null, title, items, downPayment, installments, validUntil, notes })
       if (!q) {
-        // Paso de la guía de inicio (solo la gerencia lo puede marcar; para los demás no importa).
-        void setGuideTask(tenantId, 'first_quote', true).catch(() => undefined)
+        // Paso de la guía de inicio (solo la gerencia lo marca; si falla, no importa).
+        if (isManager(active.role)) {
+          await setGuideTask(tenantId, 'first_quote', true)
+            .then(() => refresh())
+            .catch(() => undefined)
+        }
         navigate(`/presupuestos/${saved.id}`)
       } else {
         setNotice('Guardamos los cambios.')
@@ -174,7 +179,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <form onSubmit={(e) => void submit(e)} noValidate className="flex min-w-0 flex-col gap-6">
           {q && col && <StageCard quote={q} canWrite={canWrite} onChanged={onChanged} badge={<Badge tone={col.tone}>{col.label}</Badge>} />}
 
@@ -442,7 +447,7 @@ type PreviewProps = {
 /** «Así lo verá el paciente» (el PDF con la marca de la clínica llega con M4-B). */
 function Preview(p: PreviewProps) {
   return (
-    <aside aria-label="Así lo verá el paciente" className="flex flex-col gap-2 self-start lg:sticky lg:top-6">
+    <aside aria-label="Así lo verá el paciente" className="flex flex-col gap-2 self-start xl:sticky xl:top-6">
       <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Así lo verá el paciente</span>
       <Card className="flex flex-col gap-3 bg-surface-raised">
         <div className="flex items-start justify-between gap-2">

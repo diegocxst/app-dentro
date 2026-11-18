@@ -1,12 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "dentro-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"], "port": 5173 },
-    {
-      "name": "dentro-dev-sin-backend",
-      "runtimeExecutable": "env",
-      "runtimeArgs": ["VITE_SUPABASE_URL=http://127.0.0.1:9", "VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_vista_previa", "npm", "run", "dev", "--", "--port", "5174", "--strictPort"],
-      "port": 5174
-    }
+    { "name": "dentro-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"], "port": 5173 }
   ]
 }

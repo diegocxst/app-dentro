@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0014 · 2026-11-16. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: quotes, quote_items, tenants.quote_seq, sus RPC y el enum quote_status (migración 0015) agregados a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0015 · 2026-11-18. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -927,6 +926,145 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_items: {
+        Row: {
+          concept: string
+          id: string
+          note: string
+          position: number
+          quantity: number
+          quote_id: string
+          tenant_id: string
+          treatment_id: string | null
+          unit_price: number
+        }
+        Insert: {
+          concept: string
+          id?: string
+          note?: string
+          position: number
+          quantity?: number
+          quote_id: string
+          tenant_id: string
+          treatment_id?: string | null
+          unit_price: number
+        }
+        Update: {
+          concept?: string
+          id?: string
+          note?: string
+          position?: number
+          quantity?: number
+          quote_id?: string
+          tenant_id?: string
+          treatment_id?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_tenant_id_quote_id_fkey"
+            columns: ["tenant_id", "quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "quote_items_tenant_id_treatment_id_fkey"
+            columns: ["tenant_id", "treatment_id"]
+            isOneToOne: false
+            referencedRelation: "treatments"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          doctor_id: string | null
+          down_payment: number
+          folio: number
+          id: string
+          installments: number
+          last_followup_at: string | null
+          lost_reason: string | null
+          notes: string | null
+          patient_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          status_changed_at: string
+          tenant_id: string
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          doctor_id?: string | null
+          down_payment?: number
+          folio: number
+          id?: string
+          installments?: number
+          last_followup_at?: string | null
+          lost_reason?: string | null
+          notes?: string | null
+          patient_id: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          status_changed_at?: string
+          tenant_id: string
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          doctor_id?: string | null
+          down_payment?: number
+          folio?: number
+          id?: string
+          installments?: number
+          last_followup_at?: string | null
+          lost_reason?: string | null
+          notes?: string | null
+          patient_id?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          status_changed_at?: string
+          tenant_id?: string
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_tenant_id_doctor_id_fkey"
+            columns: ["tenant_id", "doctor_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "quotes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_tenant_id_patient_id_fkey"
+            columns: ["tenant_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           brand_color: string
@@ -984,108 +1122,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["tenant_status"]
           updated_at?: string
           whatsapp_e164?: string | null
-        }
-        Relationships: []
-      }
-      quote_items: {
-        Row: {
-          concept: string
-          id: string
-          note: string
-          position: number
-          quantity: number
-          quote_id: string
-          tenant_id: string
-          treatment_id: string | null
-          unit_price: number
-        }
-        Insert: {
-          concept?: string
-          id?: string
-          note?: string
-          position?: number
-          quantity?: number
-          quote_id?: string
-          tenant_id?: string
-          treatment_id?: string | null
-          unit_price?: number
-        }
-        Update: {
-          concept?: string
-          id?: string
-          note?: string
-          position?: number
-          quantity?: number
-          quote_id?: string
-          tenant_id?: string
-          treatment_id?: string | null
-          unit_price?: number
-        }
-        Relationships: []
-      }
-      quotes: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          doctor_id: string | null
-          down_payment: number
-          folio: number
-          id: string
-          installments: number
-          last_followup_at: string | null
-          lost_reason: string | null
-          notes: string | null
-          patient_id: string
-          sent_at: string | null
-          status: Database["public"]["Enums"]["quote_status"]
-          status_changed_at: string
-          tenant_id: string
-          title: string
-          total: number
-          updated_at: string
-          valid_until: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          doctor_id?: string | null
-          down_payment?: number
-          folio?: number
-          id?: string
-          installments?: number
-          last_followup_at?: string | null
-          lost_reason?: string | null
-          notes?: string | null
-          patient_id?: string
-          sent_at?: string | null
-          status?: Database["public"]["Enums"]["quote_status"]
-          status_changed_at?: string
-          tenant_id?: string
-          title?: string
-          total?: number
-          updated_at?: string
-          valid_until?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          doctor_id?: string | null
-          down_payment?: number
-          folio?: number
-          id?: string
-          installments?: number
-          last_followup_at?: string | null
-          lost_reason?: string | null
-          notes?: string | null
-          patient_id?: string
-          sent_at?: string | null
-          status?: Database["public"]["Enums"]["quote_status"]
-          status_changed_at?: string
-          tenant_id?: string
-          title?: string
-          total?: number
-          updated_at?: string
-          valid_until?: string
         }
         Relationships: []
       }
@@ -1198,6 +1234,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
           updated_at: string
@@ -1491,6 +1528,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
           updated_at: string
@@ -1545,10 +1583,29 @@ export type Database = {
           treatment_name: string
         }[]
       }
-      open_patient: { Args: { p_patient: string }; Returns: Json }
       mark_quote_followup: {
         Args: { p_quote: string }
-        Returns: Database["public"]["Tables"]["quotes"]["Row"]
+        Returns: {
+          created_at: string
+          created_by: string | null
+          doctor_id: string | null
+          down_payment: number
+          folio: number
+          id: string
+          installments: number
+          last_followup_at: string | null
+          lost_reason: string | null
+          notes: string | null
+          patient_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          status_changed_at: string
+          tenant_id: string
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string
+        }
         SetofOptions: {
           from: "*"
           to: "quotes"
@@ -1556,40 +1613,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      quote_stats: { Args: { p_doctor?: string; p_since: string; p_tenant: string }; Returns: Json }
-      save_quote: {
-        Args: {
-          p_doctor: string | null
-          p_down_payment?: number
-          p_installments?: number
-          p_items: Json
-          p_notes?: string
-          p_patient: string
-          p_quote: string | null
-          p_title?: string
-          p_valid_until?: string
-        }
-        Returns: Database["public"]["Tables"]["quotes"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "quotes"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      set_quote_status: {
-        Args: {
-          p_quote: string
-          p_reason?: string
-          p_status: Database["public"]["Enums"]["quote_status"]
-        }
-        Returns: Database["public"]["Tables"]["quotes"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "quotes"
-          isOneToOne: true
-          isSetofReturn: false
-        }
+      open_patient: { Args: { p_patient: string }; Returns: Json }
+      quote_stats: {
+        Args: { p_doctor?: string; p_since: string; p_tenant: string }
+        Returns: Json
       }
       register_document: {
         Args: {
@@ -1656,6 +1683,46 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "memberships"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_quote: {
+        Args: {
+          p_doctor: string
+          p_down_payment?: number
+          p_installments?: number
+          p_items: Json
+          p_notes?: string
+          p_patient: string
+          p_quote: string
+          p_title?: string
+          p_valid_until?: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          doctor_id: string | null
+          down_payment: number
+          folio: number
+          id: string
+          installments: number
+          last_followup_at: string | null
+          lost_reason: string | null
+          notes: string | null
+          patient_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          status_changed_at: string
+          tenant_id: string
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1819,6 +1886,40 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patients"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_quote_status: {
+        Args: {
+          p_quote: string
+          p_reason?: string
+          p_status: Database["public"]["Enums"]["quote_status"]
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          doctor_id: string | null
+          down_payment: number
+          folio: number
+          id: string
+          installments: number
+          last_followup_at: string | null
+          lost_reason: string | null
+          notes: string | null
+          patient_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          status_changed_at: string
+          tenant_id: string
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2064,6 +2165,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
           updated_at: string
@@ -2106,6 +2208,13 @@ export type Database = {
         | "convertido"
         | "perdido"
       membership_status: "active" | "invited" | "revoked"
+      patient_source:
+        | "meta"
+        | "perfil"
+        | "referido"
+        | "whatsapp"
+        | "manual"
+        | "otro"
       quote_status:
         | "borrador"
         | "presentado"
@@ -2114,13 +2223,6 @@ export type Database = {
         | "en_tratamiento"
         | "terminado"
         | "perdido"
-      patient_source:
-        | "meta"
-        | "perfil"
-        | "referido"
-        | "whatsapp"
-        | "manual"
-        | "otro"
       tenant_kind: "independent" | "clinic"
       tenant_role: "owner" | "admin" | "reception" | "doctor" | "doctor_collab"
       tenant_status: "active" | "suspended" | "cancelled"
@@ -2282,7 +2384,6 @@ export const Constants = {
         "perdido",
       ],
       membership_status: ["active", "invited", "revoked"],
-      quote_status: ["borrador", "presentado", "en_duda", "aceptado", "en_tratamiento", "terminado", "perdido"],
       patient_source: [
         "meta",
         "perfil",
@@ -2290,6 +2391,15 @@ export const Constants = {
         "whatsapp",
         "manual",
         "otro",
+      ],
+      quote_status: [
+        "borrador",
+        "presentado",
+        "en_duda",
+        "aceptado",
+        "en_tratamiento",
+        "terminado",
+        "perdido",
       ],
       tenant_kind: ["independent", "clinic"],
       tenant_role: ["owner", "admin", "reception", "doctor", "doctor_collab"],

@@ -54,9 +54,10 @@ export type QuoteInput = {
 
 export async function saveQuote(id: string | null, i: QuoteInput): Promise<Quote> {
   const { data, error } = await supabase.rpc('save_quote', {
-    p_quote: id,
+    // NULL = crear nuevo / sin doctor. El generador de tipos no modela NULL en argumentos sin default.
+    p_quote: id as string,
     p_patient: i.patientId,
-    p_doctor: i.doctorId,
+    p_doctor: i.doctorId as string,
     p_items: i.items.map((x) => ({
       ...(x.treatmentId ? { treatment_id: x.treatmentId } : {}),
       concept: x.concept.trim(),
