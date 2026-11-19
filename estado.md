@@ -1,5 +1,30 @@
 # estado.md — dentro
-Última actualización: 2026-11-15 · Por: Diego (con Claude)
+Última actualización: 2026-11-19 · Por: Diego (con Claude)
+
+## ▶ PUNTO DE RETORNO (leer primero al abrir una conversación nueva)
+
+### Dónde estamos (2026-11-19)
+- **Fase E3 · Módulos esenciales** (aprobada por Diego). Orden del roadmap: M10 → M2+M7 → M3 → M1 → M4 → **M5** → M6 → M8.
+- **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A y M4-B. Último push: `44ffc2a`.
+- **EN CURSO — E3 · M5-A Pagos:** rama `feature/e3-m5-pagos`, último commit `9b2f5cf`. **Migración 0016 aplicada en dev**, tipos regenerados, 16 suites en verde en el proyecto real, revisión visual hecha. **Falta solo: integrar en `main` y push** — esperar el «Sí, integra y sube» de Diego.
+- **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 281 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
+
+### Lo próximo, en orden
+1. **Integrar M5-A** en `main` + push (con aprobación).
+2. **M5-B · Comprobante de pago** (ya decidido por Diego): PDF con la marca de la clínica (folio R-0001, monto, forma de pago, presupuesto y **saldo restante**; no es factura) + envío por WhatsApp compartiendo el archivo. Reusar el patrón de M4-B: `src/pages/quotes/quotePdf.tsx`, `src/lib/quoteShare.ts`, `src/hooks/useQuotePdf.ts`, `src/pages/quotes/SendQuotePage.tsx`. Probablemente **sin migración**. Botones en el pago (Cobros, ficha › Pagos y el presupuesto) y al terminar de registrar.
+3. **M6 · Doctores y comisiones:** `payments.doctor_id` ya guarda a quién se atribuye cada pago. Modelo: `commission_schemes` (`percent_collected` / `chair_rent` / `fixed_per_procedure`) y `commission_entries` (por pago; por pagar / pagada). Comisiones **sobre lo cobrado**, nunca sobre lo presupuestado. Preguntar decisiones a Diego antes de la migración.
+4. **M8 · Tareas:** incluye «Recordarme si no responde» (presupuestos, P20) y «Tareas de hoy» en Mi día.
+5. Después: **E4** (procesos de punta a punta F1–F4), **E5** (M9 tablero con datos reales), **E6** integraciones (M11 Meta, link de pago con cuentas de la clínica —B6—, M13 perfil público, correo —B4—).
+6. **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada.
+
+### Datos ficticios que existen en dev (no son reales; no borrar sin permiso)
+- Clínica de Diego «Dientitos» (color #0E5E8A, sin logo cargado). Sucursal principal, sillones No.1 y No.2, horario 09:00–20:00.
+- «Paciente Ficticio Prueba» (`ce3d88e9-aac9-4ae1-8950-3e3b3059cddf`): documento «Radiografia ficticia», solicitud ARCO atendida, cita mar 17 nov 10:00 (confirmada), presupuesto **P-0001** (`cfdb8dde-71ab-49cd-b780-b7c739d0eb1b`, Endodoncia + Resina = $3,950, 6 meses con $1,000 de anticipo, **Aceptado**) y pago **R-0001** ($1,000, transferencia).
+- «Lead Ficticio Prueba» → convertido en un 2.º paciente (`9f76352f-4001-44cc-b7e0-57aae75550df`) con su valoración del mar 17 nov 11:00.
+- La guía de inicio de Diego está en 1/7: **él mismo desmarcó las tareas** el 17 nov (consta en la auditoría); no es un error.
+
+### Pendientes y decisiones de Diego (no bloquean E3)
+- **B4** correo transaccional · **protección de contraseñas filtradas** en Supabase Auth · **P5** revisión legal (avisos, contrato) · revisar con su contador el **precio sin desglose de IVA** (CFDI en Fase 2) · **B6** cuentas de Mercado Pago/Stripe para el link de pago (E6) · ¿permitir a la gerencia agendar **fuera de horario** con motivo? (hoy no se puede) · M2-B: vista de **solicitudes ARCO de toda la clínica** (propuesta) · arrastrar tarjetas en los Kanban y el horario por doctor (M6) quedan para después.
 
 ## Integración
 - 2026-11-19: E3 · M4-B Presupuestos (PDF y WhatsApp) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M4 Presupuestos completo.** Verificado en `main`: lint, typecheck, 274 pruebas (3 corridas), `test:db` (15 migraciones) y build; sin secretos.
@@ -18,6 +43,8 @@
 - 2026-11-16: E2-A, E2-B y E2-C integradas en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 177 pruebas, `test:db` (7 migraciones) y build; sin secretos.
 
 ## Fase actual
+> Historial de cada incremento. Todo lo de E1, E2 y E3 hasta **M4-B** ya está en `main`; solo **M5-A** sigue en su rama (ver «Punto de retorno»). Las ramas `feature/*` se conservan solo en local.
+
 | Fase | Estado |
 |---|---|
 | V0 Validación | Sin entrevistas aplicadas; scorecard preliminar 3.55 (AJUSTAR). Los cuestionarios son referencia, no requisito (decisión de Diego). |
@@ -418,6 +445,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 6. `npm audit` reporta 10 vulnerabilidades moderadas solo en dependencias de desarrollo (ESLint → minimatch). No afectan el build.
 
 ## Última tarea validada
+- E3 · M5-A Pagos aplicado en dev y revisado (2026-11-19); falta integrarlo en `main`.
 - Cierre de V3 y decisiones de infraestructura de E0.
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
