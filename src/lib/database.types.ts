@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0015 · 2026-11-18. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: payments, tenants.payment_seq, sus RPC y el enum payment_method (migración 0016) agregados a mano hasta aplicarla en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0016 · 2026-11-19. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -887,19 +886,19 @@ export type Database = {
           voided_by: string | null
         }
         Insert: {
-          amount?: number
+          amount: number
           created_at?: string
           doctor_id?: string | null
-          folio?: number
+          folio: number
           id?: string
-          method?: Database["public"]["Enums"]["payment_method"]
+          method: Database["public"]["Enums"]["payment_method"]
           notes?: string | null
           paid_at?: string
-          patient_id?: string
+          patient_id: string
           quote_id?: string | null
           reference?: string | null
           registered_by?: string | null
-          tenant_id?: string
+          tenant_id: string
           void_reason?: string | null
           voided_at?: string | null
           voided_by?: string | null
@@ -922,7 +921,36 @@ export type Database = {
           voided_at?: string | null
           voided_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payments_tenant_id_doctor_id_fkey"
+            columns: ["tenant_id", "doctor_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_tenant_id_patient_id_fkey"
+            columns: ["tenant_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "payments_tenant_id_quote_id_fkey"
+            columns: ["tenant_id", "quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
       }
       privacy_notices: {
         Row: {
@@ -1295,6 +1323,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          payment_seq: number
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1589,6 +1618,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          payment_seq: number
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1680,48 +1710,20 @@ export type Database = {
         Args: { p_day_start: string; p_month_start: string; p_tenant: string }
         Returns: Json
       }
+      quote_stats: {
+        Args: { p_doctor?: string; p_since: string; p_tenant: string }
+        Returns: Json
+      }
       receivables: {
         Args: { p_tenant: string }
         Returns: {
           balance: number
           full_name: string
-          last_payment_at: string | null
+          last_payment_at: string
           patient_id: string
-          phone_e164: string | null
+          phone_e164: string
           quotes: number
         }[]
-      }
-      register_payment: {
-        Args: {
-          p_amount: number
-          p_method: Database["public"]["Enums"]["payment_method"]
-          p_notes?: string
-          p_paid_at?: string
-          p_patient: string
-          p_quote?: string
-          p_reference?: string
-        }
-        Returns: Database["public"]["Tables"]["payments"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "payments"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      void_payment: {
-        Args: { p_payment: string; p_reason: string }
-        Returns: Database["public"]["Tables"]["payments"]["Row"]
-        SetofOptions: {
-          from: "*"
-          to: "payments"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      quote_stats: {
-        Args: { p_doctor?: string; p_since: string; p_tenant: string }
-        Returns: Json
       }
       register_document: {
         Args: {
@@ -1747,6 +1749,41 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "patient_documents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      register_payment: {
+        Args: {
+          p_amount: number
+          p_method: Database["public"]["Enums"]["payment_method"]
+          p_notes?: string
+          p_paid_at?: string
+          p_patient: string
+          p_quote?: string
+          p_reference?: string
+        }
+        Returns: {
+          amount: number
+          created_at: string
+          doctor_id: string | null
+          folio: number
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_at: string
+          patient_id: string
+          quote_id: string | null
+          reference: string | null
+          registered_by: string | null
+          tenant_id: string
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payments"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2270,6 +2307,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          payment_seq: number
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -2279,6 +2317,33 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "tenants"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      void_payment: {
+        Args: { p_payment: string; p_reason: string }
+        Returns: {
+          amount: number
+          created_at: string
+          doctor_id: string | null
+          folio: number
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_at: string
+          patient_id: string
+          quote_id: string | null
+          reference: string | null
+          registered_by: string | null
+          tenant_id: string
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payments"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -2313,18 +2378,18 @@ export type Database = {
         | "convertido"
         | "perdido"
       membership_status: "active" | "invited" | "revoked"
-      payment_method:
-        | "efectivo"
-        | "transferencia"
-        | "tarjeta_debito"
-        | "tarjeta_credito"
-        | "otro"
       patient_source:
         | "meta"
         | "perfil"
         | "referido"
         | "whatsapp"
         | "manual"
+        | "otro"
+      payment_method:
+        | "efectivo"
+        | "transferencia"
+        | "tarjeta_debito"
+        | "tarjeta_credito"
         | "otro"
       quote_status:
         | "borrador"
@@ -2495,13 +2560,19 @@ export const Constants = {
         "perdido",
       ],
       membership_status: ["active", "invited", "revoked"],
-      payment_method: ["efectivo", "transferencia", "tarjeta_debito", "tarjeta_credito", "otro"],
       patient_source: [
         "meta",
         "perfil",
         "referido",
         "whatsapp",
         "manual",
+        "otro",
+      ],
+      payment_method: [
+        "efectivo",
+        "transferencia",
+        "tarjeta_debito",
+        "tarjeta_credito",
         "otro",
       ],
       quote_status: [

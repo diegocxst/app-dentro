@@ -27,7 +27,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
-| **E3 · M5-A Pagos (registro, cobros y saldos)** | **EN_PRUEBAS** desde el 2026-11-19. Rama local `feature/e3-m5-pagos` (sin push). Migración 0016 **sin aplicar en dev** (pendiente de aprobación). |
+| **E3 · M5-A Pagos (registro, cobros y saldos)** | **EN_PRUEBAS** desde el 2026-11-19. Rama local `feature/e3-m5-pagos` (sin push). Migración 0016 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M4-B Presupuestos (PDF y WhatsApp)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4b-pdf-whatsapp` (sin push). **Sin migraciones.** |
 | **E3 · M4-A Presupuestos (crear, Kanban y ficha)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4-presupuestos` (sin push). Migración 0015 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **aplicada en dev** con aprobación de Diego. |
@@ -64,11 +64,12 @@ Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Do
 - **Ficha 360:** la tarjeta **Cuenta** muestra el saldo y lo pagado; pestaña **Pagos** con pagado, saldo por presupuesto, lista de pagos (anular para la gerencia) y «Registrar pago». Con esto **todas las pestañas de la ficha tienen contenido** (se quitaron los avisos «llega con…»).
 - **Presupuesto:** tarjeta **Pagos** (pagado, saldo, «Registrar pago», lista). **Kanban:** indicador «Cobrado en presupuestos» del mes. **Agenda:** «Registrar cobro» en el detalle de la cita (gerencia y recepción).
 - Suite `payments_rls_isolation.sql` (6 actores) y `test:db` con 16 migraciones en verde. **Pruebas de mutación:** recepción anulando, anticipo que no acepta el presupuesto y pago mayor al saldo → las 3 las detecta la suite.
-- 281 pruebas de la app (antes 274), estables en 3 corridas. `database.types.ts` con entradas **provisionales** de 0016.
-- **Sin revisión visual:** requiere aplicar 0016 en dev.
+- 281 pruebas de la app (antes 274), estables en 3 corridas.
+- **En dev (2026-11-19, aprobado por Diego):** migración 0016 aplicada (dry-run antes); las 16 suites en verde en el proyecto real; tipos regenerados (0001–0016); asesores sin avisos nuevos (solo las 5 RPC nuevas en el aviso esperado de SECURITY DEFINER).
+- **Revisión con la cuenta de Diego:** desde el presupuesto ficticio P-0001 se registró el **pago ficticio R-0001** (anticipo sugerido de $1,000, transferencia, nota «Pago ficticio de prueba»): el presupuesto pasó solo a **«Aceptado»**, muestra «Pagado $1,000 · Saldo $2,950» y el aviso al volver; **Cobros** muestra cobrado hoy y del mes $1,000, por cobrar $2,950 y el pago en la lista.
 
 ### Puntos para aprobación
-1. Aplicar la migración 0016 en dev (primero `--dry-run`), correr las 16 suites, regenerar tipos, revisar asesores y revisión visual registrando un pago ficticio al presupuesto P-0001.
+1. Aplicar la migración 0016 en dev: **aprobado y hecho** el 2026-11-19.
 2. **M5-B:** comprobante de pago en PDF con la marca de la clínica y envío por WhatsApp (como el presupuesto). El **link de pago** sigue en E6 (cuentas de la clínica, B6).
 
 ## E3 · M4-B — Presupuestos: PDF con la marca y envío por WhatsApp (EN_PRUEBAS)
@@ -421,7 +422,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M5-A Pagos:** aprobar y aplicar en dev (migración 0016), revisión visual, integrar en `main`. Después **M5-B** (comprobante PDF y WhatsApp).
+- **E3 · M5-A Pagos:** integrar en `main` y push (con aprobación de Diego). Después **M5-B** (comprobante PDF y WhatsApp).
 - Para revisar la app con datos usa `dentro-dev` (`localhost:5173`).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.
