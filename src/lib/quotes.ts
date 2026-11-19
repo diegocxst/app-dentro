@@ -70,5 +70,5 @@ export function followupTag(q: { status: QuoteStatus; sent_at: string | null; la
   return { text: `Sin respuesta ${days} ${days === 1 ? 'día' : 'días'}`, tone: days >= 7 ? 'error' : 'warning' }
 }
 
-export type QuoteStats = { won: number; decided: number; in_doubt_total: number; avg_ticket: number }
+export type QuoteStats = { won: number; decided: number; in_doubt_total: number; avg_ticket: number; collected?: number }
 export const PLAN_OPTIONS = [0, 6, 12, 18, 24] as const

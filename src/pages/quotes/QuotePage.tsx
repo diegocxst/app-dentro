@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
+import { PaymentList } from '@/components/payments/PaymentList'
 import { PatientPicker } from '@/components/patients/PatientPicker'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
@@ -14,8 +15,10 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { getPatientName } from '@/data/agenda'
 import { fetchTreatments, type Treatment } from '@/data/catalog'
 import { setGuideTask } from '@/data/onboarding'
+import { listQuotePayments, type Payment } from '@/data/payments'
 import { getQuote, markQuoteFollowup, saveQuote, setQuoteStatus, type QuoteCard, type QuoteItem } from '@/data/quotes'
 import { useDoctors } from '@/hooks/useDoctors'
+import { useFlashNotice } from '@/hooks/useFlashNotice'
 import { useQuotePdf } from '@/hooks/useQuotePdf'
 import { downloadBlob } from '@/lib/quoteShare'
 import { rpcErrorMessage } from '@/lib/errors'
@@ -94,7 +97,8 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   const [validUntil, setValidUntil] = useState(q?.valid_until ?? plusDays(30))
   const [notes, setNotes] = useState(q?.notes ?? '')
   const [error, setError] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
+  const flash = useFlashNotice()
+  const [notice, setNotice] = useState<string | null>(flash)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -187,6 +191,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <form onSubmit={(e) => void submit(e)} noValidate className="flex min-w-0 flex-col gap-6">
           {q && col && <StageCard quote={q} canWrite={canWrite} onChanged={onChanged} badge={<Badge tone={col.tone}>{col.label}</Badge>} />}
+          {q && !['borrador', 'perdido'].includes(q.status) && <QuotePayments quote={q} />}
 
           <Card as="section" aria-label="Paciente y doctor" className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -383,6 +388,46 @@ function PdfActions({ quote, items }: { quote: QuoteCard; items: QuoteItem[] }) 
         Enviar por WhatsApp
       </Link>
     </>
+  )
+}
+
+/** Pagos del presupuesto: pagado, saldo y «Registrar pago» (gerencia y recepción). */
+function QuotePayments({ quote }: { quote: QuoteCard }) {
+  const { active } = useWorkspace()
+  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  useEffect(() => {
+    let current = true
+    listQuotePayments(quote.id).then(
+      (p) => current && setPayments(p),
+      () => current && setPayments([]),
+    )
+    return () => {
+      current = false
+    }
+  }, [quote.id, attempt])
+  if (!payments) return null
+  const paid = payments.filter((p) => !p.voided_at).reduce((t, p) => t + Number(p.amount), 0)
+  const balance = Math.max(0, Number(quote.total) - paid)
+  const canRegister = ['owner', 'admin', 'reception'].includes(active?.role ?? '') && active?.tenant.status === 'active'
+  const canVoid = ['owner', 'admin'].includes(active?.role ?? '') && active?.tenant.status === 'active'
+  return (
+    <Card as="section" aria-labelledby="cobros-presupuesto" className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="cobros-presupuesto" className="m-0 text-subtitle">
+          Pagos
+        </h2>
+        <span className="text-ui">
+          Pagado <span className="font-semibold">{money(paid)}</span> · Saldo <span className={balance > 0 ? 'font-semibold text-warning' : 'font-semibold'}>{money(balance)}</span>
+        </span>
+      </div>
+      {canRegister && balance > 0 && (
+        <Link to={`/cobros/nuevo?paciente=${quote.patient_id}&presupuesto=${quote.id}&volver=/presupuestos/${quote.id}`} className={buttonClasses('primary', 'sm', 'self-start')}>
+          Registrar pago
+        </Link>
+      )}
+      <PaymentList payments={payments} canVoid={canVoid} onChanged={() => setAttempt((n) => n + 1)} label="Pagos del presupuesto" />
+    </Card>
   )
 }
 

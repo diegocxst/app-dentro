@@ -34,6 +34,8 @@ import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
+import { CobrosPage } from '@/pages/payments/CobrosPage'
+import { RegisterPaymentPage } from '@/pages/payments/RegisterPaymentPage'
 import { QuotePage } from '@/pages/quotes/QuotePage'
 import { QuotesPage } from '@/pages/quotes/QuotesPage'
 import { SendQuotePage } from '@/pages/quotes/SendQuotePage'
@@ -89,7 +91,7 @@ export const routes: RouteObject[] = [
           </RequireClinic>
         ),
         children: [
-          ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes' && s.id !== 'agenda' && s.id !== 'leads' && s.id !== 'presupuestos').map((s): RouteObject =>
+          ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes' && s.id !== 'agenda' && s.id !== 'leads' && s.id !== 'presupuestos' && s.id !== 'cobros').map((s): RouteObject =>
             s.path === '/' ? { index: true, element: <HomePage /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
           ),
           { path: 'agenda', element: <AgendaPage /> },
@@ -103,6 +105,8 @@ export const routes: RouteObject[] = [
           { path: 'presupuestos/nuevo', element: <QuotePage /> },
           { path: 'presupuestos/:id', element: <QuotePage /> },
           { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
+          { path: 'cobros', element: <CobrosPage /> },
+          { path: 'cobros/nuevo', element: <RegisterPaymentPage /> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

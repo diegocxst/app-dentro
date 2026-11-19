@@ -245,12 +245,22 @@ export function AppointmentDetail({
         )}
 
         {a.patient_id ? (
-          <Link
-            to={`/pacientes/${a.patient_id}`}
-            className={buttonClasses("ghost", "md", "self-start")}
-          >
-            Abrir ficha del paciente
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to={`/pacientes/${a.patient_id}`}
+              className={buttonClasses("ghost", "md")}
+            >
+              Abrir ficha del paciente
+            </Link>
+            {canSeeLeads && canWrite && (
+              <Link
+                to={`/cobros/nuevo?paciente=${a.patient_id}`}
+                className={buttonClasses("secondary", "md")}
+              >
+                Registrar cobro
+              </Link>
+            )}
+          </div>
         ) : a.lead_id && canSeeLeads ? (
           <div className="flex flex-wrap gap-2">
             <Link

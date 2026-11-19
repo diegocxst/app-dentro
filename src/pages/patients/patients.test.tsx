@@ -145,14 +145,6 @@ describe('P15 · ficha del paciente', () => {
     expect(await screen.findByText('Le preocupa el precio')).toBeInTheDocument()
   })
 
-  it('las pestañas de módulos futuros explican qué va ahí', async () => {
-    const user = userEvent.setup()
-    seedPatients(1)
-    await renderApp('/pacientes/p-1')
-    await user.click(await screen.findByRole('tab', { name: 'Pagos' }))
-    expect(screen.getByText(/cuando llegue Cobros/)).toBeInTheDocument()
-  })
-
   it('recepción archiva; un doctor no ve el botón', async () => {
     const user = userEvent.setup()
     seedPatients(1)

@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0015 · 2026-11-18. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: payments, tenants.payment_seq, sus RPC y el enum payment_method (migración 0016) agregados a mano hasta aplicarla en dev.
 export type Json =
   | string
   | number
@@ -866,6 +867,63 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          doctor_id: string | null
+          folio: number
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_at: string
+          patient_id: string
+          quote_id: string | null
+          reference: string | null
+          registered_by: string | null
+          tenant_id: string
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          doctor_id?: string | null
+          folio?: number
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_at?: string
+          patient_id?: string
+          quote_id?: string | null
+          reference?: string | null
+          registered_by?: string | null
+          tenant_id?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          doctor_id?: string | null
+          folio?: number
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_at?: string
+          patient_id?: string
+          quote_id?: string | null
+          reference?: string | null
+          registered_by?: string | null
+          tenant_id?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Relationships: []
+      }
       privacy_notices: {
         Row: {
           created_at: string
@@ -1079,6 +1137,7 @@ export type Database = {
           owner_display_name: string
           owner_title: string
           patient_notice_version: string
+          payment_seq: number
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1098,6 +1157,7 @@ export type Database = {
           owner_display_name?: string
           owner_title?: string
           patient_notice_version?: string
+          payment_seq?: number
           quote_seq?: number
           slug: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -1117,6 +1177,7 @@ export type Database = {
           owner_display_name?: string
           owner_title?: string
           patient_notice_version?: string
+          payment_seq?: number
           quote_seq?: number
           slug?: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -1614,6 +1675,50 @@ export type Database = {
         }
       }
       open_patient: { Args: { p_patient: string }; Returns: Json }
+      patient_account: { Args: { p_patient: string }; Returns: Json }
+      payment_stats: {
+        Args: { p_day_start: string; p_month_start: string; p_tenant: string }
+        Returns: Json
+      }
+      receivables: {
+        Args: { p_tenant: string }
+        Returns: {
+          balance: number
+          full_name: string
+          last_payment_at: string | null
+          patient_id: string
+          phone_e164: string | null
+          quotes: number
+        }[]
+      }
+      register_payment: {
+        Args: {
+          p_amount: number
+          p_method: Database["public"]["Enums"]["payment_method"]
+          p_notes?: string
+          p_paid_at?: string
+          p_patient: string
+          p_quote?: string
+          p_reference?: string
+        }
+        Returns: Database["public"]["Tables"]["payments"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      void_payment: {
+        Args: { p_payment: string; p_reason: string }
+        Returns: Database["public"]["Tables"]["payments"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       quote_stats: {
         Args: { p_doctor?: string; p_since: string; p_tenant: string }
         Returns: Json
@@ -2208,6 +2313,12 @@ export type Database = {
         | "convertido"
         | "perdido"
       membership_status: "active" | "invited" | "revoked"
+      payment_method:
+        | "efectivo"
+        | "transferencia"
+        | "tarjeta_debito"
+        | "tarjeta_credito"
+        | "otro"
       patient_source:
         | "meta"
         | "perfil"
@@ -2384,6 +2495,7 @@ export const Constants = {
         "perdido",
       ],
       membership_status: ["active", "invited", "revoked"],
+      payment_method: ["efectivo", "transferencia", "tarjeta_debito", "tarjeta_credito", "otro"],
       patient_source: [
         "meta",
         "perfil",

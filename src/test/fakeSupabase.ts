@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -233,6 +233,50 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: {}, error: null })
   }
   if (fn === 'accept_my_invitations') return Promise.resolve({ data: 0, error: null })
+  if (fn === 'register_payment' || fn === 'void_payment' || fn === 'patient_account' || fn === 'payment_stats' || fn === 'receivables') {
+    const paidOf = (qid: unknown) => fakeDb.payments.filter((x) => x.quote_id === qid && !x.voided_at).reduce((t, x) => t + Number(x.amount), 0)
+    if (fn === 'register_payment') {
+      const q = fakeDb.quotes.find((x) => x.id === args.p_quote)
+      if (q && Number(args.p_amount) > Number(q.total) - paidOf(q.id)) return Promise.resolve({ data: null, error: { code: '22023', message: 'saldo' } })
+      const row = {
+        id: `pay-${fakeDb.payments.length + 1}`, tenant_id: TENANT_ID, folio: fakeDb.payments.length + 1, patient_id: args.p_patient, quote_id: args.p_quote ?? null,
+        doctor_id: q?.doctor_id ?? null, amount: args.p_amount, method: args.p_method, paid_at: args.p_paid_at ?? '2026-11-19T12:00:00Z', reference: args.p_reference ?? null,
+        notes: args.p_notes ?? null, registered_by: 'u-1', created_at: '2026-11-19T12:00:00Z', voided_at: null, voided_by: null, void_reason: null,
+      }
+      fakeDb.payments.push(row)
+      if (q && (q.status === 'presentado' || q.status === 'en_duda')) q.status = 'aceptado'
+      return Promise.resolve({ data: row, error: null })
+    }
+    if (fn === 'void_payment') {
+      const pay = fakeDb.payments.find((x) => x.id === args.p_payment)
+      if (!pay) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
+      Object.assign(pay, { voided_at: '2026-11-19T13:00:00Z', void_reason: args.p_reason })
+      return Promise.resolve({ data: pay, error: null })
+    }
+    const open = (pid?: unknown) =>
+      fakeDb.quotes
+        .filter((q) => (!pid || q.patient_id === pid) && ['presentado', 'en_duda', 'aceptado', 'en_tratamiento', 'terminado'].includes(String(q.status)))
+        .map((q): Row => ({ ...q, paid: paidOf(q.id), balance: Number(q.total) - paidOf(q.id) }))
+    const won = (q: Row) => ['aceptado', 'en_tratamiento', 'terminado'].includes(String(q.status))
+    if (fn === 'patient_account') {
+      const qs = open(args.p_patient)
+      const paid = fakeDb.payments.filter((x) => x.patient_id === args.p_patient && !x.voided_at).reduce((t, x) => t + Number(x.amount), 0)
+      return Promise.resolve({ data: { quotes: qs, paid_total: paid, balance: qs.filter(won).reduce((t, q) => t + Number(q.balance), 0), last_payment_at: null }, error: null })
+    }
+    if (fn === 'payment_stats') {
+      const sum = fakeDb.payments.filter((x) => !x.voided_at).reduce((t, x) => t + Number(x.amount), 0)
+      return Promise.resolve({ data: { today: sum, month: sum, month_count: fakeDb.payments.filter((x) => !x.voided_at).length, receivable: open().filter(won).reduce((t, q) => t + Number(q.balance), 0) }, error: null })
+    }
+    const byPatient = new Map<unknown, number>()
+    for (const q of open().filter(won)) byPatient.set(q.patient_id, (byPatient.get(q.patient_id) ?? 0) + Number(q.balance))
+    return Promise.resolve({
+      data: [...byPatient].filter(([, b]) => b > 0).map(([pid, balance]) => {
+        const p = fakeDb.patients.find((x) => x.id === pid)
+        return { patient_id: pid, full_name: p?.full_name ?? '', phone_e164: p?.phone_e164 ?? null, balance, quotes: 1, last_payment_at: null }
+      }),
+      error: null,
+    })
+  }
   if (fn === 'save_quote') {
     const items = (args.p_items as Row[]) ?? []
     if (items.length === 0) return Promise.resolve({ data: null, error: { code: '22023', message: 'partidas' } })

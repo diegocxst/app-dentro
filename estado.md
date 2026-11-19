@@ -27,6 +27,7 @@
 | **E0 Auditoría y planificación** | ✅ **Cerrada el 2026-11-15** (auditoría E0-A aprobada con D1–D8). |
 | **E1 Fundamentos y seguridad** | ✅ **Cerrada el 2026-11-15** por Diego, con B4 (correo transaccional) pendiente. |
 | **E2 Interfaz y estructura** | ✅ **Cerrada el 2026-11-16** por Diego (E2-A, E2-B y E2-C en `main` y en GitHub). |
+| **E3 · M5-A Pagos (registro, cobros y saldos)** | **EN_PRUEBAS** desde el 2026-11-19. Rama local `feature/e3-m5-pagos` (sin push). Migración 0016 **sin aplicar en dev** (pendiente de aprobación). |
 | **E3 · M4-B Presupuestos (PDF y WhatsApp)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4b-pdf-whatsapp` (sin push). **Sin migraciones.** |
 | **E3 · M4-A Presupuestos (crear, Kanban y ficha)** | **EN_PRUEBAS** desde el 2026-11-18. Rama local `feature/e3-m4-presupuestos` (sin push). Migración 0015 **aplicada en dev** con aprobación de Diego. |
 | **E3 · M1-B Leads (valoración y conversión)** | **EN_PRUEBAS** desde el 2026-11-16. Rama local `feature/e3-m1b-conversion` (sin push). Migración 0014 **aplicada en dev** con aprobación de Diego. |
@@ -54,6 +55,21 @@ E2 se divide en **E2-A** inicio de primer uso (guía, recorrido, indicadores vac
 
 ## E3 — Módulos esenciales
 Uno por uno, según el roadmap: 1) M10 Configuración · 2) M2 Pacientes + M7 Documentos · 3) M3 Agenda · 4) M1 Leads · 5) M4 Presupuestos + PDF · 6) M5 Pagos · 7) M6 Doctores y comisiones · 8) M8 Tareas.
+
+## E3 · M5-A — Pagos: registro, cobros y saldos (EN_PRUEBAS)
+- **Migración 0016** `20261119000100_payments`: `payments` (folio por clínica R-0001…, paciente, presupuesto opcional, doctor al que se atribuye —el del presupuesto o el tratante, base de comisiones de M6—, monto, forma de pago, fecha, referencia, nota, anulación con motivo). RPC `register_payment`, `void_payment`, `patient_account`, `payment_stats`, `receivables`; `quote_stats` ahora incluye lo cobrado.
+- **Reglas en la base:** registran **gerencia y recepción**; el doctor **ve los pagos de sus pacientes** pero no registra ni ve totales o saldos de la clínica; superadmin y otras clínicas, nada. **No se borran: la gerencia los anula con motivo** (dejan de contar). Un pago **no supera el saldo** del presupuesto; un borrador o perdido no se cobra; sin fechas futuras ni de hace más de un año. **El primer pago de un presupuesto presentado o en duda lo pasa a «Aceptado».** Abonos sueltos sin presupuesto permitidos. Auditoría sin montos ni datos del paciente.
+- **P21 Cobros (`/cobros`):** cobrado hoy, cobrado este mes (con número de pagos) y **por cobrar**; pestañas **Pagos** (paginados en el servidor, 25) y **Saldos** (pacientes con saldo y «Registrar pago»). Doctores: mensaje explicativo.
+- **P22 Registrar pago (`/cobros/nuevo`):** paciente, presupuesto con saldo (o abono suelto), **monto sugerido** (el anticipo si no hay pagos, luego la mensualidad, nunca más que el saldo), forma de pago (efectivo, transferencia, débito, crédito, otro), fecha, referencia y nota; avisa si aceptará el presupuesto. Vuelve a donde se abrió con «Listo. Registramos el pago R-0001 por $5,000.»
+- **Ficha 360:** la tarjeta **Cuenta** muestra el saldo y lo pagado; pestaña **Pagos** con pagado, saldo por presupuesto, lista de pagos (anular para la gerencia) y «Registrar pago». Con esto **todas las pestañas de la ficha tienen contenido** (se quitaron los avisos «llega con…»).
+- **Presupuesto:** tarjeta **Pagos** (pagado, saldo, «Registrar pago», lista). **Kanban:** indicador «Cobrado en presupuestos» del mes. **Agenda:** «Registrar cobro» en el detalle de la cita (gerencia y recepción).
+- Suite `payments_rls_isolation.sql` (6 actores) y `test:db` con 16 migraciones en verde. **Pruebas de mutación:** recepción anulando, anticipo que no acepta el presupuesto y pago mayor al saldo → las 3 las detecta la suite.
+- 281 pruebas de la app (antes 274), estables en 3 corridas. `database.types.ts` con entradas **provisionales** de 0016.
+- **Sin revisión visual:** requiere aplicar 0016 en dev.
+
+### Puntos para aprobación
+1. Aplicar la migración 0016 en dev (primero `--dry-run`), correr las 16 suites, regenerar tipos, revisar asesores y revisión visual registrando un pago ficticio al presupuesto P-0001.
+2. **M5-B:** comprobante de pago en PDF con la marca de la clínica y envío por WhatsApp (como el presupuesto). El **link de pago** sigue en E6 (cuentas de la clínica, B6).
 
 ## E3 · M4-B — Presupuestos: PDF con la marca y envío por WhatsApp (EN_PRUEBAS)
 - **PDF con la identidad de la clínica** (`@react-pdf/renderer`, se carga solo al usarlo): franja con el **color de marca** (ya garantiza contraste con blanco) y el **logo** (PNG, JPG o **WebP convertido a PNG** en el navegador; si no hay o falla, las iniciales), nombre, dirección de la sucursal y WhatsApp; folio y fecha; paciente, doctor y tratamiento; partidas con nota (descuentos en verde), total, plan de pagos, vigencia («Precios en MXN.»), notas y pie con «página X de Y · hecho con dentro». Nombre de archivo limpio: «Presupuesto P-0142 Laura Mendez.pdf».
@@ -405,7 +421,7 @@ Por indicación de Diego se adelantó el esqueleto del frontend mientras sigue p
 - Borradores de `docs/arquitectura.md`, `docs/modelo-datos.md` y `docs/roadmap-tecnico.md`.
 
 ## Siguiente tarea
-- **E3 · M5 Pagos (registro)** (siguiente módulo del roadmap).
+- **E3 · M5-A Pagos:** aprobar y aplicar en dev (migración 0016), revisión visual, integrar en `main`. Después **M5-B** (comprobante PDF y WhatsApp).
 - Para revisar la app con datos usa `dentro-dev` (`localhost:5173`).
 - **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada (validación con dentistas).
 - **B4 (Diego):** elegir proveedor de correo transaccional para que confirmaciones, recuperación e invitaciones lleguen a cualquier correo.

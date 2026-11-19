@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/Button'
 import { buttonClasses } from '@/components/ui/button-styles'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
-import type { IconName } from '@/components/ui/Icon'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { addPatientNote, openPatient, setPatientArchived, type PatientRecord } from '@/data/patients'
 import { useDoctors } from '@/hooks/useDoctors'
+import { useFlashNotice } from '@/hooks/useFlashNotice'
 import { cn } from '@/lib/cn'
 import { rpcErrorMessage } from '@/lib/errors'
 import { ageFrom, sourceLabel } from '@/lib/patients'
@@ -19,14 +19,12 @@ import { useWorkspace } from '@/workspace/workspace-context'
 import { DocumentsTab } from './DocumentsTab'
 import { usePatientAppointments } from '@/hooks/usePatientAppointments'
 import { AppointmentsTab, NextAppointment } from './PatientAppointments'
+import { AccountSummary, PatientPayments } from './PatientPayments'
 import { PatientQuotes } from './PatientQuotes'
 import { PrivacyCard } from './PrivacyCard'
 
 type Tab = 'resumen' | 'citas' | 'presupuestos' | 'pagos' | 'documentos' | 'notas'
 
-const SOON: Record<Exclude<Tab, 'resumen' | 'notas' | 'documentos' | 'citas' | 'presupuestos'>, { icon: IconName; title: string; text: string }> = {
-  pagos: { icon: 'cobros', title: 'Pagos', text: 'Los pagos y el saldo del paciente aparecerán aquí cuando llegue Cobros.' },
-}
 
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
 const dateTimeFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -40,7 +38,8 @@ export function PatientPage() {
   const [error, setError] = useState<'not_found' | 'load' | null>(null)
   const [attempt, setAttempt] = useState(0)
   const [tab, setTab] = useState<Tab>('resumen')
-  const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
+  const flash = useFlashNotice()
+  const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(flash ? { tone: 'success', text: flash } : null)
   const [docCount, setDocCount] = useState<number | undefined>(undefined)
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
   const appts = usePatientAppointments(id)
@@ -197,6 +196,13 @@ export function PatientPage() {
           />
         )}
         {tab === 'presupuestos' && <PatientQuotes patientId={p.id} canCreate={active?.tenant.status === 'active' && !p.archived_at} />}
+        {tab === 'pagos' && (
+          <PatientPayments
+            patientId={p.id}
+            canRegister={['owner', 'admin', 'reception'].includes(active?.role ?? '') && active?.tenant.status === 'active'}
+            canVoid={['owner', 'admin'].includes(active?.role ?? '') && active?.tenant.status === 'active'}
+          />
+        )}
         {tab === 'notas' && <Notes record={record} onAdded={reload} />}
         {tab === 'documentos' && active && (
           <DocumentsTab
@@ -207,7 +213,6 @@ export function PatientPage() {
             onCount={setDocCount}
           />
         )}
-        {tab !== 'resumen' && tab !== 'notas' && tab !== 'documentos' && tab !== 'citas' && tab !== 'presupuestos' && <EmptyState icon={SOON[tab].icon} title={SOON[tab].title} description={SOON[tab].text} />}
       </div>
     </div>
   )
@@ -223,7 +228,7 @@ function Summary({ record, onNotes, next, children }: { record: PatientRecord; o
       </Card>
       <Card className="flex flex-col gap-1">
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Cuenta</span>
-        <span className="text-ui text-ink-muted">El saldo aparece cuando registres pagos.</span>
+        <AccountSummary patientId={record.patient.id} />
       </Card>
       <Card className="flex flex-col gap-1">
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Consentimiento</span>

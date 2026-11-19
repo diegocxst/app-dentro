@@ -56,6 +56,7 @@ export function QuotesPage() {
     { label: 'Tasa de aceptación', value: rate, hint: 'Del mes, entre los ya decididos' },
     { label: 'En duda, por recuperar', value: stats ? money(stats.in_doubt_total) : '—', alert: Boolean(stats?.in_doubt_total) },
     { label: 'Ticket promedio', value: stats && stats.avg_ticket > 0 ? money(stats.avg_ticket) : '—', hint: 'Aceptados del mes' },
+    { label: 'Cobrado en presupuestos', value: stats ? money(Number(stats.collected ?? 0)) : '—', hint: 'Anticipos y abonos del mes' },
   ]
 
   return (
@@ -78,7 +79,7 @@ export function QuotesPage() {
         <Skeleton className="h-96 w-full" label="Cargando presupuestos" />
       ) : (
         <div className="flex flex-col gap-6">
-          <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <dl className="m-0 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {kpis.map((k) => (
               <div key={k.label} className="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
                 <dt className="text-caption text-ink-muted">{k.label}</dt>
