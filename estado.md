@@ -17,6 +17,9 @@
 5. Después: **E4** (procesos de punta a punta F1–F4), **E5** (M9 tablero con datos reales), **E6** integraciones (M11 Meta, link de pago con cuentas de la clínica —B6—, M13 perfil público, correo —B4—).
 6. **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada.
 
+### Observaciones de Diego (2026-11-20)
+- Anotadas y clasificadas en `docs/observaciones.md` (9 al momento). Propuesta: paquete de **Ajustes** (1 recorrido que señala cada parte, 2 logo hasta 20 MB reducido en el navegador, 4 «Unidad dental», 6 vista mensual, 9 menú hamburguesa en móvil) después de integrar M5-A; **por decidir** 3 (límites por plan), 5 (Google Calendar), 7 (landing y prueba de 30 días) y 8 (anuncios).
+
 ### Datos ficticios que existen en dev (no son reales; no borrar sin permiso)
 - Clínica de Diego «Dientitos» (color #0E5E8A, sin logo cargado). Sucursal principal, sillones No.1 y No.2, horario 09:00–20:00.
 - «Paciente Ficticio Prueba» (`ce3d88e9-aac9-4ae1-8950-3e3b3059cddf`): documento «Radiografia ficticia», solicitud ARCO atendida, cita mar 17 nov 10:00 (confirmada), presupuesto **P-0001** (`cfdb8dde-71ab-49cd-b780-b7c739d0eb1b`, Endodoncia + Resina = $3,950, 6 meses con $1,000 de anticipo, **Aceptado**) y pago **R-0001** ($1,000, transferencia).

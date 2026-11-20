@@ -1,0 +1,17 @@
+# Observaciones de Diego
+
+Bandeja de cambios que Diego anota al usar la app. Cada una se clasifica; **nada que cambie el alcance entra sin su aprobación** (CLAUDE.md › Alcance).
+
+Etapas: **Ajustes** = arreglo o mejora dentro del alcance actual, se hace pronto · **Decidir** = necesita decisión de Diego antes · **Fase 2+** = fuera del MVP congelado (entra antes solo con aprobación).
+
+| # | Fecha | Observación | Qué implica | Propuesta | Estado |
+|---|---|---|---|---|---|
+| 1 | 2026-11-20 | El recorrido de bienvenida no se mueve: debe señalar cada parte que explica («Nuevo», menú, búsqueda, guía). | Hoy es un cuadro fijo en el centro (`TourDialog`). | **Ajustes:** recorrido que resalta el elemento real de cada paso (escritorio y móvil). | Propuesta |
+| 2 | 2026-11-20 | Subir logos de más de 1 MB (hasta 20 MB). | El límite está en la app y en el bucket (1 MB). | **Ajustes:** aceptar archivos de hasta 20 MB y **reducirlos en el navegador** (512 px) antes de subir; así se guarda ligero y el PDF y el menú cargan rápido. Sin cambiar el bucket. | Propuesta |
+| 3 | 2026-11-20 | Límites por tipo de cuenta. **Clínica:** dueño + hasta 4 dentistas por consultorio y hasta 3 consultorios; más con costo extra. **Consultorio / dentista independiente:** 1 consultorio y 1 dentista extra; hasta +3 doctores con costo extra. | Ya existe el tipo de cuenta (`clinic` / `independent`). Hay que contar doctores y sucursales al invitar y al crear sucursal. Cobrar los extras requiere facturación (Stripe, B6 y empresa propia). Toca V1 (pricing, P6). | **Decidir:** aplicar ya los **límites** (configurables por clínica, para poder subirlos a mano mientras no hay cobro) y dejar el **cobro de extras** para la facturación (C1). Confirmar qué roles cuentan como «dentista». | Por decidir |
+| 4 | 2026-11-20 | Cambiar «Sillón» por «Unidad dental». | Solo textos (10 archivos); la base se queda igual (`chairs`). | **Ajustes.** | Propuesta |
+| 5 | 2026-11-20 | Conectar Google Calendar con la agenda. | Integración nueva (OAuth de Google, revisión de la app por Google). Enviar citas a Google saca datos de salud a otro servicio (aviso de privacidad, LFPDPPP). No está en M1–M13. | **Fase 2+** o **E6** si se aprueba en el alcance. Sugerencia: solo de dentro → Google y sin datos clínicos (p. ej. «Cita · iniciales»). | Por decidir |
+| 6 | 2026-11-20 | Vista mensual en la agenda. | Una vista más junto a Día, Semana y Por sillón. | **Ajustes** (M3-C). | Propuesta |
+| 7 | 2026-11-20 | Landing para presentar la app y contratar la membresía (Clínica o Consultorio) con 30 días gratis. | Sitio público de dentro + alta con plan y prueba. El cobro necesita Stripe y empresa propia (B6) y el pricing (V1/P6). Distinto de M13 (perfil público de cada clínica). | **Decidir:** la landing y el periodo de prueba antes del lanzamiento (E9/C1); el cobro cuando exista B6. | Por decidir |
+| 8 | 2026-11-20 | Página de anuncios: la ven superadmin, dueños y recepción. Sirve para anuncios a los doctores y para que la plataforma publique anuncios o publicidad. | Módulo nuevo (no está en M1–M13). Si la ven dueños y recepción pero los anuncios son «para los doctores», hay que aclarar quién los lee. | **Fase 2+** o entra al alcance con aprobación (es pequeño). Aclarar destinatarios. | Por decidir |
+| 9 | 2026-11-20 | En móvil, un botón de hamburguesa que abra el menú lateral completo. | Hoy hay barra inferior + «Más». | **Ajustes:** menú lateral deslizable en móvil (se conserva la barra inferior y «+ Nuevo»). | Propuesta |
