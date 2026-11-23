@@ -1,5 +1,6 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0016 · 2026-11-19. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: se agregaron a mano los tipos de 0017 (comisiones) hasta aplicar la migración y regenerar.
 export type Json =
   | string
   | number
@@ -16,6 +17,132 @@ export type Database = {
   }
   public: {
     Tables: {
+      commission_entries: {
+        Row: {
+          amount: number
+          base: number
+          created_at: string
+          doctor_id: string
+          id: string
+          kind: Database["public"]["Enums"]["commission_entry_kind"]
+          payment_id: string
+          payout_id: string | null
+          period_date: string
+          rate: number
+          scheme_id: string | null
+          tenant_id: string
+          voided_at: string | null
+        }
+        Insert: {
+          amount: number
+          base: number
+          created_at?: string
+          doctor_id: string
+          id?: string
+          kind?: Database["public"]["Enums"]["commission_entry_kind"]
+          payment_id: string
+          payout_id?: string | null
+          period_date: string
+          rate: number
+          scheme_id?: string | null
+          tenant_id: string
+          voided_at?: string | null
+        }
+        Update: {
+          amount?: number
+          base?: number
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["commission_entry_kind"]
+          payment_id?: string
+          payout_id?: string | null
+          period_date?: string
+          rate?: number
+          scheme_id?: string | null
+          tenant_id?: string
+          voided_at?: string | null
+        }
+        Relationships: []
+      }
+      commission_payouts: {
+        Row: {
+          commissions: number
+          doctor_id: string
+          id: string
+          notes: string | null
+          paid_at: string
+          paid_by: string | null
+          period_from: string
+          period_to: string
+          rent: number
+          tenant_id: string
+          total: number
+        }
+        Insert: {
+          commissions: number
+          doctor_id: string
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          paid_by?: string | null
+          period_from: string
+          period_to: string
+          rent?: number
+          tenant_id: string
+          total: number
+        }
+        Update: {
+          commissions?: number
+          doctor_id?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          paid_by?: string | null
+          period_from?: string
+          period_to?: string
+          rent?: number
+          tenant_id?: string
+          total?: number
+        }
+        Relationships: []
+      }
+      commission_schemes: {
+        Row: {
+          created_by: string | null
+          ended_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["commission_kind"]
+          membership_id: string
+          percent: number | null
+          rent_amount: number | null
+          started_at: string
+          tenant_id: string
+        }
+        Insert: {
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["commission_kind"]
+          membership_id: string
+          percent?: number | null
+          rent_amount?: number | null
+          started_at?: string
+          tenant_id: string
+        }
+        Update: {
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["commission_kind"]
+          membership_id?: string
+          percent?: number | null
+          rent_amount?: number | null
+          started_at?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       account_consents: {
         Row: {
           accepted_at: string
@@ -1166,6 +1293,7 @@ export type Database = {
           owner_title: string
           patient_notice_version: string
           payment_seq: number
+          commission_period: string
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1186,6 +1314,7 @@ export type Database = {
           owner_title?: string
           patient_notice_version?: string
           payment_seq?: number
+          commission_period?: string
           quote_seq?: number
           slug: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -1206,6 +1335,7 @@ export type Database = {
           owner_title?: string
           patient_notice_version?: string
           payment_seq?: number
+          commission_period?: string
           quote_seq?: number
           slug?: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -1263,6 +1393,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      commission_lines: {
+        Args: {
+          p_doctor: string
+          p_from: string
+          p_limit?: number
+          p_offset?: number
+          p_to: string
+        }
+        Returns: Json
+      }
+      commission_summary: {
+        Args: { p_from: string; p_tenant: string; p_to: string }
+        Returns: {
+          collected: number
+          commission: number
+          doctor_id: string
+          full_name: string
+          last_paid_at: string
+          paid: number
+          patients: number
+          pending: number
+          percent: number
+          rent_amount: number
+          rent_due: number
+          role: Database["public"]["Enums"]["tenant_role"]
+          scheme_kind: Database["public"]["Enums"]["commission_kind"]
+        }[]
+      }
+      pay_commissions: {
+        Args: { p_doctor: string; p_from: string; p_notes?: string; p_to: string }
+        Returns: Database["public"]["Tables"]["commission_payouts"]["Row"]
+      }
+      set_commission_period: {
+        Args: { p_period: string; p_tenant: string }
+        Returns: Database["public"]["Tables"]["tenants"]["Row"]
+      }
+      set_commission_scheme: {
+        Args: {
+          p_kind?: Database["public"]["Enums"]["commission_kind"]
+          p_membership: string
+          p_percent?: number
+          p_rent?: number
+        }
+        Returns: Database["public"]["Tables"]["commission_schemes"]["Row"]
+      }
       accept_my_invitations: { Args: never; Returns: number }
       accept_privacy_notice: {
         Args: {
@@ -1324,6 +1499,7 @@ export type Database = {
           owner_title: string
           patient_notice_version: string
           payment_seq: number
+          commission_period: string
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1619,6 +1795,7 @@ export type Database = {
           owner_title: string
           patient_notice_version: string
           payment_seq: number
+          commission_period: string
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -2308,6 +2485,7 @@ export type Database = {
           owner_title: string
           patient_notice_version: string
           payment_seq: number
+          commission_period: string
           quote_seq: number
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -2350,6 +2528,8 @@ export type Database = {
       }
     }
     Enums: {
+      commission_entry_kind: "comision" | "ajuste"
+      commission_kind: "percent_collected" | "chair_rent"
       appointment_kind: "valoracion" | "tratamiento" | "revision"
       appointment_status:
         | "programada"
@@ -2529,6 +2709,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      commission_entry_kind: ["comision", "ajuste"],
+      commission_kind: ["percent_collected", "chair_rent"],
       appointment_kind: ["valoracion", "tratamiento", "revision"],
       appointment_status: [
         "programada",

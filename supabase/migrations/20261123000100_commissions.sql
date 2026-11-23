@@ -267,7 +267,8 @@ begin
 end;
 $$;
 
--- Resumen del periodo (P28). Gerencia: todos los doctores. Un doctor: solo su fila.
+-- Resumen del periodo (P28). Gerencia: todos los doctores activos (con o sin esquema,
+-- para poder asignarlo). Un doctor: solo su fila.
 -- «rent_due»: la renta del periodo si todavía no se cobró en un pago a ese doctor.
 create or replace function public.commission_summary(p_tenant uuid, p_from date, p_to date)
 returns table (
@@ -327,7 +328,6 @@ begin
     left join public.commission_schemes s on s.tenant_id = p_tenant and s.membership_id = d.id and s.ended_at is null
     left join pay on pay.doctor_id = d.id
     left join ent on ent.doctor_id = d.id
-    where s.id is not null or pay.doctor_id is not null or ent.doctor_id is not null
     order by coalesce(pay.collected, 0) desc, d.name
     limit 200;
 end;

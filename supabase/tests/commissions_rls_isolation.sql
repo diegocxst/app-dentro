@@ -128,9 +128,10 @@ select pg_temp.assert_true((select amount = 500 from public.commission_entries w
 select pg_temp.assert_true((select amount = 2000 from public.commission_entries where payment_id = pg_temp.v('x1')), 'lo anterior no cambia');
 
 select pg_temp.assert_true(
-  (select count(*) = 2
+  (select count(*) = 3
      and bool_and(case when doctor_id = pg_temp.v('d1') then collected = 6700 and commission = 2500 and pending = 2500 and patients = 1 and rent_due = 0
-                       else collected = 1000 and commission = 1000 and rent_due = 3000 end)
+                       when doctor_id = pg_temp.v('d2') then collected = 1000 and commission = 1000 and rent_due = 3000
+                       else doctor_id = pg_temp.v('own') and scheme_kind is null and commission = 0 end)
    from public.commission_summary(pg_temp.v('a'), pg_temp.f(), pg_temp.t())),
   'resumen del periodo para la gerencia');
 select pg_temp.assert_true(
