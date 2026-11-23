@@ -5,7 +5,7 @@
 
 ### Dónde estamos (2026-11-23)
 - **Fase E3 · Módulos esenciales** (aprobada por Diego). Orden del roadmap: M10 → M2+M7 → M3 → M1 → M4 → **M5** → M6 → M8.
-- **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A, M4-B M5-A, Ajustes-A, Ajustes-B y **M5-B** (**M5 Pagos completo**). Último push: ver «Integración».
+- **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A, M4-B, M5-A, Ajustes-A, Ajustes-B y **M5-B** (**M5 Pagos completo**). Último push: ver «Integración».
 - **Paquete de Ajustes cerrado** (observaciones 1, 2, 4, 6 y 9). M5-B dejó el comprobante de pago en PDF con envío por WhatsApp; el PDF y el envío se comparten con presupuestos (`useShareFile`, `useClinicPdf`, `src/pages/pdf/pdfBase.tsx`).
 - **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 297 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
 
