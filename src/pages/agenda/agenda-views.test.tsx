@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { assignLanes, weekStart } from '@/lib/agenda'
+import { addMonths, assignLanes, monthGrid, monthLabel, weekStart } from '@/lib/agenda'
 import { GUIDE_TASKS } from '@/lib/onboarding'
 import { BRANCH_ID, fakeDb, fakeSupabase, fakeTenant, TENANT_ID } from '@/test/fakeSupabase'
 import { renderApp } from '@/test/renderApp'
@@ -31,6 +31,17 @@ describe('reglas de las vistas', () => {
     expect(weekStart('2030-01-09')).toBe('2030-01-07')
     expect(weekStart('2030-01-13')).toBe('2030-01-07')
     expect(weekStart('2030-01-07')).toBe('2030-01-07')
+  })
+
+  it('el mes cubre semanas completas de lunes a domingo', () => {
+    const g = monthGrid('2030-01-09')
+    expect(g[0]).toBe('2029-12-31')
+    expect(g.at(-1)).toBe('2030-02-03')
+    expect(g).toHaveLength(35)
+    expect(monthGrid('2027-02-15')).toHaveLength(28)
+    expect(monthLabel('2030-01-09')).toBe('Enero de 2030')
+    expect(addMonths('2030-01-31', 1)).toBe('2030-02-28')
+    expect(addMonths('2030-01-15', -1)).toBe('2029-12-15')
   })
 
   it('reparte en carriles las citas que se enciman', () => {
@@ -86,6 +97,30 @@ describe('M3-B · vistas de la agenda', () => {
     await screen.findByRole('option', { name: 'Sillón 1' })
     expect(screen.getByLabelText('Unidad dental')).toHaveValue('ch-1')
     expect(screen.getByLabelText('Hora')).toHaveValue('11:00')
+  })
+
+  it('Mes: pide el mes completo, cuenta las citas por día y al tocar un día abre la vista Día', async () => {
+    seed()
+    cita('c1', 'p-1', 'ch-1', '2030-01-07T16:00:00Z', '2030-01-07T17:00:00Z')
+    cita('c2', 'p-2', 'ch-2', '2030-01-07T18:00:00Z', '2030-01-07T18:30:00Z', 'confirmada')
+    cita('c3', 'p-2', 'ch-1', '2030-01-09T17:00:00Z', '2030-01-09T17:30:00Z')
+    cita('c4', 'p-1', 'ch-1', '2030-01-09T19:00:00Z', '2030-01-09T19:30:00Z', 'cancelada')
+    const user = userEvent.setup()
+    const { router } = await renderApp('/agenda?fecha=2030-01-20&vista=mes', { branch: BRANCH })
+    expect(await screen.findByRole('heading', { name: 'Enero de 2030' })).toBeInTheDocument()
+    await waitFor(() =>
+      expect(fakeSupabase.rpc).toHaveBeenCalledWith('list_appointments', { p_from: '2029-12-31T06:00:00.000Z', p_to: '2030-02-04T06:00:00.000Z', p_branch: BRANCH_ID }),
+    )
+    expect(await screen.findByRole('button', { name: 'lunes, 7 de enero: 2 citas' })).toBeInTheDocument()
+    // Las canceladas no cuentan.
+    expect(screen.getByRole('button', { name: 'miércoles, 9 de enero: 1 cita' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'jueves, 10 de enero: sin citas · la sucursal no abre' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Mes siguiente' }))
+    await waitFor(() => expect(router.state.location.search).toContain('fecha=2030-02-20'))
+    await user.click(screen.getByRole('button', { name: 'Mes anterior' }))
+    await user.click(await screen.findByRole('button', { name: 'lunes, 7 de enero: 2 citas' }))
+    await waitFor(() => expect(router.state.location.search).toBe('?fecha=2030-01-07'))
   })
 
   it('el selector cambia de vista y conserva la fecha', async () => {

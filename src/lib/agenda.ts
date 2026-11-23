@@ -132,6 +132,31 @@ export function weekStart(date: string): string {
   return addDays(date, -dow)
 }
 
+/** Primer día del mes de `date`. */
+export const monthStart = (date: string) => `${date.slice(0, 8)}01`
+
+/** Mismo día `n` meses después (o el último día si ese mes es más corto). */
+export function addMonths(date: string, n: number): string {
+  const [y, mo, d] = date.split('-').map(Number) as [number, number, number]
+  const first = new Date(Date.UTC(y, mo - 1 + n, 1))
+  const last = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0)).getUTCDate()
+  return `${first.getUTCFullYear()}-${pad(first.getUTCMonth() + 1)}-${pad(Math.min(d, last))}`
+}
+
+/** Días de la cuadrícula del mes: semanas completas de lunes a domingo que cubren el mes. */
+export function monthGrid(date: string): string[] {
+  const first = monthStart(date)
+  const from = weekStart(first)
+  const nextMonth = monthStart(addMonths(first, 1))
+  const days: string[] = []
+  for (let d = from; d < nextMonth || days.length % 7 !== 0; d = addDays(d, 1)) days.push(d)
+  return days
+}
+
+const monthFmt = new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+/** «Noviembre de 2026». */
+export const monthLabel = (date: string) => capitalize(monthFmt.format(asUtcDate(date)))
+
 /**
  * Carriles para citas que se enciman en una misma columna (vista Semana: varios doctores
  * a la misma hora). Devuelve, por cita, su carril y cuántos carriles tiene su grupo.

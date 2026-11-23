@@ -11,11 +11,14 @@ import { fetchChairs, type Chair } from '@/data/catalog'
 import { useDoctors } from '@/hooks/useDoctors'
 import {
   addDays,
+  addMonths,
   assignLanes,
   DEFAULT_TZ,
   dayLabel,
   fromMinutes,
   hoursFor,
+  monthGrid,
+  monthLabel,
   STATUS,
   todayIn,
   toMinutes,
@@ -28,18 +31,20 @@ import { cn } from '@/lib/cn'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { AppointmentDetail } from './AppointmentDetail'
+import { MonthView } from './MonthView'
 
 const PX_PER_MIN = 1.2
 const LEGEND = (['confirmada', 'programada', 'llego', 'no_asistio'] as const).map((s) => ({ s, ...STATUS[s] }))
-type View = 'dia' | 'semana' | 'sillon'
+type View = 'dia' | 'semana' | 'mes' | 'sillon'
 const VIEWS: { id: View; label: string }[] = [
   { id: 'dia', label: 'Día' },
   { id: 'semana', label: 'Semana' },
+  { id: 'mes', label: 'Mes' },
   { id: 'sillon', label: 'Por unidad' },
 ]
 const shortDay = new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', timeZone: 'UTC' })
 
-/** P08 · Agenda: Día (por doctor), Semana y Por unidad. */
+/** P08 · Agenda: Día (por doctor), Semana, Mes y Por unidad. */
 export function AgendaPage() {
   const { active, branches, activeBranchId } = useWorkspace()
   const branch = branches.find((b) => b.id === activeBranchId) ?? null
@@ -48,7 +53,7 @@ export function AgendaPage() {
   const navigate = useNavigate()
   const today = todayIn(tz)
   const date = /^\d{4}-\d{2}-\d{2}$/.test(params.get('fecha') ?? '') ? (params.get('fecha') as string) : today
-  const view: View = (['semana', 'sillon'] as const).find((v) => v === params.get('vista')) ?? 'dia'
+  const view: View = (['semana', 'mes', 'sillon'] as const).find((v) => v === params.get('vista')) ?? 'dia'
   const selectedId = params.get('cita')
   const [items, setItems] = useState<AgendaItem[] | null>(null)
   const [failed, setFailed] = useState(false)
@@ -58,8 +63,9 @@ export function AgendaPage() {
   const allDoctors = useDoctors(active?.tenant_id)
   const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
   const canWrite = active?.tenant.status === 'active'
-  const from = view === 'semana' ? weekStart(date) : date
-  const days = view === 'semana' ? 7 : 1
+  const monthDays = useMemo(() => (view === 'mes' ? monthGrid(date) : []), [view, date])
+  const from = view === 'semana' ? weekStart(date) : view === 'mes' ? monthDays[0]! : date
+  const days = view === 'semana' ? 7 : view === 'mes' ? monthDays.length : 1
 
   useEffect(() => {
     if (!branch) return
@@ -127,11 +133,16 @@ export function AgendaPage() {
   const selected = (items ?? []).find((a) => a.id === selectedId) ?? null
   const newHref = (extra: Record<string, string> = {}) => `/agenda/nueva?${new URLSearchParams({ fecha: date, ...extra }).toString()}`
   const step = view === 'semana' ? 7 : 1
+  const shift = (n: number) => (view === 'mes' ? addMonths(date, n) : addDays(date, n * step))
+  const prevLabel = view === 'semana' ? 'Semana anterior' : view === 'mes' ? 'Mes anterior' : 'Día anterior'
+  const nextLabel = view === 'semana' ? 'Semana siguiente' : view === 'mes' ? 'Mes siguiente' : 'Día siguiente'
   const localOf = (a: AgendaItem) => ({ date: zonedParts(new Date(a.starts_at), tz).date, from: toMinutes(zonedParts(new Date(a.starts_at), tz).time), to: toMinutes(zonedParts(new Date(a.ends_at), tz).time) || 24 * 60 })
   const title =
     view === 'semana'
       ? `Semana del ${dayLabel(from).toLowerCase()} al ${dayLabel(addDays(from, 6)).toLowerCase()}`
-      : date === today
+      : view === 'mes'
+        ? monthLabel(date)
+        : date === today
         ? `Hoy, ${dayLabel(date).toLowerCase()}`
         : dayLabel(date)
 
@@ -204,8 +215,8 @@ export function AgendaPage() {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => go({ fecha: addDays(date, -step), cita: null })}
-          aria-label={view === 'semana' ? 'Semana anterior' : 'Día anterior'}
+          onClick={() => go({ fecha: shift(-1), cita: null })}
+          aria-label={prevLabel}
           className={buttonClasses('secondary', 'sm')}
         >
           <Icon name="chevronRight" className="size-4 rotate-180" />
@@ -215,8 +226,8 @@ export function AgendaPage() {
         </button>
         <button
           type="button"
-          onClick={() => go({ fecha: addDays(date, step), cita: null })}
-          aria-label={view === 'semana' ? 'Semana siguiente' : 'Día siguiente'}
+          onClick={() => go({ fecha: shift(1), cita: null })}
+          aria-label={nextLabel}
           className={buttonClasses('secondary', 'sm')}
         >
           <Icon name="chevronRight" className="size-4" />
@@ -233,7 +244,7 @@ export function AgendaPage() {
         </label>
       </div>
 
-      <ul aria-label="Estados de cita" className="m-0 mb-4 flex list-none flex-wrap gap-3 p-0 text-caption text-ink-muted">
+      <ul aria-label="Estados de cita" className={cn('m-0 mb-4 flex list-none flex-wrap gap-3 p-0 text-caption text-ink-muted', view === 'mes' && 'hidden')}>
         {LEGEND.map((l) => (
           <li key={l.s} className="flex items-center gap-1.5">
             <span aria-hidden="true" className={cn('size-3 rounded-xs border-l-4', l.block)} />
@@ -246,6 +257,17 @@ export function AgendaPage() {
         <LoadError title="No pudimos cargar la agenda" onRetry={reload} />
       ) : items === null ? (
         <Skeleton className="h-96 w-full" label="Cargando la agenda" />
+      ) : view === 'mes' ? (
+        <MonthView
+          days={monthDays}
+          month={date}
+          today={today}
+          items={shown}
+          doctors={doctors}
+          hours={hours}
+          tz={tz}
+          onDay={(d) => go({ vista: null, fecha: d, cita: null })}
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
           <div className="min-w-0">
