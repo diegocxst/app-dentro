@@ -40,7 +40,7 @@ export const SECTIONS: readonly Section[] = [
     icon: 'agenda',
     empty: {
       title: 'Tu agenda está vacía',
-      description: 'Aquí verás las citas por doctor y sillón. Agenda tu primera cita y aparecerá en este espacio.',
+      description: 'Aquí verás las citas por doctor y unidad dental. Agenda tu primera cita y aparecerá en este espacio.',
     },
   },
   {
@@ -120,7 +120,7 @@ export const SECTIONS: readonly Section[] = [
     icon: 'configuracion',
     empty: {
       title: 'Configura tu clínica',
-      description: 'Identidad, sucursales, sillones, tratamientos y precios. Lo que ajustes aquí se usa en toda la app.',
+      description: 'Identidad, sucursales, unidades dentales, tratamientos y precios. Lo que ajustes aquí se usa en toda la app.',
     },
   },
 ]

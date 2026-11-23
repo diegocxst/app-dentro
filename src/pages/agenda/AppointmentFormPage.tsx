@@ -170,7 +170,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     if (!isLead && !patient) return setError('Elige al paciente.')
     if (isLead && !existing && !lead) return setError('No encontramos el lead.')
     if (!doctorId) return setError('Elige al doctor.')
-    if (!chairId) return setError('Elige el sillón.')
+    if (!chairId) return setError('Elige la unidad dental.')
     if (!time) return setError('Elige la hora.')
     const endTime = fromMinutes(toMinutes(time) + duration)
     if (!withinHours(ranges, time, endTime)) {
@@ -261,9 +261,9 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
             onChange={(e) => setDoctorId(e.target.value)}
           />
           <Select
-            label="Sillón"
+            label="Unidad dental"
             options={branchChairs.map((c) => ({ value: c.id, label: c.name }))}
-            placeholder={branchChairs.length ? 'Elige el sillón' : 'Esta sucursal no tiene sillones'}
+            placeholder={branchChairs.length ? 'Elige la unidad dental' : 'Esta sucursal no tiene unidades dentales'}
             value={chairId}
             onChange={(e) => setChairId(e.target.value)}
           />

@@ -1,17 +1,23 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { LOGO_BUCKET, LOGO_MAX_BYTES, logoPath, logoProblem } from './logo'
+import { fitSize, LOGO_BUCKET, LOGO_INPUT_MAX_BYTES, logoPath, logoProblem } from './logo'
 
 const TENANT = '10000000-0000-4000-8000-000000000001'
 
 describe('logo de la clínica', () => {
-  it('acepta PNG, JPG y WebP de hasta 1 MB', () => {
+  it('acepta PNG, JPG y WebP de hasta 20 MB', () => {
     expect(logoProblem({ type: 'image/png', size: 2000 })).toBeNull()
-    expect(logoProblem({ type: 'image/jpeg', size: LOGO_MAX_BYTES })).toBeNull()
+    expect(logoProblem({ type: 'image/jpeg', size: LOGO_INPUT_MAX_BYTES })).toBeNull()
     expect(logoProblem({ type: 'image/webp', size: 10 })).toBeNull()
     expect(logoProblem({ type: 'image/svg+xml', size: 10 })).toBe('Usa una imagen PNG, JPG o WebP.')
-    expect(logoProblem({ type: 'image/png', size: LOGO_MAX_BYTES + 1 })).toMatch(/más de 1 MB/)
+    expect(logoProblem({ type: 'image/png', size: LOGO_INPUT_MAX_BYTES + 1 })).toMatch(/más de 20 MB/)
+  })
+
+  it('reduce al lado mayor de 512 px sin agrandar', () => {
+    expect(fitSize(4000, 2000)).toEqual({ width: 512, height: 256 })
+    expect(fitSize(1000, 3000)).toEqual({ width: 171, height: 512 })
+    expect(fitSize(300, 200)).toEqual({ width: 300, height: 200 })
   })
 
   it('la ruta cumple la regla de la migración', () => {

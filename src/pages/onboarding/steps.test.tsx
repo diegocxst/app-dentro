@@ -4,28 +4,28 @@ import { describe, expect, it } from 'vitest'
 import { BRANCH_ID, fakeDb, fakeSupabase, fakeTenant, TENANT_ID } from '@/test/fakeSupabase'
 import { renderApp } from '@/test/renderApp'
 
-describe('onboarding · paso 2 sucursales y sillones', () => {
-  it('pide al menos un sillón antes de continuar', async () => {
+describe('onboarding · paso 2 sucursales y unidades dentales', () => {
+  it('pide al menos una unidad dental antes de continuar', async () => {
     const user = userEvent.setup()
     await renderApp('/bienvenida/sucursales')
     expect(await screen.findByText('Paso 2 de 5')).toBeInTheDocument()
     await user.click(await screen.findByRole('button', { name: 'Continuar' }))
-    expect(await screen.findByText(/Agrega al menos un sillón/)).toBeInTheDocument()
+    expect(await screen.findByText(/Agrega al menos una unidad dental/)).toBeInTheDocument()
     expect(fakeSupabase.rpc).not.toHaveBeenCalledWith('set_onboarding_task', expect.anything())
   })
 
-  it('agrega sillones, quita uno y al continuar marca la guía y pasa al paso 3', async () => {
+  it('agrega unidades dentales, quita una y al continuar marca la guía y pasa al paso 3', async () => {
     const user = userEvent.setup()
     const { router } = await renderApp('/bienvenida/sucursales')
     const branch = await screen.findByRole('region', { name: 'Sucursal Sucursal principal' })
-    const input = within(branch).getByLabelText('Nuevo sillón en Sucursal principal')
+    const input = within(branch).getByLabelText('Nueva unidad dental en Sucursal principal')
     await user.type(input, 'Sillón 1')
-    await user.click(within(branch).getByRole('button', { name: 'Agregar sillón' }))
+    await user.click(within(branch).getByRole('button', { name: 'Agregar unidad dental' }))
     expect(fakeSupabase.rpc).toHaveBeenCalledWith('create_chair', { p_branch: BRANCH_ID, p_name: 'Sillón 1' })
     expect(await within(branch).findByText('Sillón 1')).toBeInTheDocument()
 
-    await user.type(within(branch).getByLabelText('Nuevo sillón en Sucursal principal'), 'Sillón 2')
-    await user.click(within(branch).getByRole('button', { name: 'Agregar sillón' }))
+    await user.type(within(branch).getByLabelText('Nueva unidad dental en Sucursal principal'), 'Sillón 2')
+    await user.click(within(branch).getByRole('button', { name: 'Agregar unidad dental' }))
     await user.click(await within(branch).findByRole('button', { name: 'Quitar Sillón 2' }))
     await waitFor(() => expect(within(branch).queryByText('Sillón 2')).not.toBeInTheDocument())
 
@@ -34,14 +34,14 @@ describe('onboarding · paso 2 sucursales y sillones', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/bienvenida/equipo'))
   })
 
-  it('avisa si el sillón ya existe', async () => {
+  it('avisa si la unidad dental ya existe', async () => {
     const user = userEvent.setup()
     fakeDb.chairs.push({ id: 'c1', tenant_id: TENANT_ID, branch_id: BRANCH_ID, name: 'Sillón 1', is_active: true, created_at: '2026-11-16T00:00:00Z' })
     await renderApp('/bienvenida/sucursales')
     const branch = await screen.findByRole('region', { name: 'Sucursal Sucursal principal' })
-    await user.type(await within(branch).findByLabelText('Nuevo sillón en Sucursal principal'), 'sillón 1')
-    await user.click(within(branch).getByRole('button', { name: 'Agregar sillón' }))
-    expect(await screen.findByText('Ya hay un sillón con ese nombre en esta sucursal.')).toBeInTheDocument()
+    await user.type(await within(branch).findByLabelText('Nueva unidad dental en Sucursal principal'), 'sillón 1')
+    await user.click(within(branch).getByRole('button', { name: 'Agregar unidad dental' }))
+    expect(await screen.findByText('Ya hay una unidad dental con ese nombre en esta sucursal.')).toBeInTheDocument()
   })
 
   it('edita el nombre y la dirección de la sucursal', async () => {
@@ -154,7 +154,7 @@ describe('onboarding · paso 5 WhatsApp', () => {
 describe('Configuración reusa los editores', () => {
   it('Configuración enlaza a sucursales y tratamientos', async () => {
     await renderApp('/configuracion')
-    expect(await screen.findByRole('link', { name: /Sucursales y sillones/ })).toHaveAttribute('href', '/configuracion/sucursales')
+    expect(await screen.findByRole('link', { name: /Sucursales y unidades dentales/ })).toHaveAttribute('href', '/configuracion/sucursales')
     expect(screen.getByRole('link', { name: /Tratamientos y precios/ })).toHaveAttribute('href', '/configuracion/tratamientos')
   })
 

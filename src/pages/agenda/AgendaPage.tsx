@@ -35,11 +35,11 @@ type View = 'dia' | 'semana' | 'sillon'
 const VIEWS: { id: View; label: string }[] = [
   { id: 'dia', label: 'Día' },
   { id: 'semana', label: 'Semana' },
-  { id: 'sillon', label: 'Por sillón' },
+  { id: 'sillon', label: 'Por unidad' },
 ]
 const shortDay = new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', timeZone: 'UTC' })
 
-/** P08 · Agenda: Día (por doctor), Semana y Por sillón. */
+/** P08 · Agenda: Día (por doctor), Semana y Por unidad. */
 export function AgendaPage() {
   const { active, branches, activeBranchId } = useWorkspace()
   const branch = branches.find((b) => b.id === activeBranchId) ?? null
@@ -112,7 +112,7 @@ export function AgendaPage() {
         headingLevel="h1"
         icon="sucursal"
         title="Agrega una sucursal para usar la agenda"
-        description="La agenda se organiza por sucursal, sillón y doctor."
+        description="La agenda se organiza por sucursal, unidad dental y doctor."
         action={
           <Link to="/configuracion/sucursales" className={buttonClasses('primary')}>
             Ir a Sucursales
@@ -259,9 +259,9 @@ export function AgendaPage() {
             )}
             {view === 'sillon' && branchChairs.length === 0 && (
               <Card className="mb-4 flex flex-col gap-1">
-                <span className="text-ui font-semibold">Esta sucursal no tiene sillones.</span>
+                <span className="text-ui font-semibold">Esta sucursal no tiene unidades dentales.</span>
                 <Link to="/configuracion/sucursales" className="text-ui font-semibold text-violet">
-                  Agregar sillones
+                  Agregar unidades dentales
                 </Link>
               </Card>
             )}
@@ -325,7 +325,7 @@ type GridProps = {
   slot: { label: (colName: string, time: string) => string; onClick: (colId: string, time: string) => void } | undefined
 }
 
-/** Cuadrícula por columnas (doctores, sillones o días). En celular se usa la lista. */
+/** Cuadrícula por columnas (doctores, unidades dentales o días). En celular se usa la lista. */
 function TimeGrid({ columns, items, rangesOf, selectedId, lanes, countLabel, onHeader, onSelect, slot }: GridProps) {
   const allRanges = columns.flatMap((c) => rangesOf(c.id))
   const open = Math.min(...allRanges.map(([a]) => toMinutes(a)), ...items.map((x) => x.from))

@@ -74,7 +74,7 @@ describe('M3-B · vistas de la agenda', () => {
     await waitFor(() => expect(router.state.location.search).toBe('?fecha=2030-01-15&hora=10%3A00'))
   })
 
-  it('Por sillón: una columna por sillón y el hueco pasa el sillón al formulario', async () => {
+  it('Por unidad: una columna por unidad dental y el hueco pasa la unidad al formulario', async () => {
     seed()
     cita('c1', 'p-1', 'ch-2', '2030-01-07T16:00:00Z', '2030-01-07T17:00:00Z')
     const user = userEvent.setup()
@@ -84,7 +84,7 @@ describe('M3-B · vistas de la agenda', () => {
     await user.click(screen.getByRole('button', { name: 'Agendar a las 11:00 en Sillón 1' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/agenda/nueva'))
     await screen.findByRole('option', { name: 'Sillón 1' })
-    expect(screen.getByLabelText('Sillón')).toHaveValue('ch-1')
+    expect(screen.getByLabelText('Unidad dental')).toHaveValue('ch-1')
     expect(screen.getByLabelText('Hora')).toHaveValue('11:00')
   })
 
@@ -92,9 +92,9 @@ describe('M3-B · vistas de la agenda', () => {
     seed()
     const user = userEvent.setup()
     const { router } = await renderApp('/agenda?fecha=2030-01-07', { branch: BRANCH })
-    await user.click(await screen.findByRole('button', { name: 'Por sillón' }))
+    await user.click(await screen.findByRole('button', { name: 'Por unidad' }))
     await waitFor(() => expect(router.state.location.search).toBe('?fecha=2030-01-07&vista=sillon'))
-    expect(screen.getByRole('button', { name: 'Por sillón' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Por unidad' })).toHaveAttribute('aria-pressed', 'true')
   })
 })
 

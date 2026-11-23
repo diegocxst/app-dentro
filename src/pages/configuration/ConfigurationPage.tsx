@@ -6,7 +6,7 @@ import { PageHeader } from '@/pages/PageHeader'
 const LINKS: { to: string; title: string; text: string; icon: IconName }[] = [
   { to: '/configuracion/identidad', title: 'Identidad de tu clínica', text: 'Nombre, logo, color, responsable y WhatsApp.', icon: 'inicio' },
   { to: '/configuracion/equipo', title: 'Tu equipo', text: 'Invita a doctores y recepción, y decide qué puede hacer cada quien.', icon: 'doctores' },
-  { to: '/configuracion/sucursales', title: 'Sucursales y sillones', text: 'Dónde atiendes, en qué horario y con cuántos sillones.', icon: 'sucursal' },
+  { to: '/configuracion/sucursales', title: 'Sucursales y unidades dentales', text: 'Dónde atiendes, en qué horario y con cuántas unidades dentales.', icon: 'sucursal' },
   { to: '/configuracion/tratamientos', title: 'Tratamientos y precios', text: 'Tu catálogo para armar presupuestos en segundos.', icon: 'presupuestos' },
   { to: '/configuracion/perfil', title: 'Mi perfil', text: 'Tu nombre y tu teléfono.', icon: 'pacientes' },
 ]

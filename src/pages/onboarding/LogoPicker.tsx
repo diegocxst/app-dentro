@@ -2,6 +2,7 @@ import { useId, useRef, useState, type DragEvent } from 'react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { logoProblem } from '@/lib/logo'
+import { prepareLogo } from '@/lib/logoResize'
 
 type Props = {
   file: File | null
@@ -23,12 +24,25 @@ export function LogoPicker({ file, previewUrl, currentUrl = null, onRemoveCurren
   const input = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [preparing, setPreparing] = useState(false)
 
   const pick = (f: File | undefined) => {
     if (!f) return
     const problem = logoProblem(f)
     setError(problem)
-    if (!problem) onChange(f)
+    if (problem) return
+    // Si pesa más de 1 MB lo reducimos aquí, antes de subirlo.
+    setPreparing(true)
+    prepareLogo(f).then(
+      (ready) => {
+        setPreparing(false)
+        onChange(ready)
+      },
+      () => {
+        setPreparing(false)
+        setError('No pudimos reducir esta imagen. Prueba con otra versión del logo.')
+      },
+    )
   }
 
   const onDrop = (e: DragEvent) => {
@@ -64,8 +78,8 @@ export function LogoPicker({ file, previewUrl, currentUrl = null, onRemoveCurren
           </div>
         )}
         <div className="flex min-w-0 flex-[1_1_140px] flex-col gap-1">
-          <span className="truncate text-ui font-semibold">{file ? file.name : currentUrl ? 'Tu logo' : 'Arrastra tu logo o súbelo'}</span>
-          <span className="text-label font-normal text-ink-muted">PNG, JPG o WebP de hasta 1 MB. Si aún no tienes, usamos tus iniciales.</span>
+          <span className="truncate text-ui font-semibold">{preparing ? 'Preparando tu logo…' : file ? file.name : currentUrl ? 'Tu logo' : 'Arrastra tu logo o súbelo'}</span>
+          <span className="text-label font-normal text-ink-muted">PNG, JPG o WebP de hasta 20 MB; lo ajustamos para que cargue rápido. Si aún no tienes, usamos tus iniciales.</span>
           {(file || (currentUrl && onRemoveCurrent)) && (
             <button
               type="button"
@@ -88,7 +102,7 @@ export function LogoPicker({ file, previewUrl, currentUrl = null, onRemoveCurren
             e.target.value = ''
           }}
         />
-        <Button variant="secondary" onClick={() => input.current?.click()}>
+        <Button variant="secondary" loading={preparing} onClick={() => input.current?.click()}>
           {file || currentUrl ? 'Cambiar' : 'Subir'}
         </Button>
       </div>

@@ -15,11 +15,29 @@ describe('logo en el alta de la clínica', () => {
     expect(screen.queryByRole('img', { name: 'Logo elegido' })).not.toBeInTheDocument()
   })
 
+  it('rechaza un logo de más de 20 MB', async () => {
+    const user = userEvent.setup()
+    await renderApp('/bienvenida', { tenant: null })
+    const big = new File([new Uint8Array(8)], 'enorme.png', { type: 'image/png' })
+    Object.defineProperty(big, 'size', { value: 20 * 1024 * 1024 + 1 })
+    await user.upload(await screen.findByLabelText('Subir logo'), big)
+    expect(screen.getByRole('alert')).toHaveTextContent('El logo pesa más de 20 MB.')
+  })
+
+  it('si no puede reducir un logo pesado, avisa y no lo elige', async () => {
+    // jsdom no tiene canvas: la reducción falla como fallaría con una imagen dañada.
+    const user = userEvent.setup()
+    await renderApp('/bienvenida', { tenant: null })
+    await user.upload(await screen.findByLabelText('Subir logo'), new File([new Uint8Array(2 * 1024 * 1024)], 'pesado.png', { type: 'image/png' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('No pudimos reducir esta imagen.')
+    expect(screen.queryByRole('img', { name: 'Logo elegido' })).not.toBeInTheDocument()
+  })
+
   it('sube el logo al crear la clínica y lo muestra en el menú con URL firmada', async () => {
     const user = userEvent.setup()
     const { router } = await renderApp('/bienvenida', { tenant: null })
     await user.upload(await screen.findByLabelText('Subir logo'), png())
-    expect(screen.getByRole('img', { name: 'Logo elegido' })).toHaveAttribute('src', expect.stringMatching(/^blob:/))
+    expect(await screen.findByRole('img', { name: 'Logo elegido' })).toHaveAttribute('src', expect.stringMatching(/^blob:/))
     expect(screen.getByText('logo-sonrie.png')).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Nombre de la clínica o consultorio'), 'Clínica Dental Sonríe')

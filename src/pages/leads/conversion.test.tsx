@@ -38,7 +38,7 @@ describe('M1-B · valoración del lead', () => {
     await user.clear(screen.getByLabelText('Fecha'))
     await user.type(screen.getByLabelText('Fecha'), DAY)
     await screen.findByRole('option', { name: 'Sillón 1' })
-    await user.selectOptions(screen.getByLabelText('Sillón'), 'ch-1')
+    await user.selectOptions(screen.getByLabelText('Unidad dental'), 'ch-1')
     await user.selectOptions(screen.getByLabelText('Doctor'), DOCTOR)
     await user.selectOptions(screen.getByLabelText('Hora'), '10:00')
     await user.click(screen.getByRole('button', { name: 'Agendar cita' }))

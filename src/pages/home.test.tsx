@@ -24,7 +24,7 @@ describe('Inicio de primer uso (E2-A)', () => {
     expect(within(guide).getByRole('progressbar', { name: 'Avance de la guía' })).toHaveAttribute('aria-valuenow', '14')
     expect(within(guide).getByRole('button', { name: 'Marcar como pendiente: Identidad de tu clínica' })).toHaveAttribute('aria-pressed', 'true')
     // La primera tarea pendiente lleva el botón principal.
-    expect(within(guide).getByRole('link', { name: 'Agregar sillones' })).toHaveAttribute('href', '/bienvenida/sucursales')
+    expect(within(guide).getByRole('link', { name: 'Agregar unidades dentales' })).toHaveAttribute('href', '/bienvenida/sucursales')
     expect(within(guide).getByRole('link', { name: 'Invitar' })).toHaveAttribute('href', '/bienvenida/equipo')
     expect(screen.getByText('Tu negocio, por dentro')).toBeInTheDocument()
     expect(screen.getAllByLabelText('Sin datos')).toHaveLength(3) // «Citas de hoy» va en «Mi día»

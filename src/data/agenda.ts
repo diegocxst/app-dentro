@@ -93,7 +93,7 @@ export async function setBranchTimezone(branchId: string, timezone: string): Pro
 export function agendaErrorMessage(e: { code?: string; message?: string } | null | undefined): string {
   switch (e?.code) {
     case '23P01':
-      return 'Ese horario ya está ocupado: el sillón o el doctor tienen otra cita.'
+      return 'Ese horario ya está ocupado: la unidad dental o el doctor tienen otra cita.'
     case 'DH001':
       return OUT_OF_HOURS
     case '42501':

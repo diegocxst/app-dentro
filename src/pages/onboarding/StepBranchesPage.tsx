@@ -6,7 +6,7 @@ import { OnboardingLayout } from './OnboardingLayout'
 import { StepFooter } from './StepFooter'
 import { useStep } from './useStep'
 
-/** P04 paso 2: sucursales y sillones. */
+/** P04 paso 2: sucursales y unidades dentales. */
 export function StepBranchesPage() {
   const { tenantId, canEdit, done, greeting, back, complete } = useStep(1)
   const [chairs, setChairs] = useState(0)
@@ -15,7 +15,7 @@ export function StepBranchesPage() {
 
   const onContinue = async () => {
     if (chairs === 0) {
-      setError('Agrega al menos un sillón para que la agenda sepa dónde atiendes.')
+      setError('Agrega al menos una unidad dental para que la agenda sepa dónde atiendes.')
       return
     }
     setBusy(true)
@@ -34,7 +34,7 @@ export function StepBranchesPage() {
       done={done}
       linked
       title="¿Dónde atiendes?"
-      description="Revisa tu sucursal y agrega tus sillones. La agenda los usa para que no se encimen las citas."
+      description="Revisa tu sucursal y agrega tus unidades dentales. La agenda las usa para que no se encimen las citas."
     >
       <BranchesEditor tenantId={tenantId} canEdit={canEdit} onChairsCount={setChairs} />
       {error && <Alert tone="error">{error}</Alert>}

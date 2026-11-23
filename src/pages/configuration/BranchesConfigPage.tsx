@@ -9,7 +9,7 @@ export function BranchesConfigPage() {
   if (!active) return null
   return (
     <>
-      <PageHeader eyebrow="Configuración" title="Sucursales y sillones" actions={<Link to="/configuracion" className="text-ui font-semibold text-violet">Volver</Link>} />
+      <PageHeader eyebrow="Configuración" title="Sucursales y unidades dentales" actions={<Link to="/configuracion" className="text-ui font-semibold text-violet">Volver</Link>} />
       <BranchesEditor tenantId={active.tenant_id} canEdit={isManager(active.role) && active.tenant.status === 'active'} />
     </>
   )

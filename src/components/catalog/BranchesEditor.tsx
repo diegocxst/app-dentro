@@ -17,11 +17,11 @@ import { useWorkspace } from '@/workspace/workspace-context'
 type Props = {
   tenantId: string
   canEdit: boolean
-  /** Avisa cuántos sillones activos hay (el paso 2 exige al menos uno). */
+  /** Avisa cuántas unidades dentales activas hay (el paso 2 exige al menos uno). */
   onChairsCount?: (n: number) => void
 }
 
-/** Sucursales y sillones (onboarding paso 2 y Configuración). Cada cambio se guarda al momento. */
+/** Sucursales y unidades dentales (onboarding paso 2 y Configuración). Cada cambio se guarda al momento. */
 export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
   const { refresh } = useWorkspace()
   const [branches, setBranches] = useState<Branch[] | null>(null)
@@ -81,7 +81,7 @@ export function BranchesEditor({ tenantId, canEdit, onChairsCount }: Props) {
           chairs={chairs.filter((c) => c.branch_id === b.id)}
           canEdit={canEdit}
           onSave={(name, address) => act(() => updateBranch(b.id, { name, address }), { duplicate: 'Ya tienes una sucursal con ese nombre.' })}
-          onAddChair={(name) => act(() => createChair(b.id, name), { duplicate: 'Ya hay un sillón con ese nombre en esta sucursal.' })}
+          onAddChair={(name) => act(() => createChair(b.id, name), { duplicate: 'Ya hay una unidad dental con ese nombre en esta sucursal.' })}
           onRemoveChair={(id) => act(() => setChairActive(id, false))}
           onSaveHours={(hours) => act(() => setBranchHours(b.id, hours as Record<string, [string, string][]>))}
           onSaveTimezone={(tz) => act(() => setBranchTimezone(b.id, tz))}
@@ -155,9 +155,9 @@ function BranchCard({
       />
       <HoursEditor branchName={branch.name} initial={parseHours(branch.opening_hours)} canEdit={canEdit} onSave={onSaveHours} />
       <div className="flex flex-col gap-2">
-        <span className="text-ui font-medium">Sillones</span>
+        <span className="text-ui font-medium">Unidades dentales</span>
         {chairs.length === 0 ? (
-          <p className="m-0 text-caption text-ink-muted">Aún no hay sillones. La agenda los usa para que no se encimen las citas.</p>
+          <p className="m-0 text-caption text-ink-muted">Aún no hay unidades dentales. La agenda las usa para que no se encimen las citas.</p>
         ) : (
           <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
             {chairs.map((c) => (
@@ -180,10 +180,10 @@ function BranchCard({
         {canEdit && (
           <form onSubmit={addChair} className="flex items-end gap-2">
             <div className="max-w-60 grow">
-              <Input label={`Nuevo sillón en ${branch.name}`} placeholder={`Sillón ${chairs.length + 1}`} value={chairName} onChange={(e) => setChairName(e.target.value)} />
+              <Input label={`Nueva unidad dental en ${branch.name}`} placeholder={`Unidad ${chairs.length + 1}`} value={chairName} onChange={(e) => setChairName(e.target.value)} />
             </div>
             <Button type="submit" variant="secondary" loading={busy} disabled={!chairName.trim()}>
-              Agregar sillón
+              Agregar unidad dental
             </Button>
           </form>
         )}
