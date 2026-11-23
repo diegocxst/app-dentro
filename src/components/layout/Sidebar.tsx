@@ -12,6 +12,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
   return (
     <nav
       aria-label={label}
+      data-tour="menu"
       className="sticky top-0 flex h-dvh w-62 shrink-0 flex-col gap-6 overflow-y-auto bg-night px-4 py-6 text-on-night"
     >
       <div className="flex flex-col gap-3 border-b border-night-border px-2 pt-1 pb-4">
@@ -48,6 +49,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
 
       <NavLink
         to={GUIDE_PATH}
+        data-tour="guia"
         className={({ isActive }) =>
           cn(
             'flex min-h-11 items-center gap-2.5 rounded-nav px-3 text-caption font-semibold text-on-night no-underline',

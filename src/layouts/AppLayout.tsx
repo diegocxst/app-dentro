@@ -52,7 +52,7 @@ export function AppLayout() {
       </div>
       <MobileTabBar />
       {menuOpen && <MobileMenu onClose={closeMenu} />}
-      <div className="fixed right-4 bottom-[calc(96px+env(safe-area-inset-bottom))] z-20 lg:hidden">
+      <div data-tour="nuevo" className="fixed right-4 bottom-[calc(96px+env(safe-area-inset-bottom))] z-20 lg:hidden">
         <NewMenu variant="fab" />
       </div>
     </div>

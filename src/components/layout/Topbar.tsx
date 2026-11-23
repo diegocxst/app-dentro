@@ -10,7 +10,7 @@ function SearchField({ className }: { className?: string }) {
   const id = useId()
   const onSubmit = (e: FormEvent) => e.preventDefault() // La búsqueda se conecta en E3.
   return (
-    <form role="search" onSubmit={onSubmit} className={className}>
+    <form role="search" onSubmit={onSubmit} className={className} data-tour="buscar">
       <label
         htmlFor={id}
         className="flex h-10 items-center gap-2 rounded-sm border border-border bg-surface px-3 text-ink-muted focus-within:outline-2 focus-within:outline-violet"
@@ -61,6 +61,7 @@ function MenuButton({ onClick, open }: { onClick: () => void; open: boolean }) {
       type="button"
       aria-label="Abrir menú"
       aria-haspopup="dialog"
+      data-tour="menu guia"
       aria-expanded={open}
       onClick={onClick}
       className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-md text-ink hover:bg-lavender lg:hidden"
@@ -101,7 +102,9 @@ export function Topbar({ onOpenMenu, menuOpen = false }: { onOpenMenu?: () => vo
         <ClinicSwitcher />
         <BranchSelect />
         <NotificationsButton />
-        <NewMenu variant="button" className="hidden lg:block" />
+        <div data-tour="nuevo" className="hidden lg:block">
+          <NewMenu variant="button" />
+        </div>
       </div>
 
       {/* Móvil */}

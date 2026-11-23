@@ -7,11 +7,11 @@
 - **Fase E3 · Módulos esenciales** (aprobada por Diego). Orden del roadmap: M10 → M2+M7 → M3 → M1 → M4 → **M5** → M6 → M8.
 - **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A, M4-B y **M5-A**. Último push: ver «Integración».
 - **En `main`:** Ajustes-A (logo de hasta 20 MB reducido a 512 px, «Unidad dental», menú ☰ en móvil; sin «Más»).
-- **SIGUIENTE — Ajustes-B** (rama nueva desde `main`): recorrido que señala cada parte de la app y vista mensual de la agenda (número de citas y un punto por doctor; tocar el día abre Día).
-- **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 285 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
+- **EN CURSO — Ajustes-B** en la rama `feature/e3-ajustes-b` (sin migración): vista **Mes** en la agenda (número de citas por día y un punto por doctor; tocar el día abre Día; la consulta cubre las semanas completas del mes, ≤ 42 días) y **recorrido que señala cada parte** (resalta «Nuevo», el menú o ☰, la búsqueda y la guía con marcas `data-tour`; tarjeta junto al elemento con `placeCard` de `src/lib/tour.ts`; botón «Atrás»). Verificado: typecheck, lint, 292 pruebas (3 corridas), `test:db`, build y revisión en escritorio y celular. **Falta: «Sí, integra y sube».**
+- **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 292 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
 
 ### Lo próximo, en orden
-1. **Ajustes-B** (`docs/observaciones.md` 1 y 6): recorrido que señala cada parte y vista mensual en la agenda. (Ajustes-A ya en `main`.)
+1. **Integrar Ajustes-B** en `main` + push (con aprobación). Con eso queda cerrado el paquete de Ajustes.
 2. **M5-B · Comprobante de pago** (ya decidido por Diego): PDF con la marca de la clínica (folio R-0001, monto, forma de pago, presupuesto y **saldo restante**; no es factura) + envío por WhatsApp compartiendo el archivo. Reusar el patrón de M4-B: `src/pages/quotes/quotePdf.tsx`, `src/lib/quoteShare.ts`, `src/hooks/useQuotePdf.ts`, `src/pages/quotes/SendQuotePage.tsx`. Probablemente **sin migración**. Botones en el pago (Cobros, ficha › Pagos y el presupuesto) y al terminar de registrar.
 3. **M6 · Doctores y comisiones:** `payments.doctor_id` ya guarda a quién se atribuye cada pago. Modelo: `commission_schemes` (`percent_collected` / `chair_rent` / `fixed_per_procedure`) y `commission_entries` (por pago; por pagar / pagada). Comisiones **sobre lo cobrado**, nunca sobre lo presupuestado. Preguntar decisiones a Diego antes de la migración.
 4. **M8 · Tareas:** incluye «Recordarme si no responde» (presupuestos, P20) y «Tareas de hoy» en Mi día.

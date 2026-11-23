@@ -73,6 +73,19 @@ describe('recorrido de bienvenida', () => {
     expect(fakeSupabase.auth.updateUser).toHaveBeenCalledWith({ data: { tour_seen_at: expect.any(String) } })
   })
 
+  it('cada paso apunta a una parte real de la app y se puede regresar', async () => {
+    const user = userEvent.setup()
+    await renderApp('/')
+    const tour = await screen.findByRole('dialog', { name: 'Recorrido de bienvenida' })
+    // Cada paso tiene a qué señalar en la pantalla.
+    for (const token of ['nuevo', 'menu', 'buscar', 'guia']) expect(document.querySelectorAll(`[data-tour~="${token}"]`).length).toBeGreaterThan(0)
+    expect(within(tour).queryByRole('button', { name: 'Atrás' })).not.toBeInTheDocument()
+    await user.click(within(tour).getByRole('button', { name: 'Siguiente' }))
+    expect(within(tour).getByText('Tu menú')).toBeInTheDocument()
+    await user.click(within(tour).getByRole('button', { name: 'Atrás' }))
+    expect(within(tour).getByText('Aquí creas todo')).toBeInTheDocument()
+  })
+
   it('se puede saltar con el botón o con Escape, y repetir', async () => {
     const user = userEvent.setup()
     await renderApp('/')
