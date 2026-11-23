@@ -48,9 +48,18 @@ describe('AppLayout', () => {
     const [topbarNuevo] = screen.getAllByRole('button', { name: 'Nuevo' })
     await user.click(topbarNuevo!)
     const menu = screen.getByRole('menu', { name: 'Crear nuevo' })
-    expect(within(menu).getAllByRole('menuitem').map((i) => i.textContent)).toEqual(['Cita', 'Paciente', 'Lead', 'Presupuesto'])
+    expect(within(menu).getAllByRole('menuitem').map((i) => i.textContent)).toEqual(['Cita', 'Paciente', 'Lead', 'Presupuesto', 'Doctor'])
+    expect(within(menu).getByRole('menuitem', { name: 'Doctor' })).toHaveAttribute('href', '/configuracion/equipo')
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('«Doctor» en «+ Nuevo» solo aparece para la gerencia', async () => {
+    const user = userEvent.setup()
+    await renderApp('/', { role: 'reception' })
+    const [topbarNuevo] = screen.getAllByRole('button', { name: 'Nuevo' })
+    await user.click(topbarNuevo!)
+    expect(within(screen.getByRole('menu', { name: 'Crear nuevo' })).queryByRole('menuitem', { name: 'Doctor' })).not.toBeInTheDocument()
   })
 
   it('muestra la barra inferior móvil Inicio · Agenda · Pacientes · Leads', async () => {

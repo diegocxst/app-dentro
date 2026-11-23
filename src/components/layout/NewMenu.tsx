@@ -4,6 +4,8 @@ import { NEW_ACTIONS } from '@/app/navigation'
 import { Icon } from '@/components/ui/Icon'
 import { useDismiss } from '@/hooks/useDismiss'
 import { cn } from '@/lib/cn'
+import { isManager } from '@/lib/roles'
+import { useWorkspace } from '@/workspace/workspace-context'
 
 type NewMenuProps = {
   /** `button`: botón de la barra superior. `fab`: botón flotante en móvil. */
@@ -14,6 +16,8 @@ type NewMenuProps = {
 /** Botón "+ Nuevo" con el menú de lo que se puede crear. */
 export function NewMenu({ variant, className }: NewMenuProps) {
   const [open, setOpen] = useState(false)
+  const { active } = useWorkspace()
+  const actions = NEW_ACTIONS.filter((a) => !a.managersOnly || isManager(active?.role))
   const ref = useRef<HTMLDivElement>(null)
   const menuId = useId()
   const close = useCallback(() => setOpen(false), [])
@@ -47,7 +51,7 @@ export function NewMenu({ variant, className }: NewMenuProps) {
             isFab ? 'right-0 bottom-full mb-3' : 'top-full right-0 mt-2',
           )}
         >
-          {NEW_ACTIONS.map((a) => (
+          {actions.map((a) => (
             <li key={a.label} role="none">
               <Link
                 role="menuitem"

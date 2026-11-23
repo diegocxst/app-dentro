@@ -131,11 +131,13 @@ export const GUIDE_PATH = '/guia'
 export const MOBILE_TAB_IDS: readonly SectionId[] = ['inicio', 'agenda', 'pacientes', 'leads']
 
 /** Opciones del botón "+ Nuevo" (llevan a la sección donde se creará cada cosa). */
-export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName }[] = [
+export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName; managersOnly?: boolean }[] = [
   { label: 'Cita', path: '/agenda/nueva', icon: 'agenda' },
   { label: 'Paciente', path: '/pacientes/nuevo', icon: 'pacientes' },
   { label: 'Lead', path: '/leads/nuevo', icon: 'leads' },
   { label: 'Presupuesto', path: '/presupuestos/nuevo', icon: 'presupuestos' },
+  // Invitar a un doctor al equipo: solo la dueña y la administración.
+  { label: 'Doctor', path: '/configuracion/equipo', icon: 'doctores', managersOnly: true },
 ]
 
 export function sectionById(id: SectionId): Section {
