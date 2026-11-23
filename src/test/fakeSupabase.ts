@@ -40,6 +40,7 @@ export const fakeSupabase = {
     resetPasswordForEmail: vi.fn(() => ok({})),
     updateUser: vi.fn(() => Promise.resolve({ data: {}, error: null })),
     verifyOtp: vi.fn(),
+    setSession: vi.fn(),
     resend: vi.fn(() => ok({ user: null, session: null })),
     signOut: vi.fn(() => {
       emitAuth('SIGNED_OUT', null)
@@ -789,6 +790,7 @@ export function resetFakeSupabase() {
   fakeSupabase.auth.updateUser.mockReset()
   fakeSupabase.auth.updateUser.mockImplementation(() => Promise.resolve({ data: {}, error: null }))
   fakeSupabase.auth.verifyOtp.mockReset()
+  fakeSupabase.auth.setSession.mockReset()
   for (const k of Object.keys(fakeDb) as (keyof Db)[]) fakeDb[k] = []
   fakeStorage.length = 0
   for (const k of Object.keys(rpcOverrides)) delete rpcOverrides[k]

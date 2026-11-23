@@ -194,6 +194,38 @@ describe('enlaces de correo (token_hash)', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/'))
   })
 
+  // Plantilla por omisión de Supabase (sin SMTP propio): vuelve con la sesión en el fragmento.
+  const JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4In0.firmaDePrueba'
+  it('P05 · acepta la invitación de la plantilla de Supabase y abre la sesión solo al tocar el botón', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', `/auth/invitacion#access_token=${JWT}&expires_in=3600&refresh_token=abcdEFGH1234&token_type=bearer&type=invite`)
+    fakeSupabase.auth.setSession.mockImplementation(async () => {
+      emitAuth('SIGNED_IN', fakeSession(fakeUser({ email: 'doctor@example.test' })))
+      return { data: {}, error: null }
+    })
+    await renderApp('/auth/invitacion', { signedIn: false })
+    expect(window.location.hash).toBe('')
+    expect(fakeSupabase.auth.setSession).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'Aceptar invitación' }))
+    expect(fakeSupabase.auth.setSession).toHaveBeenCalledWith({ access_token: JWT, refresh_token: 'abcdEFGH1234' })
+    expect(fakeSupabase.auth.verifyOtp).not.toHaveBeenCalled()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Activa tu cuenta' })).toBeInTheDocument()
+  })
+
+  it('P05 · la sesión de la plantilla de Supabase vencida o de otro tipo no sirve', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', `/auth/invitacion#access_token=${JWT}&refresh_token=abcdEFGH1234&type=recovery`)
+    const first = await renderApp('/auth/invitacion', { signedIn: false })
+    expect(screen.getByRole('heading', { level: 1, name: 'La invitación no es válida' })).toBeInTheDocument()
+    first.unmount()
+
+    window.history.replaceState(null, '', `/auth/invitacion#access_token=${JWT}&refresh_token=abcdEFGH1234&type=invite`)
+    fakeSupabase.auth.setSession.mockResolvedValue({ data: {}, error: authError('session_expired', 403) })
+    await renderApp('/auth/invitacion', { signedIn: false })
+    await user.click(screen.getByRole('button', { name: 'Aceptar invitación' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'La invitación no es válida' })).toBeInTheDocument()
+  })
+
   it('un token con tipo equivocado se trata como inválido sin llamar a Supabase', async () => {
     window.history.replaceState(null, '', `/auth/invitacion#token_hash=${TOKEN}&type=recovery`)
     await renderApp('/auth/invitacion', { signedIn: false })
