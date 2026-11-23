@@ -11,7 +11,8 @@
 - **Números:** 17 migraciones (0001–0017 aplicadas en dev), 17 suites `*_rls_isolation.sql`, 305 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
 
 ### Lo próximo, en orden
-1. **M6-A** (en curso) y después **M6-B · Doctores:** lista y perfil del doctor (P26–P27: especialidad, color en agenda y horario que limita su agenda), con su esquema de comisión en el perfil.
+1. **M6-A** (en curso) y después **M6-B · Doctores:** lista y perfil del doctor (P26–P27: especialidad, color en agenda y horario que limita su agenda), con su esquema de comisión en el perfil, y **doctores sin acceso** (sin correo; decidido 2026-11-23).
+   - **Invitaciones (hallazgo 2026-11-23):** el correo de invitación de dev llega con la plantilla por omisión de Supabase (`/auth/v1/verify`), no con `supabase/templates/invite_user.html`; por eso la app dice «La invitación no es válida». Diego debe volver a pegar la plantilla en Authentication › Emails › Invite user.
 2. **M8 · Tareas:** incluye «Recordarme si no responde» (presupuestos, P20) y «Tareas de hoy» en Mi día.
 3. Después: **E4** (procesos de punta a punta F1–F4), **E5** (M9 tablero con datos reales), **E6** integraciones (M11 Meta, link de pago con cuentas de la clínica —B6—, M13 perfil público, correo —B4—).
 4. **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada.
