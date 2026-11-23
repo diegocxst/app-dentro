@@ -175,4 +175,9 @@ describe('M6-A · Comisiones', () => {
     expect(screen.getByText('Ya pagado').nextSibling).toHaveTextContent('$2,000')
     expect(screen.getByText('A favor de la clínica').nextSibling).toHaveTextContent('$2,000')
   })
+  it('si solo está la dueña, invita a sumar un doctor para asignar comisiones', async () => {
+    await renderApp('/doctores')
+    expect(await screen.findByRole('link', { name: 'invita a un doctor a tu equipo' })).toHaveAttribute('href', '/configuracion/equipo')
+    expect(screen.queryByRole('form', { name: 'Esquema de comisión' })).not.toBeInTheDocument()
+  })
 })

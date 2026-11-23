@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
@@ -150,6 +151,16 @@ export function CommissionsPage() {
               </div>
             ))}
           </dl>
+
+          {isManager && rows.every((r) => r.role === 'owner') && (
+            <Alert tone="info">
+              La dueña no lleva comisión. Para asignar un esquema,{' '}
+              <Link to="/configuracion/equipo" className="font-semibold text-violet">
+                invita a un doctor a tu equipo
+              </Link>
+              ; aparecerá aquí cuando acepte.
+            </Alert>
+          )}
 
           <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             {isManager && (
