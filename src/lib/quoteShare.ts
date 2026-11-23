@@ -16,8 +16,8 @@ export function quoteMessage(q: { patient: string; title: string; doctor: string
   return `${intro} El total es de ${money(q.total)}.`
 }
 
-/** «Presupuesto P-0142 Laura Mendez.pdf» (sin acentos ni signos raros). */
-export function quoteFileName(folio: string, patient: string): string {
+/** Nombre de archivo sin acentos ni signos raros: «Presupuesto P-0142 Laura Mendez.pdf». */
+function pdfFileName(kind: string, folio: string, patient: string): string {
   const clean = patient
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
@@ -25,8 +25,11 @@ export function quoteFileName(folio: string, patient: string): string {
     .trim()
     .replace(/\s+/g, ' ')
     .slice(0, 60)
-  return `Presupuesto ${folio}${clean ? ` ${clean}` : ''}.pdf`
+  return `${kind} ${folio}${clean ? ` ${clean}` : ''}.pdf`
 }
+
+export const quoteFileName = (folio: string, patient: string) => pdfFileName('Presupuesto', folio, patient)
+export const receiptFileName = (folio: string, patient: string) => pdfFileName('Comprobante', folio, patient)
 
 export const whatsappUrl = (phoneE164: string | null, text: string) =>
   phoneE164 ? `https://wa.me/${phoneE164.replace('+', '')}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`

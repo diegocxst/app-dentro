@@ -37,6 +37,7 @@ import { CobrosPage } from '@/pages/payments/CobrosPage'
 import { RegisterPaymentPage } from '@/pages/payments/RegisterPaymentPage'
 import { QuotePage } from '@/pages/quotes/QuotePage'
 import { QuotesPage } from '@/pages/quotes/QuotesPage'
+import { SendReceiptPage } from '@/pages/payments/SendReceiptPage'
 import { SendQuotePage } from '@/pages/quotes/SendQuotePage'
 import { ConvertLeadPage } from '@/pages/leads/ConvertLeadPage'
 import { LeadPage } from '@/pages/leads/LeadPage'
@@ -106,6 +107,7 @@ export const routes: RouteObject[] = [
           { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
           { path: 'cobros', element: <CobrosPage /> },
           { path: 'cobros/nuevo', element: <RegisterPaymentPage /> },
+          { path: 'cobros/:id/comprobante', element: <SendReceiptPage /> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

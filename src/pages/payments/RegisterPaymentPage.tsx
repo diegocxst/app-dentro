@@ -98,7 +98,10 @@ export function RegisterPaymentPage() {
       const saved = await registerPayment({ patientId: patient.id, quoteId: quote?.id ?? null, amount: value, method, paidAt, reference, notes })
       const back = params.get('volver')
       const to = back?.startsWith('/') ? back : quote ? `/presupuestos/${quote.id}` : `/pacientes/${patient.id}`
-      navigate(to, { state: { notice: `Listo. Registramos el pago ${receiptFolio(saved.folio)} por ${money(value)}.` } })
+      // Al registrar se abre el comprobante para enviarlo; «Volver» lleva a donde ibas.
+      navigate(`/cobros/${saved.id}/comprobante?${new URLSearchParams({ volver: to }).toString()}`, {
+        state: { notice: `Listo. Registramos el pago ${receiptFolio(saved.folio)} por ${money(value)}.` },
+      })
     } catch (err) {
       setError(rpcErrorMessage(err as { code?: string }, { invalid: 'Revisa el monto, la fecha y el presupuesto.' }))
     } finally {

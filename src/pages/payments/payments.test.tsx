@@ -32,7 +32,7 @@ describe('reglas de pagos', () => {
 })
 
 describe('M5-A · registrar pago', () => {
-  it('desde el presupuesto: sugiere el anticipo, lo registra, acepta el presupuesto y vuelve con aviso', async () => {
+  it('desde el presupuesto: sugiere el anticipo, lo registra, acepta el presupuesto y abre el comprobante', async () => {
     seed()
     const user = userEvent.setup()
     const { router } = await renderApp('/cobros/nuevo?paciente=p-1&presupuesto=q-1&volver=/presupuestos/q-1')
@@ -42,9 +42,11 @@ describe('M5-A · registrar pago', () => {
     await user.type(screen.getByLabelText('Referencia (opcional)'), 'SPEI 123')
     await user.click(screen.getByRole('button', { name: 'Registrar pago' }))
     expect(fakeSupabase.rpc).toHaveBeenCalledWith('register_payment', expect.objectContaining({ p_patient: 'p-1', p_quote: 'q-1', p_amount: 5000, p_method: 'transferencia', p_reference: 'SPEI 123' }))
-    await waitFor(() => expect(router.state.location.pathname).toBe('/presupuestos/q-1'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/cobros/pay-1/comprobante'))
     expect(await screen.findByText('Listo. Registramos el pago R-0001 por $5,000.')).toBeInTheDocument()
     expect(fakeDb.quotes[0]!.status).toBe('aceptado')
+    // «Volver» lleva a donde ibas (el presupuesto).
+    expect(screen.getByRole('link', { name: 'Volver' })).toHaveAttribute('href', '/presupuestos/q-1')
   })
 
   it('no deja pagar más que el saldo del presupuesto', async () => {

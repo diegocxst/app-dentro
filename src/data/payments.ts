@@ -1,4 +1,4 @@
-import type { PatientAccount, PaymentMethod, PaymentStats } from '@/lib/payments'
+import { balanceAfter, type PatientAccount, type PaymentMethod, type PaymentStats } from '@/lib/payments'
 import type { Database, Tables } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
@@ -78,4 +78,39 @@ export async function listQuotePayments(quoteId: string): Promise<Payment[]> {
   const { data, error } = await supabase.from('payments').select('*').eq('quote_id', quoteId).order('paid_at', { ascending: false }).range(0, 99)
   if (error) throw error
   return (data ?? []) as Payment[]
+}
+
+export type Receipt = {
+  payment: Payment
+  patientName: string
+  patientPhone: string | null
+  quote: { id: string; folio: number; title: string; total: number } | null
+  /** Saldo del presupuesto después de este pago (null si fue un abono suelto). */
+  balance: number | null
+}
+
+/** Datos del comprobante de un pago. `null` si no existe o no se puede ver (RLS). */
+export async function getReceipt(paymentId: string): Promise<Receipt | null> {
+  const { data, error } = await supabase.from('payments').select('*').eq('id', paymentId).maybeSingle()
+  if (error) throw error
+  if (!data) return null
+  const payment = data as Payment
+  const { data: patient, error: pErr } = await supabase.from('patients').select('full_name, phone_e164').eq('id', payment.patient_id).maybeSingle()
+  if (pErr) throw pErr
+  const p = patient as { full_name: string; phone_e164: string | null } | null
+  let quote: Receipt['quote'] = null
+  let balance: number | null = null
+  if (payment.quote_id) {
+    const [{ data: q, error: qErr }, quotePayments] = await Promise.all([
+      supabase.from('quotes').select('id, folio, title, total').eq('id', payment.quote_id).maybeSingle(),
+      listQuotePayments(payment.quote_id),
+    ])
+    if (qErr) throw qErr
+    if (q) {
+      const row = q as { id: string; folio: number; title: string; total: number | string }
+      quote = { id: row.id, folio: row.folio, title: row.title, total: Number(row.total) }
+      balance = balanceAfter(quote.total, quotePayments, payment.id)
+    }
+  }
+  return { payment, patientName: p?.full_name ?? 'Paciente', patientPhone: p?.phone_e164 ?? null, quote, balance }
 }

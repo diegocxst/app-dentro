@@ -71,10 +71,17 @@ function PaymentItem({ p, canVoid, onChanged }: { p: Payment & { patientName?: s
         </span>
       </div>
       {voided && p.void_reason && <span className="text-caption text-ink-muted">Motivo: {p.void_reason}</span>}
-      {canVoid && !voided && !voiding && (
-        <button type="button" onClick={() => setVoiding(true)} className="min-h-9 self-start text-caption font-semibold text-error" aria-label={`Anular pago ${receiptFolio(p.folio)}`}>
-          Anular
-        </button>
+      {!voided && !voiding && (
+        <div className="flex flex-wrap gap-4">
+          <Link to={`/cobros/${p.id}/comprobante`} className="flex min-h-9 items-center text-caption font-semibold text-violet" aria-label={`Comprobante del pago ${receiptFolio(p.folio)}`}>
+            Comprobante
+          </Link>
+          {canVoid && (
+            <button type="button" onClick={() => setVoiding(true)} className="min-h-9 text-caption font-semibold text-error" aria-label={`Anular pago ${receiptFolio(p.folio)}`}>
+              Anular
+            </button>
+          )}
+        </div>
       )}
       {voiding && (
         <div className="flex flex-col gap-2">

@@ -10,22 +10,14 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getQuote, markQuoteFollowup, setQuoteStatus, type QuoteCard, type QuoteItem } from '@/data/quotes'
 import { useQuotePdf } from '@/hooks/useQuotePdf'
+import { useShareFile } from '@/hooks/useShareFile'
 import { formatPhone } from '@/lib/phone'
-import { downloadBlob, quoteMessage, whatsappUrl } from '@/lib/quoteShare'
+import { downloadBlob, quoteMessage } from '@/lib/quoteShare'
 import { folioLabel, money } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 const textareaClasses = 'w-full rounded-sm border border-border bg-surface-raised p-3 text-ui text-ink placeholder:text-ink-muted focus:outline-2 focus:outline-violet'
-
-/** ¿El navegador puede compartir archivos (celular)? Si no, se descarga y se abre WhatsApp. */
-function canShareFiles(): boolean {
-  try {
-    return typeof navigator.canShare === 'function' && navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] })
-  } catch {
-    return false
-  }
-}
 
 /** P20 · Enviar presupuesto por WhatsApp. El PDF se comparte como archivo (sin enlaces públicos). */
 export function SendQuotePage() {
@@ -74,7 +66,7 @@ function SendForm({ quote, items, onSent }: { quote: QuoteCard; items: QuoteItem
   const [edited, setEdited] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ tone: 'success' | 'error' | 'info'; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
-  const [mobile] = useState(canShareFiles)
+  const { mobile, share } = useShareFile()
   const canWrite = active?.tenant.status === 'active'
   const suggested = quoteMessage({
     patient: quote.patientName,
@@ -122,19 +114,9 @@ function SendForm({ quote, items, onSent }: { quote: QuoteCard; items: QuoteItem
     setNotice(null)
     setBusy(true)
     try {
-      let attachHint = ''
-      if (attach && file && mobile) {
-        try {
-          await navigator.share({ files: [file], text: message })
-        } catch (e) {
-          if ((e as { name?: string }).name === 'AbortError') return // canceló el menú de compartir
-          throw e
-        }
-      } else {
-        if (attach && file) downloadBlob(file, file.name)
-        window.open(whatsappUrl(quote.patientPhone, message), '_blank', 'noopener')
-        if (attach && file) attachHint = `Descargamos «${file.name}». Adjúntalo en el chat de WhatsApp que se abrió.`
-      }
+      const sent = await share({ file: attach ? file : null, phone: quote.patientPhone, message })
+      if (sent.cancelled) return
+      const attachHint = sent.attachHint
       const stage = await afterSend()
       // La instrucción de adjuntar no se pierde: va junto con el aviso de la etapa.
       const text = [stage?.text, attachHint].filter(Boolean).join(' ')

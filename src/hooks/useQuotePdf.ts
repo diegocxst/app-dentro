@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import type { QuoteCard, QuoteItem } from '@/data/quotes'
+import { useClinicPdf } from '@/hooks/useClinicPdf'
 import { useDoctors } from '@/hooks/useDoctors'
-import { logoToPng, quoteFileName } from '@/lib/quoteShare'
+import { quoteFileName } from '@/lib/quoteShare'
 import { folioLabel } from '@/lib/quotes'
-import { formatPhone } from '@/lib/phone'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 /**
@@ -11,23 +11,16 @@ import { useWorkspace } from '@/workspace/workspace-context'
  * y WhatsApp). El motor de PDF se carga solo al llamar a `build`.
  */
 export function useQuotePdf(quote: QuoteCard | null, items: QuoteItem[]) {
-  const { active, branches, activeBranchId, logoUrl } = useWorkspace()
+  const { active } = useWorkspace()
+  const clinicPdf = useClinicPdf()
   const doctors = useDoctors(active?.tenant_id)
   const doctorName = doctors.find((d) => d.id === quote?.doctor_id)?.name ?? ''
-  const address = (branches.find((b) => b.id === activeBranchId) ?? branches[0])?.address ?? ''
-  const tenant = active?.tenant
 
   const build = useCallback(async (): Promise<File> => {
-    if (!quote || !tenant) throw new Error('Sin presupuesto')
-    const [{ renderQuotePdf }, logoPng] = await Promise.all([import('@/pages/quotes/quotePdf'), logoToPng(logoUrl)])
+    if (!quote) throw new Error('Sin presupuesto')
+    const [{ renderQuotePdf }, clinic] = await Promise.all([import('@/pages/quotes/quotePdf'), clinicPdf()])
     const blob = await renderQuotePdf({
-      clinic: {
-        name: tenant.display_name,
-        address,
-        phone: tenant.whatsapp_e164 ? `WhatsApp ${formatPhone(tenant.whatsapp_e164)}` : '',
-        brandColor: tenant.brand_color,
-        logoPng,
-      },
+      clinic,
       folio: folioLabel(quote.folio),
       date: quote.created_at,
       patient: quote.patientName,
@@ -41,7 +34,7 @@ export function useQuotePdf(quote: QuoteCard | null, items: QuoteItem[]) {
       notes: quote.notes ?? '',
     })
     return new File([blob], quoteFileName(folioLabel(quote.folio), quote.patientName), { type: 'application/pdf' })
-  }, [quote, items, tenant, address, logoUrl, doctorName])
+  }, [quote, items, clinicPdf, doctorName])
 
   return { build, doctorName }
 }
