@@ -1,16 +1,16 @@
 # estado.md — dentro
-Última actualización: 2026-11-19 · Por: Diego (con Claude)
+Última actualización: 2026-11-23 · Por: Diego (con Claude)
 
 ## ▶ PUNTO DE RETORNO (leer primero al abrir una conversación nueva)
 
-### Dónde estamos (2026-11-19)
+### Dónde estamos (2026-11-23)
 - **Fase E3 · Módulos esenciales** (aprobada por Diego). Orden del roadmap: M10 → M2+M7 → M3 → M1 → M4 → **M5** → M6 → M8.
-- **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A y M4-B. Último push: `44ffc2a`.
-- **EN CURSO — E3 · M5-A Pagos:** rama `feature/e3-m5-pagos`, último commit `9b2f5cf`. **Migración 0016 aplicada en dev**, tipos regenerados, 16 suites en verde en el proyecto real, revisión visual hecha. **Falta solo: integrar en `main` y push** — esperar el «Sí, integra y sube» de Diego.
+- **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A, M4-B y **M5-A**. Último push: ver «Integración».
+- **SIGUIENTE — paquete de Ajustes** (observaciones 1, 2, 4, 6 y 9), aprobado por Diego el 2026-11-23 («Sí, en ese orden»).
 - **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 281 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
 
 ### Lo próximo, en orden
-1. **Integrar M5-A** en `main` + push (con aprobación).
+1. **Ajustes** (`docs/observaciones.md` 1, 2, 4, 6 y 9): recorrido que señala cada parte, logo hasta 20 MB reducido en el navegador, «Unidad dental» en lugar de «Sillón», vista mensual en la agenda y menú hamburguesa en móvil.
 2. **M5-B · Comprobante de pago** (ya decidido por Diego): PDF con la marca de la clínica (folio R-0001, monto, forma de pago, presupuesto y **saldo restante**; no es factura) + envío por WhatsApp compartiendo el archivo. Reusar el patrón de M4-B: `src/pages/quotes/quotePdf.tsx`, `src/lib/quoteShare.ts`, `src/hooks/useQuotePdf.ts`, `src/pages/quotes/SendQuotePage.tsx`. Probablemente **sin migración**. Botones en el pago (Cobros, ficha › Pagos y el presupuesto) y al terminar de registrar.
 3. **M6 · Doctores y comisiones:** `payments.doctor_id` ya guarda a quién se atribuye cada pago. Modelo: `commission_schemes` (`percent_collected` / `chair_rent` / `fixed_per_procedure`) y `commission_entries` (por pago; por pagar / pagada). Comisiones **sobre lo cobrado**, nunca sobre lo presupuestado. Preguntar decisiones a Diego antes de la migración.
 4. **M8 · Tareas:** incluye «Recordarme si no responde» (presupuestos, P20) y «Tareas de hoy» en Mi día.
@@ -18,7 +18,7 @@
 6. **Al final (decisión de Diego):** guía de pruebas por módulo para Diego y su cuñada.
 
 ### Observaciones de Diego (2026-11-20)
-- Anotadas y clasificadas en `docs/observaciones.md` (9 al momento). Propuesta: paquete de **Ajustes** (1 recorrido que señala cada parte, 2 logo hasta 20 MB reducido en el navegador, 4 «Unidad dental», 6 vista mensual, 9 menú hamburguesa en móvil) después de integrar M5-A; **por decidir** 3 (límites por plan), 5 (Google Calendar), 7 (landing y prueba de 30 días) y 8 (anuncios).
+- Anotadas y clasificadas en `docs/observaciones.md` (9 al momento). Propuesta: paquete de **Ajustes** (1 recorrido que señala cada parte, 2 logo hasta 20 MB reducido en el navegador, 4 «Unidad dental», 6 vista mensual, 9 menú hamburguesa en móvil) (siguiente). **Decididas el 2026-11-23** (ver `docs/decisiones.md`): 3 límites por plan, 5 Google Calendar (E6), 7 landing con 30 días gratis y 8 anuncios; faltan detalles y etapas (ver la tabla).
 
 ### Datos ficticios que existen en dev (no son reales; no borrar sin permiso)
 - Clínica de Diego «Dientitos» (color #0E5E8A, sin logo cargado). Sucursal principal, sillones No.1 y No.2, horario 09:00–20:00.
@@ -30,6 +30,7 @@
 - **B4** correo transaccional · **protección de contraseñas filtradas** en Supabase Auth · **P5** revisión legal (avisos, contrato) · revisar con su contador el **precio sin desglose de IVA** (CFDI en Fase 2) · **B6** cuentas de Mercado Pago/Stripe para el link de pago (E6) · ¿permitir a la gerencia agendar **fuera de horario** con motivo? (hoy no se puede) · M2-B: vista de **solicitudes ARCO de toda la clínica** (propuesta) · arrastrar tarjetas en los Kanban y el horario por doctor (M6) quedan para después.
 
 ## Integración
+- 2026-11-23: E3 · M5-A Pagos integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 281 pruebas (3 corridas), `test:db` (16 migraciones) y build; sin secretos.
 - 2026-11-19: E3 · M4-B Presupuestos (PDF y WhatsApp) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M4 Presupuestos completo.** Verificado en `main`: lint, typecheck, 274 pruebas (3 corridas), `test:db` (15 migraciones) y build; sin secretos.
 - 2026-11-18: E3 · M4-A Presupuestos integrada en `main` (avance directo) y **push** con aprobación de Diego. Verificado en `main`: lint, typecheck, 269 pruebas (3 corridas), `test:db` (15 migraciones) y build; sin secretos.
 - 2026-11-18: E3 · M1-B Leads (valoración y conversión) integrada en `main` (avance directo) y **push** con aprobación de Diego. **M1 Leads completo.** Verificado en `main`: lint, typecheck, 261 pruebas (3 corridas), `test:db` (14 migraciones) y build; sin secretos.
