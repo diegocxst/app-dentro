@@ -30,7 +30,6 @@ import { StepTreatmentsPage } from '@/pages/onboarding/StepTreatmentsPage'
 import { StepWhatsappPage } from '@/pages/onboarding/StepWhatsappPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
-import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
@@ -45,7 +44,7 @@ import { LeadsPage } from '@/pages/leads/LeadsPage'
 import { NewLeadPage } from '@/pages/leads/NewLeadPage'
 import { AppointmentFormPage } from '@/pages/agenda/AppointmentFormPage'
 import { PRIVACY_PATH } from '@/lib/privacy'
-import { GUIDE_PATH, MORE_PATH, SECTIONS } from './navigation'
+import { GUIDE_PATH, SECTIONS } from './navigation'
 
 const guest = (page: ReactNode) => <GuestOnly>{page}</GuestOnly>
 
@@ -118,7 +117,6 @@ export const routes: RouteObject[] = [
           { path: 'configuracion/identidad', element: <IdentityPage /> },
           { path: 'configuracion/perfil', element: <ProfilePage /> },
           { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
-          { path: MORE_PATH.slice(1), element: <MorePage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

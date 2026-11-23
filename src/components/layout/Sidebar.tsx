@@ -6,12 +6,12 @@ import { cn } from '@/lib/cn'
 import { ClinicAvatar } from './ClinicAvatar'
 import { SignOutButton } from './SignOutButton'
 
-/** Menú lateral de escritorio (fondo `night`). Réplica de `Menu.dc.html`. */
-export function Sidebar() {
+/** Menú lateral (fondo `night`). Réplica de `Menu.dc.html`. En móvil se abre como panel desde ☰. */
+export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
   const clinic = useClinic()
   return (
     <nav
-      aria-label="Menú principal"
+      aria-label={label}
       className="sticky top-0 flex h-dvh w-62 shrink-0 flex-col gap-6 overflow-y-auto bg-night px-4 py-6 text-on-night"
     >
       <div className="flex flex-col gap-3 border-b border-night-border px-2 pt-1 pb-4">

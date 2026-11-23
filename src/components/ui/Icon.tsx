@@ -21,6 +21,8 @@ const PATHS = {
   notificaciones: 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4',
   mas_nuevo: 'M12 5v14M5 12h14',
   check: 'M5 12l5 5 9-10',
+  menu: 'M4 7h16M4 12h16M4 17h16',
+  cerrar: 'M6 6l12 12M18 6L6 18',
   refresh: 'M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7',
   sinConexion: 'M2 8.8a15 15 0 0 1 4.2-2.6M9.9 5.2A15 15 0 0 1 22 8.8M5 12.9a10 10 0 0 1 5.2-2.7M15.6 10.6A10 10 0 0 1 19 12.9M8.5 16.4a5 5 0 0 1 7 0M12 20h.01M3 3l18 18',
 } as const

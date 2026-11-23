@@ -126,9 +126,8 @@ export const SECTIONS: readonly Section[] = [
 ]
 
 export const GUIDE_PATH = '/guia'
-export const MORE_PATH = '/mas'
 
-/** Pestañas de la barra inferior en móvil: Inicio · Agenda · Pacientes · Leads · Más. */
+/** Pestañas de la barra inferior en móvil: Inicio · Agenda · Pacientes · Leads (el resto, en el menú ☰). */
 export const MOBILE_TAB_IDS: readonly SectionId[] = ['inicio', 'agenda', 'pacientes', 'leads']
 
 /** Opciones del botón "+ Nuevo" (llevan a la sección donde se creará cada cosa). */

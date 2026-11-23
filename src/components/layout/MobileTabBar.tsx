@@ -1,24 +1,21 @@
 import { NavLink } from 'react-router'
-import { MOBILE_TAB_IDS, MORE_PATH, sectionById } from '@/app/navigation'
+import { MOBILE_TAB_IDS, sectionById } from '@/app/navigation'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { cn } from '@/lib/cn'
 
-const TABS: { label: string; path: string; icon: IconName }[] = [
-  ...MOBILE_TAB_IDS.map((id) => {
-    const s = sectionById(id)
-    return { label: s.label, path: s.path, icon: s.icon }
-  }),
-  { label: 'Más', path: MORE_PATH, icon: 'mas' },
-]
+const TABS: { label: string; path: string; icon: IconName }[] = MOBILE_TAB_IDS.map((id) => {
+  const s = sectionById(id)
+  return { label: s.label, path: s.path, icon: s.icon }
+})
 
-/** Barra inferior en móvil y tablet: Inicio · Agenda · Pacientes · Leads · Más. */
+/** Barra inferior en móvil y tablet: Inicio · Agenda · Pacientes · Leads (el resto, en el menú ☰). */
 export function MobileTabBar() {
   return (
     <nav
       aria-label="Navegación"
       className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface-raised px-2 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] lg:hidden"
     >
-      <ul className="m-0 grid list-none grid-cols-5 p-0">
+      <ul className="m-0 grid list-none grid-cols-4 p-0">
         {TABS.map((t) => (
           <li key={t.path}>
             <NavLink

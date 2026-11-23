@@ -53,10 +53,34 @@ describe('AppLayout', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
-  it('muestra la barra inferior móvil Inicio · Agenda · Pacientes · Leads · Más', async () => {
+  it('muestra la barra inferior móvil Inicio · Agenda · Pacientes · Leads', async () => {
     await renderApp('/')
     const tabs = screen.getByRole('navigation', { name: 'Navegación' })
-    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Leads', 'Más'])
+    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Leads'])
+  })
+
+  it('el botón ☰ abre el menú completo y se cierra al elegir, con Esc o con Cerrar', async () => {
+    const user = userEvent.setup()
+    const { router } = await renderApp('/')
+    const [openBtn] = screen.getAllByRole('button', { name: 'Abrir menú' })
+    await user.click(openBtn!)
+    const dialog = screen.getByRole('dialog', { name: 'Menú' })
+    expect(openBtn).toHaveAttribute('aria-expanded', 'true')
+    expect(within(dialog).getAllByRole('link').map((l) => l.textContent)).toContain('Cobros')
+    expect(within(dialog).getByRole('button', { name: 'Cerrar menú' })).toHaveFocus()
+
+    await user.click(within(dialog).getByRole('link', { name: 'Cobros' }))
+    expect(router.state.location.pathname).toBe('/cobros')
+    expect(screen.queryByRole('dialog', { name: 'Menú' })).not.toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'Abrir menú' })[0]!)
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: 'Menú' })).not.toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'Abrir menú' })[0]!)
+    await user.click(screen.getByRole('button', { name: 'Cerrar menú' }))
+    expect(screen.queryByRole('dialog', { name: 'Menú' })).not.toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/cobros')
   })
 })
 
@@ -86,10 +110,8 @@ describe('navegación', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Guía de inicio' })).toBeInTheDocument()
 
     const tabs = screen.getByRole('navigation', { name: 'Navegación' })
-    await user.click(within(tabs).getByRole('link', { name: 'Más' }))
-    expect(router.state.location.pathname).toBe('/mas')
-    await user.click(within(screen.getByRole('navigation', { name: 'Más secciones' })).getByRole('link', { name: 'Cobros' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Cobros' })).toBeInTheDocument()
+    await user.click(within(tabs).getByRole('link', { name: 'Pacientes' }))
+    expect(router.state.location.pathname).toBe('/pacientes')
 
     await user.click(within(tabs).getByRole('link', { name: 'Inicio' }))
     expect(router.state.location.pathname).toBe('/')

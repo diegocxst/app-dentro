@@ -6,8 +6,8 @@
 ### Dónde estamos (2026-11-23)
 - **Fase E3 · Módulos esenciales** (aprobada por Diego). Orden del roadmap: M10 → M2+M7 → M3 → M1 → M4 → **M5** → M6 → M8.
 - **En `main` y en GitHub (`diegocxst/app-dentro`):** E1, E2, M10, M2-A, M7, M2-B, M3-A, M3-B, M1-A, M1-B, M4-A, M4-B y **M5-A**. Último push: ver «Integración».
-- **SIGUIENTE — paquete de Ajustes** (observaciones 1, 2, 4, 6 y 9), aprobado por Diego el 2026-11-23 («Sí, en ese orden»).
-- **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 281 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
+- **EN CURSO — Ajustes-A** en la rama `feature/e3-ajustes` (sin migración): logo de hasta 20 MB reducido en el navegador a 512 px, «Unidad dental» en lugar de «Sillón» (solo textos; la base sigue con `chairs`), menú ☰ en móvil y tablet con el menú completo (la barra inferior se queda sin «Más»; se quitó la página `/mas`). Verificado: typecheck, lint, 285 pruebas (3 corridas), build y revisión en el navegador. **Falta: «Sí, integra y sube».** Después, **Ajustes-B**: recorrido que señala cada parte y vista mensual (número de citas y un punto por doctor; tocar el día abre Día).
+- **Números:** 16 migraciones (0001–0016, todas aplicadas en dev), 16 suites `*_rls_isolation.sql`, 285 pruebas de la app, Edge Functions `invite-member` y `document-url` desplegadas.
 
 ### Lo próximo, en orden
 1. **Ajustes** (`docs/observaciones.md` 1, 2, 4, 6 y 9): recorrido que señala cada parte, logo hasta 20 MB reducido en el navegador, «Unidad dental» en lugar de «Sillón», vista mensual en la agenda y menú hamburguesa en móvil.

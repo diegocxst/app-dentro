@@ -1,6 +1,8 @@
+import { useCallback, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { OfflineBanner } from '@/components/feedback/OfflineBanner'
 import { SectionErrorBoundary } from '@/components/feedback/SectionErrorBoundary'
+import { MobileMenu } from '@/components/layout/MobileMenu'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
 import { NewMenu } from '@/components/layout/NewMenu'
 import { Sidebar } from '@/components/layout/Sidebar'
@@ -11,12 +13,16 @@ import { useWorkspace } from '@/workspace/workspace-context'
 /**
  * Layout principal.
  * - Escritorio (≥1024 px): menú lateral `night` + barra superior.
- * - Móvil y tablet: barra superior compacta + barra inferior + botón flotante "+ Nuevo".
+ * - Móvil y tablet: barra superior compacta con ☰ (menú completo) + barra inferior + botón flotante "+ Nuevo".
  */
 export function AppLayout() {
   const { active } = useWorkspace()
   const { pathname } = useLocation()
   const suspended = active?.tenant.status === 'suspended'
+  // El menú móvil queda abierto solo en la ruta donde se abrió: al navegar se cierra solo.
+  const [menuAt, setMenuAt] = useState<string | null>(null)
+  const menuOpen = menuAt === pathname
+  const closeMenu = useCallback(() => setMenuAt(null), [])
   return (
     <div className="flex min-h-dvh bg-surface text-ink">
       <a
@@ -29,7 +35,7 @@ export function AppLayout() {
         <Sidebar />
       </div>
       <div className="flex min-w-0 grow flex-col">
-        <Topbar />
+        <Topbar onOpenMenu={() => setMenuAt(pathname)} menuOpen={menuOpen} />
         <main id="contenido" tabIndex={-1} className="w-full max-w-310 grow px-4 pt-6 pb-44 outline-none md:px-6 lg:px-8 lg:pt-8 lg:pb-12">
           <div className="mb-6 empty:hidden">
             <OfflineBanner />
@@ -45,6 +51,7 @@ export function AppLayout() {
         </main>
       </div>
       <MobileTabBar />
+      {menuOpen && <MobileMenu onClose={closeMenu} />}
       <div className="fixed right-4 bottom-[calc(96px+env(safe-area-inset-bottom))] z-20 lg:hidden">
         <NewMenu variant="fab" />
       </div>

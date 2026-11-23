@@ -55,6 +55,21 @@ function BranchSelect() {
   )
 }
 
+function MenuButton({ onClick, open }: { onClick: () => void; open: boolean }) {
+  return (
+    <button
+      type="button"
+      aria-label="Abrir menú"
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      onClick={onClick}
+      className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-md text-ink hover:bg-lavender lg:hidden"
+    >
+      <Icon name="menu" size={22} />
+    </button>
+  )
+}
+
 function NotificationsButton() {
   return (
     <button
@@ -68,7 +83,7 @@ function NotificationsButton() {
 }
 
 /** Barra superior. Réplica de `Barra.dc.html` (escritorio) y del encabezado de `Movil-MiDia.dc.html` (móvil). */
-export function Topbar() {
+export function Topbar({ onOpenMenu, menuOpen = false }: { onOpenMenu?: () => void; menuOpen?: boolean }) {
   const clinic = useClinic()
   const { branches, activeBranchId } = useWorkspace()
   const branchName = branches.find((b) => b.id === activeBranchId)?.name
@@ -77,6 +92,7 @@ export function Topbar() {
       {/* Escritorio y tablet */}
       <div className="hidden min-h-16 items-center gap-3 px-6 py-3 md:flex lg:gap-4 lg:px-8">
         <div className="flex shrink-0 items-center gap-3 lg:hidden">
+          {onOpenMenu && <MenuButton onClick={onOpenMenu} open={menuOpen} />}
           <ClinicAvatar size="md" />
           <span className="font-display text-ui font-bold">{clinic.displayName}</span>
         </div>
@@ -91,6 +107,7 @@ export function Topbar() {
       {/* Móvil */}
       <div className="flex flex-col gap-3 px-4 pt-[max(12px,env(safe-area-inset-top))] pb-3 md:hidden">
         <div className="flex items-center gap-3">
+          {onOpenMenu && <MenuButton onClick={onOpenMenu} open={menuOpen} />}
           <ClinicAvatar size="md" />
           <div className="flex min-w-0 grow flex-col">
             <span className="truncate font-display text-ui font-bold">{clinic.displayName}</span>
