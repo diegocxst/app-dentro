@@ -151,7 +151,7 @@ export function CommissionsPage() {
             ))}
           </dl>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             {isManager && (
               <Card className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-ui">
@@ -198,7 +198,7 @@ export function CommissionsPage() {
               </Card>
             )}
             {selected && (
-              <div className={cn(!isManager && 'xl:col-span-2')}>
+              <div className={cn(!isManager && '2xl:col-span-2')}>
                 <CommissionDetail key={`${selected.doctor_id}-${period.from}`} row={selected} period={period} canManage={canManage} onChanged={reload} />
               </div>
             )}
