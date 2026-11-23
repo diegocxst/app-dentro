@@ -68,9 +68,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[]; commission_schemes: Row[]; commission_entries: Row[]; commission_payouts: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [], commission_schemes: [], commission_entries: [], commission_payouts: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -95,6 +95,7 @@ export function fakeTenant(overrides: Row = {}): Row {
     owner_title: 'Propietaria',
     logo_path: null,
     brand_color: '#0E5E8A',
+    commission_period: 'quincenal',
     onboarding_state: { tasks: { identity: true } },
     whatsapp_e164: null,
     city: '',
@@ -219,9 +220,124 @@ function functionHandler(name: string, body: Record<string, unknown>): FnResult 
 type RpcResult = Promise<{ data: unknown; error: { code: string; message: string } | null }>
 export const rpcOverrides: Record<string, (args: Record<string, unknown>) => RpcResult> = {}
 
+
+// ── Comisiones (M6-A): mismas reglas y límites que la base (periodo ≤ 400 días, ≤ 200 movimientos) ──
+const err = (code: string) => Promise.resolve({ data: null, error: { code, message: code } })
+const localDate = (iso: unknown) => String(iso).slice(0, 10)
+const activeScheme = (doctor: unknown) => fakeDb.commission_schemes.find((x) => x.membership_id === doctor && !x.ended_at)
+
+function commissionOnPayment(pay: Row) {
+  const sch = pay.doctor_id ? activeScheme(pay.doctor_id) : undefined
+  if (!sch) return
+  const rate = sch.kind === 'percent_collected' ? Number(sch.percent) : 100
+  fakeDb.commission_entries.push({
+    id: `ce-${fakeDb.commission_entries.length + 1}`, tenant_id: pay.tenant_id, doctor_id: pay.doctor_id, payment_id: pay.id, scheme_id: sch.id, kind: 'comision',
+    base: Number(pay.amount), rate, amount: Math.round(Number(pay.amount) * rate) / 100, period_date: localDate(pay.paid_at), payout_id: null, created_at: '2026-11-23T12:00:00Z', voided_at: null,
+  })
+}
+
+function commissionOnVoid(pay: Row) {
+  const e = fakeDb.commission_entries.find((x) => x.payment_id === pay.id && x.kind === 'comision')
+  if (!e || e.voided_at) return
+  if (!e.payout_id) e.voided_at = '2026-11-23T13:00:00Z'
+  else fakeDb.commission_entries.push({ ...e, id: `ce-${fakeDb.commission_entries.length + 1}`, kind: 'ajuste', base: -Number(e.base), amount: -Number(e.amount), period_date: new Date().toISOString().slice(0, 10), payout_id: null })
+}
+
+function badPeriod(from: unknown, to: unknown) {
+  if (!from || !to) return true
+  const days = (Date.parse(String(to)) - Date.parse(String(from))) / 86400000
+  return days < 0 || days > 400
+}
+
+function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | null {
+  const me = (tenant: unknown) => fakeDb.memberships.find((m) => m.tenant_id === tenant && m.user_id === current?.user.id && m.status === 'active')
+  const isMgr = (tenant: unknown) => ['owner', 'admin'].includes(String(me(tenant)?.role))
+  const inRange = (d: string) => d >= String(args.p_from) && d <= String(args.p_to)
+  if (fn === 'commission_summary') {
+    const mine = me(args.p_tenant)
+    if (!mine) return err('42501')
+    if (badPeriod(args.p_from, args.p_to)) return err('22023')
+    const docs = fakeDb.memberships.filter(
+      (m) => m.tenant_id === args.p_tenant && m.status === 'active' && ['owner', 'admin', 'doctor', 'doctor_collab'].includes(String(m.role)) && (isMgr(args.p_tenant) || m.id === mine.id),
+    )
+    if (!isMgr(args.p_tenant) && !['doctor', 'doctor_collab'].includes(String(mine.role))) return Promise.resolve({ data: [], error: null })
+    const data = docs.map((m) => {
+      const s = activeScheme(m.id)
+      const pays = fakeDb.payments.filter((x) => x.doctor_id === m.id && !x.voided_at && inRange(localDate(x.paid_at)))
+      const ents = fakeDb.commission_entries.filter((e) => e.doctor_id === m.id && !e.voided_at && inRange(String(e.period_date)))
+      const sum = (rs: Row[]) => Math.round(rs.reduce((t, e) => t + Number(e.amount), 0) * 100) / 100
+      const payouts = fakeDb.commission_payouts.filter((po) => po.doctor_id === m.id && po.period_from === args.p_from)
+      return {
+        doctor_id: m.id, full_name: fakeDb.profiles.find((p) => p.id === m.user_id)?.full_name || 'Sin nombre', role: m.role,
+        scheme_kind: s?.kind ?? null, percent: s?.percent ?? null, rent_amount: s?.rent_amount ?? null,
+        patients: new Set(pays.map((x) => x.patient_id)).size, collected: pays.reduce((t, x) => t + Number(x.amount), 0),
+        commission: sum(ents), pending: sum(ents.filter((e) => !e.payout_id)), paid: sum(ents.filter((e) => e.payout_id)),
+        rent_due: s?.kind === 'chair_rent' && !payouts.some((po) => Number(po.rent) > 0) ? Number(s.rent_amount) : 0,
+        last_paid_at: payouts.map((po) => String(po.paid_at)).sort().at(-1) ?? null,
+      }
+    })
+    return Promise.resolve({ data, error: null })
+  }
+  if (fn === 'commission_lines') {
+    const doc = fakeDb.memberships.find((m) => m.id === args.p_doctor)
+    if (!doc || !(isMgr(doc.tenant_id) || me(doc.tenant_id)?.id === doc.id)) return err('P0002')
+    if (badPeriod(args.p_from, args.p_to)) return err('22023')
+    const all = fakeDb.commission_entries
+      .filter((e) => e.doctor_id === doc.id && !e.voided_at && inRange(String(e.period_date)))
+      .map((e) => {
+        const pay = fakeDb.payments.find((x) => x.id === e.payment_id)
+        const q = fakeDb.quotes.find((x) => x.id === pay?.quote_id)
+        return { id: e.id, kind: e.kind, base: e.base, rate: e.rate, amount: e.amount, period_date: e.period_date, paid: Boolean(e.payout_id), folio: pay?.folio,
+          method: pay?.method, patient: fakeDb.patients.find((x) => x.id === pay?.patient_id)?.full_name, quote_title: q?.title ?? null, quote_folio: q?.folio ?? null }
+      })
+      .sort((a, b) => String(b.period_date).localeCompare(String(a.period_date)) || Number(b.folio) - Number(a.folio))
+    const limit = Math.min(Math.max(Number(args.p_limit ?? 50), 1), 200)
+    const offset = Math.max(Number(args.p_offset ?? 0), 0)
+    return Promise.resolve({ data: { total: all.length, rows: all.slice(offset, offset + limit) }, error: null })
+  }
+  if (fn === 'pay_commissions') {
+    const doc = fakeDb.memberships.find((m) => m.id === args.p_doctor)
+    if (!doc || !isMgr(doc.tenant_id)) return err('P0002')
+    if (badPeriod(args.p_from, args.p_to)) return err('22023')
+    const pend = fakeDb.commission_entries.filter((e) => e.doctor_id === doc.id && !e.voided_at && !e.payout_id && inRange(String(e.period_date)))
+    const s = activeScheme(doc.id)
+    const rent = s?.kind === 'chair_rent' && !fakeDb.commission_payouts.some((po) => po.doctor_id === doc.id && po.period_from === args.p_from && Number(po.rent) > 0) ? Number(s.rent_amount) : 0
+    if (pend.length === 0 && rent === 0) return err('22023')
+    const commissions = pend.reduce((t, e) => t + Number(e.amount), 0)
+    const po = { id: `po-${fakeDb.commission_payouts.length + 1}`, tenant_id: doc.tenant_id, doctor_id: doc.id, period_from: args.p_from, period_to: args.p_to, commissions, rent, total: commissions - rent, notes: args.p_notes ?? null, paid_at: '2026-11-23T14:00:00Z', paid_by: current?.user.id }
+    fakeDb.commission_payouts.push(po)
+    for (const e of pend) e.payout_id = po.id
+    return Promise.resolve({ data: po, error: null })
+  }
+  if (fn === 'set_commission_scheme') {
+    const doc = fakeDb.memberships.find((m) => m.id === args.p_membership)
+    if (!doc || !isMgr(doc.tenant_id)) return err('P0002')
+    if (!['admin', 'doctor', 'doctor_collab'].includes(String(doc.role))) return err('22023')
+    const pct = Number(args.p_percent)
+    if (args.p_kind === 'percent_collected' && !(pct > 0 && pct <= 100)) return err('22023')
+    if (args.p_kind === 'chair_rent' && !(Number(args.p_rent) > 0)) return err('22023')
+    for (const x of fakeDb.commission_schemes) if (x.membership_id === doc.id && !x.ended_at) x.ended_at = '2026-11-23T12:00:00Z'
+    if (!args.p_kind) return Promise.resolve({ data: null, error: null })
+    const row = { id: `cs-${fakeDb.commission_schemes.length + 1}`, tenant_id: doc.tenant_id, membership_id: doc.id, kind: args.p_kind,
+      percent: args.p_kind === 'percent_collected' ? pct : null, rent_amount: args.p_kind === 'chair_rent' ? Number(args.p_rent) : null, started_at: '2026-11-23T12:00:00Z', ended_at: null, created_by: current?.user.id }
+    fakeDb.commission_schemes.push(row)
+    return Promise.resolve({ data: row, error: null })
+  }
+  if (fn === 'set_commission_period') {
+    if (!isMgr(args.p_tenant)) return err('42501')
+    if (!['quincenal', 'mensual'].includes(String(args.p_period))) return err('22023')
+    const t = fakeDb.tenants.find((x) => x.id === args.p_tenant)
+    if (t) t.commission_period = args.p_period
+    return Promise.resolve({ data: t, error: null })
+  }
+  return null
+}
+
 function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
   const override = rpcOverrides[fn]
   if (override) return override(args)
+  const commission = commissionRpc(fn, args)
+  if (commission) return commission
   if (fn === 'am_i_platform_admin') return Promise.resolve({ data: false, error: null })
   if (fn === 'accept_privacy_notice') {
     const notice = fakeDb.privacy_notices.find((n) => n.is_current)
@@ -244,6 +360,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
         notes: args.p_notes ?? null, registered_by: 'u-1', created_at: '2026-11-19T12:00:00Z', voided_at: null, voided_by: null, void_reason: null,
       }
       fakeDb.payments.push(row)
+      commissionOnPayment(row)
       if (q && (q.status === 'presentado' || q.status === 'en_duda')) q.status = 'aceptado'
       return Promise.resolve({ data: row, error: null })
     }
@@ -251,6 +368,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
       const pay = fakeDb.payments.find((x) => x.id === args.p_payment)
       if (!pay) return Promise.resolve({ data: null, error: { code: 'P0002', message: 'no' } })
       Object.assign(pay, { voided_at: '2026-11-19T13:00:00Z', void_reason: args.p_reason })
+      commissionOnVoid(pay)
       return Promise.resolve({ data: pay, error: null })
     }
     const open = (pid?: unknown) =>
