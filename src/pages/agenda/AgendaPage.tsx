@@ -129,7 +129,14 @@ export function AgendaPage() {
   }
 
   const hours = branch.opening_hours as Hours | null
-  const shown = (items ?? []).filter((a) => a.status !== 'cancelada')
+  // Solo las citas de los días que se ven: mientras llega la consulta nueva,
+  // `items` todavía trae las de la vista anterior (p. ej. de la semana).
+  const rangeEnd = addDays(from, days)
+  const inRange = (a: AgendaItem) => {
+    const d = zonedParts(new Date(a.starts_at), tz).date
+    return d >= from && d < rangeEnd
+  }
+  const shown = (items ?? []).filter((a) => a.status !== 'cancelada' && inRange(a))
   const selected = (items ?? []).find((a) => a.id === selectedId) ?? null
   const newHref = (extra: Record<string, string> = {}) => `/agenda/nueva?${new URLSearchParams({ fecha: date, ...extra }).toString()}`
   const step = view === 'semana' ? 7 : 1

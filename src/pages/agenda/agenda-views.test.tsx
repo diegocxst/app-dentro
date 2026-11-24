@@ -75,6 +75,21 @@ describe('M3-B · vistas de la agenda', () => {
     await waitFor(() => expect(router.state.location.search).toBe('?fecha=2030-01-09'))
   })
 
+  it('al pasar de Semana a Día no se cuelan citas de otros días mientras carga', async () => {
+    seed()
+    cita('c1', 'p-1', 'ch-1', '2030-01-07T16:00:00Z', '2030-01-07T17:00:00Z')
+    cita('c2', 'p-2', 'ch-2', '2030-01-09T17:00:00Z', '2030-01-09T18:00:00Z', 'confirmada')
+    const user = userEvent.setup()
+    await renderApp('/agenda?fecha=2030-01-09&vista=semana', { branch: BRANCH })
+    expect(await screen.findByRole('button', { name: '10:00 Laura Méndez Prueba · Sin confirmar' })).toBeInTheDocument()
+    // La consulta del día se queda pendiente: la vista aún tiene las citas de la semana.
+    fakeSupabase.rpc.mockImplementationOnce(() => new Promise(() => undefined) as never)
+    await user.click(screen.getByRole('button', { name: 'Día' }))
+    expect(await screen.findByRole('heading', { name: /mié 9 de ene/i })).toBeInTheDocument()
+    expect(screen.queryByText(/Laura Méndez Prueba/)).not.toBeInTheDocument()
+    expect(screen.getAllByText(/Jorge Ramírez Prueba/).length).toBeGreaterThan(0)
+  })
+
   it('Semana: avanzar mueve 7 días y un hueco agenda ese día', async () => {
     seed()
     const user = userEvent.setup()
