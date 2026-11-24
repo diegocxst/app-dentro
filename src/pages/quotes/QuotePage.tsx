@@ -23,7 +23,25 @@ import { useQuotePdf } from '@/hooks/useQuotePdf'
 import { downloadBlob } from '@/lib/quoteShare'
 import { rpcErrorMessage } from '@/lib/errors'
 import { isManager } from '@/lib/roles'
-import { canLose, EDITABLE, folioLabel, lineTotal, money, NEXT_STAGES, PLAN_OPTIONS, planText, quoteColumn, quoteTotal, type ItemDraft, type QuoteStatus } from '@/lib/quotes'
+import {
+  canLose,
+  discountAmount,
+  discountError,
+  EDITABLE,
+  folioLabel,
+  lineTotal,
+  money,
+  NEXT_STAGES,
+  PLAN_OPTIONS,
+  planText,
+  quoteColumn,
+  quoteTotal,
+  splitDiscount,
+  withDiscount,
+  type Discount,
+  type ItemDraft,
+  type QuoteStatus,
+} from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 
@@ -34,7 +52,7 @@ const plusDays = (n: number) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 const textareaClasses = 'w-full rounded-sm border border-border bg-surface-raised p-3 text-ui text-ink placeholder:text-ink-muted focus:outline-2 focus:outline-violet'
-const toDraft = (i: QuoteItem): ItemDraft => ({ treatmentId: i.treatment_id, concept: i.concept, note: i.note, quantity: i.quantity, unitPrice: Number(i.unit_price), discount: Number(i.unit_price) < 0 })
+const toDraft = (i: QuoteItem): ItemDraft => ({ treatmentId: i.treatment_id, concept: i.concept, note: i.note, quantity: i.quantity, unitPrice: Number(i.unit_price) })
 
 /** P19 · Crear y editar presupuesto (/presupuestos/nuevo y /presupuestos/:id). */
 export function QuotePage() {
@@ -91,7 +109,9 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   const [patient, setPatient] = useState<{ id: string; name: string } | null>(q ? { id: q.patient_id, name: q.patientName } : null)
   const [doctorId, setDoctorId] = useState(q?.doctor_id ?? (isDoctor ? (active?.id ?? '') : ''))
   const [title, setTitle] = useState(q?.title ?? '')
-  const [items, setItems] = useState<ItemDraft[]>(existing ? existing.items.map(toDraft) : [])
+  const [initial] = useState(() => splitDiscount(existing ? existing.items.map(toDraft) : []))
+  const [items, setItems] = useState<ItemDraft[]>(initial.items)
+  const [discount, setDiscount] = useState<Discount | null>(initial.discount)
   const [installments, setInstallments] = useState(q?.installments ?? 0)
   const [downPayment, setDownPayment] = useState(q ? Number(q.down_payment) : 0)
   const [validUntil, setValidUntil] = useState(q?.valid_until ?? plusDays(30))
@@ -127,7 +147,9 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   }, [presetPatient])
 
   if (!active) return null
-  const total = quoteTotal(items)
+  const subtotal = quoteTotal(items)
+  const off = discountAmount(subtotal, discount)
+  const total = Math.round((subtotal - off) * 100) / 100
   const doctorName = doctors.find((d) => d.id === doctorId)?.name ?? ''
   const setItem = (i: number, patch: Partial<ItemDraft>) => setItems((list) => list.map((x, j) => (j === i ? { ...x, ...patch } : x)))
   const addTreatment = (tid: string) => {
@@ -142,12 +164,13 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
     if (!patient) return setError('Elige al paciente.')
     if (items.length === 0) return setError('Agrega al menos un tratamiento.')
     if (items.some((x) => !x.concept.trim())) return setError('Cada partida necesita un concepto.')
-    if (items.some((x) => !Number.isFinite(x.unitPrice) || !Number.isInteger(x.quantity) || x.quantity < 1)) return setError('Revisa cantidades y precios.')
-    if (total < 0) return setError('El total no puede ser negativo.')
+    if (items.some((x) => !Number.isFinite(x.unitPrice) || x.unitPrice < 0 || !Number.isInteger(x.quantity) || x.quantity < 1)) return setError('Revisa cantidades y precios.')
+    const discountProblem = discountError(subtotal, discount)
+    if (discountProblem) return setError(discountProblem)
     if (installments > 0 && (downPayment < 0 || downPayment > total)) return setError('El anticipo no puede ser mayor al total.')
     setBusy(true)
     try {
-      const saved = await saveQuote(q?.id ?? null, { patientId: patient.id, doctorId: doctorId || null, title, items, downPayment, installments, validUntil, notes })
+      const saved = await saveQuote(q?.id ?? null, { patientId: patient.id, doctorId: doctorId || null, title, items: withDiscount(items, discount), downPayment, installments, validUntil, notes })
       if (!q) {
         // Paso de la guía de inicio (solo la gerencia lo marca; si falla, no importa).
         if (isManager(active.role)) {
@@ -246,18 +269,15 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
                   </div>
                   <Input label="Cant." type="number" min={1} max={99} value={String(it.quantity)} disabled={!editable} onChange={(e) => setItem(i, { quantity: Math.max(1, Math.floor(Number(e.target.value) || 1)) })} />
                   <Input
-                    label={it.discount ? 'Descuento' : 'Precio'}
+                    label="Precio"
                     type="number"
                     step="0.01"
-                    min={it.discount ? 0 : undefined}
-                    value={String(it.discount ? Math.abs(it.unitPrice) : it.unitPrice)}
+                    min={0}
+                    value={String(it.unitPrice)}
                     disabled={!editable}
-                    onChange={(e) => {
-                      const v = Number(e.target.value) || 0
-                      setItem(i, { unitPrice: it.discount ? -Math.abs(v) : v })
-                    }}
+                    onChange={(e) => setItem(i, { unitPrice: Math.max(0, Number(e.target.value) || 0) })}
                   />
-                  <span className={it.unitPrice < 0 ? 'pb-2 text-ui font-semibold text-success' : 'pb-2 text-ui font-semibold'}>{money(lineTotal(it))}</span>
+                  <span className="pb-2 text-ui font-semibold">{money(lineTotal(it))}</span>
                   {editable && (
                     <button type="button" aria-label={`Quitar ${it.concept || `concepto ${i + 1}`}`} onClick={() => setItems((l) => l.filter((_, j) => j !== i))} className="min-h-11 text-ui font-semibold text-error">
                       Quitar
@@ -280,11 +300,9 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
                 <Button variant="ghost" size="sm" onClick={() => setItems((l) => [...l, { treatmentId: null, concept: '', note: '', quantity: 1, unitPrice: 0 }])}>
                   Concepto libre
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setItems((l) => [...l, { treatmentId: null, concept: 'Descuento', note: '', quantity: 1, unitPrice: 0, discount: true }])}>
-                  Descuento
-                </Button>
               </div>
             )}
+            <DiscountField subtotal={subtotal} discount={discount} amount={off} editable={editable} onChange={setDiscount} />
             <div className="flex items-baseline justify-between border-t border-border pt-3">
               <span className="text-ui font-semibold">Total</span>
               <span className="font-display text-title">{money(total)}</span>
@@ -351,7 +369,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
           patient={patient?.name ?? ''}
           doctor={doctorName}
           title={title}
-          items={items}
+          items={withDiscount(items, discount)}
           total={total}
           downPayment={installments > 0 ? downPayment : 0}
           installments={installments}
@@ -564,5 +582,63 @@ function Preview(p: PreviewProps) {
         <p className="m-0 text-caption text-ink-muted">Vigencia: hasta el {day(p.validUntil)}. Precios en MXN.</p>
       </Card>
     </aside>
+  )
+}
+
+/** Descuento único del presupuesto: sin descuento, % o monto en pesos (se resta del total). */
+function DiscountField({
+  subtotal,
+  discount,
+  amount,
+  editable,
+  onChange,
+}: {
+  subtotal: number
+  discount: Discount | null
+  amount: number
+  editable: boolean
+  onChange: (d: Discount | null) => void
+}) {
+  const kind = discount?.kind ?? ''
+  return (
+    <div className="flex flex-col gap-2 border-t border-border pt-3">
+      <div className="flex items-baseline justify-between">
+        <span className="text-ui text-ink-muted">Subtotal</span>
+        <span className="text-ui font-semibold">{money(subtotal)}</span>
+      </div>
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="w-44">
+          <Select
+            label="Descuento"
+            options={[
+              { value: '', label: 'Sin descuento' },
+              { value: 'percent', label: 'Porcentaje (%)' },
+              { value: 'amount', label: 'Monto ($)' },
+            ]}
+            value={kind}
+            disabled={!editable}
+            onChange={(e) => {
+              const k = e.target.value
+              onChange(k === 'percent' || k === 'amount' ? { kind: k, value: discount?.value ?? 0 } : null)
+            }}
+          />
+        </div>
+        {discount && (
+          <div className="w-32">
+            <Input
+              label={discount.kind === 'percent' ? 'Porcentaje' : 'Monto'}
+              type="number"
+              step={discount.kind === 'percent' ? '1' : '0.01'}
+              min={0}
+              max={discount.kind === 'percent' ? 100 : undefined}
+              value={discount.value ? String(discount.value) : ''}
+              disabled={!editable}
+              onChange={(e) => onChange({ kind: discount.kind, value: Math.max(0, Number(e.target.value) || 0) })}
+            />
+          </div>
+        )}
+        {discount && amount > 0 && <span className="ml-auto pb-2 text-ui font-semibold text-success">{money(-amount)}</span>}
+      </div>
+    </div>
   )
 }

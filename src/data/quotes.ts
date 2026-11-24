@@ -63,7 +63,7 @@ export async function saveQuote(id: string | null, i: QuoteInput): Promise<Quote
       concept: x.concept.trim(),
       note: x.note.trim(),
       quantity: x.quantity,
-      unit_price: x.discount ? -Math.abs(x.unitPrice) : x.unitPrice,
+      unit_price: x.unitPrice,
     })) as unknown as Json,
     p_title: i.title.trim(),
     p_down_payment: i.installments > 0 ? i.downPayment : 0,

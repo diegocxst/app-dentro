@@ -17,7 +17,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
   const { user } = useAuth()
   const { state, active } = useWorkspace()
   const role = active?.role
-  // Quién entra: «Dra. Ana Ruiz · Doctor/a» y su correo (Ajustes-D).
+  // Quién entra: «Dra. Ana Ruiz · Doctor/a» bajo el logo; su correo, bajo «Cerrar sesión» (Ajustes-D).
   const me = active
     ? {
         line: [
@@ -39,14 +39,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
         <ClinicAvatar />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="font-display text-[17px] leading-[22px] font-bold break-words">{clinic.displayName}</span>
-          {me ? (
-            <span className="flex min-w-0 flex-col">
-              <span className="text-caption text-on-night-muted">{me.line}</span>
-              {me.email && <span className="truncate text-micro text-on-night-muted">{me.email}</span>}
-            </span>
-          ) : (
-            <span className="text-caption text-on-night-muted">{clinic.ownerLine}</span>
-          )}
+          <span className="text-caption text-on-night-muted">{me ? me.line : clinic.ownerLine}</span>
         </div>
       </div>
 
@@ -93,7 +86,10 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
       </NavLink>
       )}
 
-      <SignOutButton tone="night" className="-my-3" />
+      <div className="-my-3 flex flex-col">
+        <SignOutButton tone="night" />
+        {me?.email && <span className="truncate px-3 pb-1 text-micro text-on-night-muted">{me.email}</span>}
+      </div>
 
       <div className="flex items-center gap-2 border-t border-night-border px-2 pt-3">
         <span className="text-micro text-on-night-muted">Hecho con</span>

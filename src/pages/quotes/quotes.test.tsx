@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { followupTag, money, monthly, planText, quoteTotal } from '@/lib/quotes'
+import { discountAmount, discountError, followupTag, money, monthly, planText, quoteTotal, splitDiscount, withDiscount } from '@/lib/quotes'
 import { fakeDb, fakeSupabase, TENANT_ID } from '@/test/fakeSupabase'
 import { renderApp } from '@/test/renderApp'
 
@@ -34,6 +34,19 @@ describe('reglas de presupuestos', () => {
     expect(planText(4650, 0, 0)).toBe('De contado: $4,650')
   })
 
+  it('descuento único: % o monto, tope en el subtotal y lectura de presupuestos guardados', () => {
+    expect(discountAmount(1000, { kind: 'percent', value: 15 })).toBe(150)
+    expect(discountAmount(1000, { kind: 'amount', value: 1500 })).toBe(1000)
+    expect(discountAmount(1000, null)).toBe(0)
+    expect(discountError(1000, { kind: 'amount', value: 1200 })).toBe('El descuento no puede ser mayor que los tratamientos.')
+    expect(discountError(1000, { kind: 'percent', value: 0 })).toBe('Escribe el descuento.')
+    const t = { treatmentId: 't', concept: 'Resina', note: '', quantity: 2, unitPrice: 500 }
+    expect(withDiscount([t], { kind: 'percent', value: 10 }).at(-1)).toEqual({ treatmentId: null, concept: 'Descuento 10%', note: '', quantity: 1, unitPrice: -100 })
+    expect(splitDiscount([t, { treatmentId: null, concept: 'Descuento 10%', note: '', quantity: 1, unitPrice: -100 }])).toEqual({ items: [t], discount: { kind: 'percent', value: 10 } })
+    // Presupuestos viejos con varios renglones de descuento: se juntan en un monto.
+    expect(splitDiscount([t, { treatmentId: null, concept: 'Descuento', note: '', quantity: 1, unitPrice: -50 }, { treatmentId: null, concept: 'Promo', note: '', quantity: 2, unitPrice: -25 }]).discount).toEqual({ kind: 'amount', value: 100 })
+  })
+
   it('etiqueta de seguimiento según los días sin respuesta', () => {
     expect(followupTag({ status: 'presentado', sent_at: '2026-11-17T12:00:00Z', last_followup_at: null }, NOW)).toEqual({ text: 'Enviado hace 1 día', tone: 'info' })
     expect(followupTag({ status: 'en_duda', sent_at: '2026-11-09T12:00:00Z', last_followup_at: null }, NOW)).toEqual({ text: 'Sin respuesta 9 días', tone: 'error' })
@@ -50,10 +63,10 @@ describe('M4-A · nuevo presupuesto', () => {
     await screen.findByRole('option', { name: /Alineadores transparentes/ })
     await user.selectOptions(screen.getByLabelText('Agregar del catálogo'), 't-1')
     await user.selectOptions(screen.getByLabelText('Agregar del catálogo'), 't-2')
-    await user.click(screen.getByRole('button', { name: 'Descuento' }))
-    const discount = screen.getByLabelText('Descuento')
-    await user.clear(discount)
-    await user.type(discount, '850')
+    // Ya no hay renglón «Descuento»: un solo descuento al total, en % o en pesos.
+    expect(screen.queryByRole('button', { name: 'Descuento' })).not.toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText('Descuento'), 'amount')
+    await user.type(screen.getByLabelText('Monto'), '850')
     await user.click(screen.getByRole('button', { name: '12 meses' }))
     const down = screen.getByLabelText('Anticipo para apartar')
     await user.clear(down)
@@ -74,6 +87,35 @@ describe('M4-A · nuevo presupuesto', () => {
     }))
     expect(fakeSupabase.rpc).toHaveBeenCalledWith('set_onboarding_task', { p_tenant: TENANT_ID, p_task: 'first_quote', p_done: true })
     await waitFor(() => expect(router.state.location.pathname).toBe('/presupuestos/q-1'))
+  })
+
+  it('descuento en porcentaje: se recalcula con los tratamientos y se guarda como «Descuento 10%»', async () => {
+    seed()
+    const user = userEvent.setup()
+    await renderApp('/presupuestos/nuevo?paciente=p-1')
+    await screen.findByRole('option', { name: /Alineadores transparentes/ })
+    await user.selectOptions(screen.getByLabelText('Agregar del catálogo'), 't-2')
+    await user.selectOptions(screen.getByLabelText('Descuento'), 'percent')
+    await user.type(screen.getByLabelText('Porcentaje'), '10')
+    const editor = () => within(screen.getByRole('region', { name: 'Tratamientos' }))
+    expect(editor().getByText('−$85')).toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText('Agregar del catálogo'), 't-1')
+    expect(editor().getByText('−$3,535')).toBeInTheDocument()
+    expect(within(screen.getByRole('complementary', { name: 'Así lo verá el paciente' })).getByText('Descuento 10%')).toBeInTheDocument()
+    await user.clear(screen.getByLabelText('Porcentaje'))
+    await user.type(screen.getByLabelText('Porcentaje'), '120')
+    await user.click(screen.getByRole('button', { name: 'Guardar presupuesto' }))
+    expect(screen.getByText('El descuento no puede pasar de 100%.')).toBeInTheDocument()
+    await user.clear(screen.getByLabelText('Porcentaje'))
+    await user.type(screen.getByLabelText('Porcentaje'), '10')
+    await user.click(screen.getByRole('button', { name: 'Guardar presupuesto' }))
+    expect(fakeSupabase.rpc).toHaveBeenCalledWith('save_quote', expect.objectContaining({
+      p_items: [
+        { treatment_id: 't-2', concept: 'Limpieza dental', note: '', quantity: 1, unit_price: 850 },
+        { treatment_id: 't-1', concept: 'Alineadores transparentes', note: '', quantity: 1, unit_price: 34500 },
+        { concept: 'Descuento 10%', note: '', quantity: 1, unit_price: -3535 },
+      ],
+    }))
   })
 
   it('sin tratamientos no se guarda', async () => {

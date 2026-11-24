@@ -42,10 +42,52 @@ export function money(n: number): string {
   return n < 0 ? `−${s}` : s
 }
 
-/** `discount`: solo para la interfaz; el precio se guarda negativo. */
-export type ItemDraft = { treatmentId: string | null; concept: string; note: string; quantity: number; unitPrice: number; discount?: boolean }
+export type ItemDraft = { treatmentId: string | null; concept: string; note: string; quantity: number; unitPrice: number }
 export const lineTotal = (i: Pick<ItemDraft, 'quantity' | 'unitPrice'>) => Math.round(i.quantity * i.unitPrice * 100) / 100
 export const quoteTotal = (items: readonly Pick<ItemDraft, 'quantity' | 'unitPrice'>[]) => Math.round(items.reduce((t, i) => t + lineTotal(i), 0) * 100) / 100
+
+/**
+ * Descuento del presupuesto (decisión 2026-11-24): uno solo, al total, en % o en pesos.
+ * Se guarda como una partida negativa al final («Descuento 10%» o «Descuento»), así el
+ * PDF y la base no cambian.
+ */
+export type Discount = { kind: 'percent' | 'amount'; value: number }
+const round2 = (n: number) => Math.round(n * 100) / 100
+const PERCENT_CONCEPT = /^Descuento (\d+(?:\.\d+)?)\s?%$/
+
+/** Pesos que se restan: nunca más que el subtotal. */
+export function discountAmount(subtotal: number, d: Discount | null): number {
+  if (!d || !(d.value > 0) || subtotal <= 0) return 0
+  const raw = d.kind === 'percent' ? (subtotal * Math.min(d.value, 100)) / 100 : d.value
+  return round2(Math.min(raw, subtotal))
+}
+
+/** ¿Es válido? % entre 0 y 100; monto entre 0 y el subtotal. */
+export function discountError(subtotal: number, d: Discount | null): string | null {
+  if (!d) return null
+  if (!Number.isFinite(d.value) || d.value <= 0) return 'Escribe el descuento.'
+  if (d.kind === 'percent' && d.value > 100) return 'El descuento no puede pasar de 100%.'
+  if (d.kind === 'amount' && d.value > subtotal) return 'El descuento no puede ser mayor que los tratamientos.'
+  return null
+}
+
+/** Al abrir un presupuesto: separa las partidas negativas y las junta en un solo descuento. */
+export function splitDiscount(items: readonly ItemDraft[]): { items: ItemDraft[]; discount: Discount | null } {
+  const negatives = items.filter((i) => i.unitPrice < 0)
+  const rest = items.filter((i) => i.unitPrice >= 0)
+  if (negatives.length === 0) return { items: rest, discount: null }
+  const pct = negatives.length === 1 ? PERCENT_CONCEPT.exec(negatives[0]!.concept.trim()) : null
+  if (pct) return { items: rest, discount: { kind: 'percent', value: Number(pct[1]) } }
+  return { items: rest, discount: { kind: 'amount', value: round2(-negatives.reduce((t, i) => t + lineTotal(i), 0)) } }
+}
+
+/** Al guardar: los tratamientos más la partida del descuento (si hay). */
+export function withDiscount(items: readonly ItemDraft[], d: Discount | null): ItemDraft[] {
+  const amount = discountAmount(quoteTotal(items), d)
+  if (!d || amount <= 0) return [...items]
+  const concept = d.kind === 'percent' ? `Descuento ${d.value}%` : 'Descuento'
+  return [...items, { treatmentId: null, concept, note: '', quantity: 1, unitPrice: -amount }]
+}
 
 /** Mensualidad redondeada hacia arriba al peso (el paciente nunca paga de menos). */
 export const monthly = (total: number, downPayment: number, installments: number) =>
