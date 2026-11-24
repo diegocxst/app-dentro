@@ -1,5 +1,5 @@
-// ⚠️ PROVISIONAL: 0018 (doctores) editada a mano hasta aplicar la migración y regenerar.
-// Generado con: npx supabase gen types typescript --remote --schema public · migraciones 0001–0017 · 2026-11-23.
+// Generado con: npx supabase gen types typescript --remote --schema public
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0018 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -539,6 +539,51 @@ export type Database = {
           },
         ]
       }
+      doctor_settings: {
+        Row: {
+          calendar_color: string | null
+          created_at: string
+          membership_id: string
+          phone_e164: string | null
+          specialty: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          calendar_color?: string | null
+          created_at?: string
+          membership_id: string
+          phone_e164?: string | null
+          specialty?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          calendar_color?: string | null
+          created_at?: string
+          membership_id?: string
+          phone_e164?: string | null
+          specialty?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_settings_tenant_id_membership_id_fkey"
+            columns: ["tenant_id", "membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       document_access_log: {
         Row: {
           action: string
@@ -573,36 +618,6 @@ export type Database = {
             referencedColumns: ["tenant_id", "id"]
           },
         ]
-      }
-      doctor_settings: {
-        Row: {
-          calendar_color: string | null
-          created_at: string
-          membership_id: string
-          phone_e164: string | null
-          specialty: string
-          tenant_id: string
-          updated_at: string
-        }
-        Insert: {
-          calendar_color?: string | null
-          created_at?: string
-          membership_id: string
-          phone_e164?: string | null
-          specialty?: string
-          tenant_id: string
-          updated_at?: string
-        }
-        Update: {
-          calendar_color?: string | null
-          created_at?: string
-          membership_id?: string
-          phone_e164?: string | null
-          specialty?: string
-          tenant_id?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       invitations: {
         Row: {
@@ -651,6 +666,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invitations_membership_fk"
+            columns: ["tenant_id", "membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "invitations_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -845,11 +867,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          display_name?: string
           id?: string
           role?: Database["public"]["Enums"]["tenant_role"]
           status?: Database["public"]["Enums"]["membership_status"]
           tenant_id?: string
-          display_name?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -1737,6 +1759,12 @@ export type Database = {
           updated_at: string
           user_id: string | null
         }
+        SetofOptions: {
+          from: "*"
+          to: "memberships"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       create_invitation: {
         Args: {
@@ -1755,6 +1783,7 @@ export type Database = {
           expires_at: string
           id: string
           invited_by: string | null
+          membership_id: string | null
           role: Database["public"]["Enums"]["tenant_role"]
           status: Database["public"]["Enums"]["invitation_status"]
           tenant_id: string
@@ -2108,6 +2137,7 @@ export type Database = {
           expires_at: string
           id: string
           invited_by: string | null
+          membership_id: string | null
           role: Database["public"]["Enums"]["tenant_role"]
           status: Database["public"]["Enums"]["invitation_status"]
           tenant_id: string
@@ -2124,12 +2154,13 @@ export type Database = {
         Args: { p_membership: string }
         Returns: {
           created_at: string
+          display_name: string
           id: string
           role: Database["public"]["Enums"]["tenant_role"]
           status: Database["public"]["Enums"]["membership_status"]
           tenant_id: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         SetofOptions: {
           from: "*"
@@ -2540,6 +2571,31 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      update_doctor_profile: {
+        Args: {
+          p_color?: string
+          p_membership: string
+          p_name: string
+          p_phone?: string
+          p_specialty?: string
+        }
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "memberships"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_lead: {
         Args: {
           p_assigned_to?: string
@@ -2576,13 +2632,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      update_doctor_profile: {
+      update_member_role: {
         Args: {
-          p_color?: string
           p_membership: string
-          p_name: string
-          p_phone?: string
-          p_specialty?: string
+          p_role: Database["public"]["Enums"]["tenant_role"]
         }
         Returns: {
           created_at: string
@@ -2593,21 +2646,6 @@ export type Database = {
           tenant_id: string
           updated_at: string
           user_id: string | null
-        }
-      }
-      update_member_role: {
-        Args: {
-          p_membership: string
-          p_role: Database["public"]["Enums"]["tenant_role"]
-        }
-        Returns: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["tenant_role"]
-          status: Database["public"]["Enums"]["membership_status"]
-          tenant_id: string
-          updated_at: string
-          user_id: string
         }
         SetofOptions: {
           from: "*"
