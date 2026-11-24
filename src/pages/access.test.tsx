@@ -82,6 +82,21 @@ describe('Ajustes-D · menú y rutas por rol', () => {
   })
 })
 
+describe('Ajustes-D · tu cuenta en el menú', () => {
+  it('un doctor ve su nombre, «Doctor/a» y su correo', async () => {
+    await renderApp('/', { role: 'doctor' })
+    const card = await screen.findByRole('region', { name: 'Tu cuenta' })
+    expect(card).toHaveTextContent('Dueña Prueba')
+    expect(card).toHaveTextContent('Doctor/a')
+    expect(card).toHaveTextContent('duena@example.test')
+  })
+
+  it('la dueña ve su título de propietaria', async () => {
+    await renderApp('/')
+    expect(await screen.findByRole('region', { name: 'Tu cuenta' })).toHaveTextContent('Propietaria')
+  })
+})
+
 describe('Ajustes-D · Tu equipo como directorio', () => {
   it('un doctor ve nombre, rol, especialidad y teléfono de sus compañeros', async () => {
     fakeDb.memberships.push(
@@ -102,6 +117,15 @@ describe('Ajustes-D · Tu equipo como directorio', () => {
     const recep = within(team).getByText('Recepción Prueba').closest('li')!
     expect(within(recep).getByRole('link')).toHaveAttribute('href', 'tel:+525533334444')
     expect(within(team).queryByRole('combobox')).not.toBeInTheDocument()
+  })
+
+  it('un doctor ve quién no tiene acceso, sin la opción de invitarlo', async () => {
+    fakeDb.memberships.push({ id: 'm-off', tenant_id: TENANT_ID, user_id: null, role: 'doctor', status: 'active', display_name: 'Dra. Sin Correo Prueba', created_at: '2026-11-16T00:00:00Z' })
+    await renderApp('/configuracion/equipo', { role: 'doctor' })
+    const team = await screen.findByRole('region', { name: 'Equipo' })
+    const row = (await within(team).findByText('Dra. Sin Correo Prueba')).closest('li')!
+    expect(row).toHaveTextContent('Sin acceso a la app')
+    expect(within(row).queryByRole('link', { name: 'Invitarlo' })).not.toBeInTheDocument()
   })
 })
 

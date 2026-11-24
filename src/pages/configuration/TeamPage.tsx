@@ -105,6 +105,7 @@ export function TeamPage() {
                       key={m.id}
                       member={m}
                       editable={manager && m.role !== 'owner' && (!m.hasAccess || m.user_id !== user?.id)}
+                      canInvite={manager}
                       isMe={m.hasAccess && m.user_id === user?.id}
                       onRole={(role) => void run(() => updateMemberRole(m.id, role), `Cambiamos el rol de ${m.fullName}.`)}
                       onRevoke={() => void run(() => revokeMember(m.id), `${m.fullName} ya no es parte de tu equipo.`)}
@@ -166,12 +167,15 @@ export function TeamPage() {
 function MemberRow({
   member,
   editable,
+  canInvite,
   isMe,
   onRole,
   onRevoke,
 }: {
   member: TeamMember
   editable: boolean
+  /** Solo la gerencia invita a un doctor sin acceso. */
+  canInvite: boolean
   isMe: boolean
   onRole: (role: AssignableRole) => void
   onRevoke: () => void
@@ -186,10 +190,15 @@ function MemberRow({
         </span>
         {!member.hasAccess && (
           <span className="text-caption text-ink-muted">
-            Sin acceso a la app ·{' '}
-            <Link to={`/doctores/${member.id}`} className="font-semibold text-violet">
-              Invitarlo
-            </Link>
+            Sin acceso a la app
+            {canInvite && (
+              <>
+                {' · '}
+                <Link to={`/doctores/${member.id}`} className="font-semibold text-violet">
+                  Invitarlo
+                </Link>
+              </>
+            )}
           </span>
         )}
         {!editable && (

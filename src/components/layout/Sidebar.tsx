@@ -7,6 +7,7 @@ import { cn } from '@/lib/cn'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { ClinicAvatar } from './ClinicAvatar'
 import { SignOutButton } from './SignOutButton'
+import { UserCard } from './UserCard'
 
 /** Menú lateral (fondo `night`). Réplica de `Menu.dc.html`. En móvil se abre como panel desde ☰. */
 export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
@@ -68,6 +69,8 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
         </span>
       </NavLink>
       )}
+
+      <UserCard />
 
       <SignOutButton tone="night" className="-my-3" />
 

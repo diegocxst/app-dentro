@@ -6,12 +6,12 @@ import { supabase } from '@/lib/supabase'
 export type Tenant = Tables<'tenants'>
 export type Branch = Tables<'branches'>
 export type Profile = Tables<'profiles'>
-export type MyMembership = Pick<Tables<'memberships'>, 'id' | 'role' | 'status' | 'tenant_id'> & { tenant: Tenant }
+export type MyMembership = Pick<Tables<'memberships'>, 'id' | 'role' | 'status' | 'tenant_id' | 'display_name'> & { tenant: Tenant }
 
 export async function fetchMyMemberships(userId: string): Promise<MyMembership[]> {
   const { data, error } = await supabase
     .from('memberships')
-    .select('id, role, status, tenant_id, tenant:tenants(*)')
+    .select('id, role, status, tenant_id, display_name, tenant:tenants(*)')
     .eq('user_id', userId)
     .eq('status', 'active')
     .order('created_at', { ascending: true })

@@ -131,7 +131,7 @@ describe('M10 · mi perfil', () => {
     await renderApp('/configuracion/perfil')
     const name = await screen.findByLabelText('Nombre completo')
     expect(name).toHaveValue('Dueña Prueba')
-    expect(screen.getByText('duena@example.test')).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getByText('duena@example.test')).toBeInTheDocument()
     await user.clear(name)
     await user.type(name, 'Ana Ruiz')
     await user.type(screen.getByLabelText('Teléfono'), '5512345678')
