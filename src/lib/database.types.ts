@@ -1,5 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// ⚠️ PROVISIONAL: a mano con la 0019 (profiles.title) hasta aplicarla en dev y regenerar. Proyecto dev dentro-dentistas-app · migraciones 0001–0018 · 2026-11-24.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0019 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
