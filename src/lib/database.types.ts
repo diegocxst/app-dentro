@@ -1,5 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0018 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: a mano con la 0019 (profiles.title) hasta aplicarla en dev y regenerar. Proyecto dev dentro-dentistas-app · migraciones 0001–0018 · 2026-11-24.
 export type Json =
   | string
   | number
@@ -1242,6 +1242,7 @@ export type Database = {
           full_name: string
           id: string
           phone_e164: string | null
+          title: string
           updated_at: string
         }
         Insert: {
@@ -1250,6 +1251,7 @@ export type Database = {
           full_name?: string
           id: string
           phone_e164?: string | null
+          title?: string
           updated_at?: string
         }
         Update: {
@@ -1258,6 +1260,7 @@ export type Database = {
           full_name?: string
           id?: string
           phone_e164?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -2655,13 +2658,14 @@ export type Database = {
         }
       }
       update_my_profile: {
-        Args: { p_full_name?: string; p_phone_e164?: string }
+        Args: { p_full_name?: string; p_phone_e164?: string; p_title?: string }
         Returns: {
           avatar_path: string | null
           created_at: string
           full_name: string
           id: string
           phone_e164: string | null
+          title: string
           updated_at: string
         }
         SetofOptions: {

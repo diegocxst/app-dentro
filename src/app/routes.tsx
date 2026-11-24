@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Outlet, type RouteObject } from 'react-router'
+import { Navigate, Outlet, type RouteObject } from 'react-router'
 import { ConsentGate } from '@/auth/ConsentGate'
 import { GuestOnly, RequireAuth } from '@/auth/guards'
 import { RouteErrorElement } from '@/components/feedback/RouteErrorElement'
@@ -114,7 +114,8 @@ export const routes: RouteObject[] = [
           { path: 'presupuestos/:id', element: <QuotePage /> },
           { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
           { path: 'cobros', element: <CobrosPage /> },
-          { path: 'doctores', element: <Allow when={(r) => !isTreating(r)} to="/doctores/comisiones"><DoctorsPage /></Allow> },
+          { path: 'equipo', element: <TeamPage /> },
+          { path: 'doctores', element: <Allow when={(r) => !isTreating(r)} to="/equipo"><DoctorsPage /></Allow> },
           { path: 'doctores/nuevo', element: <NewDoctorPage /> },
           { path: 'doctores/comisiones', element: <CommissionsPage /> },
           { path: 'doctores/:id', element: <DoctorPage /> },
@@ -125,7 +126,7 @@ export const routes: RouteObject[] = [
           { path: 'pacientes/:id', element: <PatientPage /> },
           { path: 'pacientes/:id/editar', element: <EditPatientPage /> },
           { path: 'configuracion', element: <ConfigurationPage /> },
-          { path: 'configuracion/equipo', element: <TeamPage /> },
+          { path: 'configuracion/equipo', element: <Navigate to="/equipo" replace /> },
           { path: 'configuracion/sucursales', element: <Allow when={(r) => canSeeConfig(r, 'sucursales')} to="/configuracion"><BranchesConfigPage /></Allow> },
           { path: 'configuracion/tratamientos', element: <TreatmentsConfigPage /> },
           { path: 'configuracion/identidad', element: <Allow when={(r) => canSeeConfig(r, 'identidad')} to="/configuracion"><IdentityPage /></Allow> },

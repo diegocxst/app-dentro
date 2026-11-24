@@ -8,7 +8,6 @@ import { PageHeader } from '@/pages/PageHeader'
 
 const LINKS: { area: ConfigArea; to: string; title: string; text: string; icon: IconName }[] = [
   { area: 'identidad', to: '/configuracion/identidad', title: 'Identidad de tu clínica', text: 'Nombre, logo, color, responsable y WhatsApp.', icon: 'inicio' },
-  { area: 'equipo', to: '/configuracion/equipo', title: 'Tu equipo', text: 'Invita a doctores y recepción, y decide qué puede hacer cada quien.', icon: 'doctores' },
   { area: 'sucursales', to: '/configuracion/sucursales', title: 'Sucursales y unidades dentales', text: 'Dónde atiendes, en qué horario y con cuántas unidades dentales.', icon: 'sucursal' },
   { area: 'tratamientos', to: '/configuracion/tratamientos', title: 'Tratamientos y precios', text: 'Tu catálogo para armar presupuestos en segundos.', icon: 'presupuestos' },
   { area: 'perfil', to: '/configuracion/perfil', title: 'Mi perfil', text: 'Tu nombre y tu teléfono.', icon: 'pacientes' },
@@ -19,10 +18,7 @@ export function ConfigurationPage() {
   const section = sectionById('configuracion')
   const role = useWorkspace().active?.role
   const manager = isManager(role)
-  // Sin gerencia, «Tu equipo» es un directorio de solo consulta.
-  const links = LINKS.filter((l) => canSeeConfig(role, l.area)).map((l) =>
-    l.area === 'equipo' && !manager ? { ...l, text: 'Quién trabaja en la clínica y cómo contactarle.' } : l,
-  )
+  const links = LINKS.filter((l) => canSeeConfig(role, l.area))
   return (
     <>
       <PageHeader title={section.label} />

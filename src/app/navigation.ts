@@ -95,11 +95,11 @@ export const SECTIONS: readonly Section[] = [
   },
   {
     id: 'doctores',
-    label: 'Doctores',
-    path: '/doctores',
+    label: 'Tu equipo',
+    path: '/equipo',
     icon: 'doctores',
     empty: {
-      title: 'Aún no hay doctores',
+      title: 'Aún no hay nadie en tu equipo',
       description: 'Invita a tu equipo. Cada doctor ve solo sus pacientes, su agenda y sus comisiones.',
     },
   },

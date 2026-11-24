@@ -63,7 +63,7 @@ describe('P04 paso 1 · alta de la clínica', () => {
     await router.navigate('/')
     const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
     expect(await within(nav).findByText('Clínica Dental Sonríe')).toBeInTheDocument()
-    expect(within(nav).getByText('Dra. Ana Ruiz · Directora médica')).toBeInTheDocument()
+    expect(within(nav).getByText(/· Directora médica$/)).toBeInTheDocument()
   })
 
   it('rechaza un WhatsApp que no se puede interpretar', async () => {

@@ -11,7 +11,7 @@ import { doctorColorClass, initials, TREATING_ROLES } from '@/lib/doctors'
 import { isManager, ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
-import { DoctorsTabs } from './DoctorsTabs'
+import { TeamTabs } from './TeamTabs'
 
 /** P26 · Doctores de la clínica (con y sin acceso). La gerencia da de alta y edita. */
 export function DoctorsPage() {
@@ -45,7 +45,7 @@ export function DoctorsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Doctores"
+        eyebrow="Tu equipo"
         title="Doctores"
         description="Quién atiende en tu clínica, con su especialidad y su color en la agenda."
         actions={
@@ -56,7 +56,7 @@ export function DoctorsPage() {
           )
         }
       />
-      <DoctorsTabs />
+      <TeamTabs />
       {failed ? (
         <LoadError title="No pudimos cargar a los doctores" onRetry={reload} />
       ) : !team ? (

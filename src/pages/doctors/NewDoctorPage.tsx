@@ -58,7 +58,7 @@ export function NewDoctorPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Doctores" title="Nuevo doctor" actions={<Link to="/doctores" className="text-ui font-semibold text-violet">Volver</Link>} />
+      <PageHeader eyebrow="Tu equipo" title="Nuevo doctor" actions={<Link to="/doctores" className="text-ui font-semibold text-violet">Volver</Link>} />
       <Card as="section" className="max-w-2xl">
         <form
           aria-label="Nuevo doctor"

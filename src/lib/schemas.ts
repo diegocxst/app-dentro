@@ -92,6 +92,7 @@ export const identitySchema = clinicSchema.pick({ displayName: true, ownerDispla
 export type IdentityValues = z.infer<typeof identitySchema>
 
 export const profileSchema = z.object({
+  title: z.enum(['', 'Dr.', 'Dra.']),
   fullName: z.string().trim().min(2, 'Escribe tu nombre completo.').max(120, 'Máximo 120 caracteres.'),
   phone: z
     .string()

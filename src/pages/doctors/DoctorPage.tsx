@@ -59,8 +59,8 @@ export function DoctorPage() {
   }, [tenantId, id, attempt])
 
   if (!active) return null
-  // Un doctor solo abre su propio perfil (el directorio está en Configuración › Tu equipo).
-  if (isTreating(active.role) && id !== active.id) return <Navigate to="/doctores/comisiones" replace />
+  // Un doctor solo abre su propio perfil (el directorio está en «Tu equipo»).
+  if (isTreating(active.role) && id !== active.id) return <Navigate to="/equipo" replace />
   if (failed) return <LoadError title="No pudimos cargar al doctor" onRetry={reload} />
   if (member === undefined) return <Skeleton className="h-96 w-full" label="Cargando doctor" />
   if (member === null) {
@@ -82,7 +82,7 @@ export function DoctorPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Doctores" title={member.fullName} actions={<Link to="/doctores" className="text-ui font-semibold text-violet">Volver</Link>} />
+      <PageHeader eyebrow="Tu equipo" title={member.fullName} actions={<Link to="/doctores" className="text-ui font-semibold text-violet">Volver</Link>} />
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-3">
           <span aria-hidden="true" className={cn('grid size-12 shrink-0 place-items-center rounded-pill font-semibold text-on-night', doctorColorClass(member.color, index))}>

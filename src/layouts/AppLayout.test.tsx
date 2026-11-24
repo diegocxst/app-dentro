@@ -11,7 +11,9 @@ describe('AppLayout', () => {
     const menu = screen.getByRole('navigation', { name: 'Menú principal' })
     expect(await within(menu).findByRole('img', { name: 'Logo de Clínica Prueba' })).toBeInTheDocument()
     expect(within(menu).getByText('Clínica Prueba')).toBeInTheDocument()
-    expect(within(menu).getByText('Dra. Prueba · Propietaria')).toBeInTheDocument()
+    // Debajo del logo: quién entra (nombre · rol de la clínica) y su correo.
+    expect(within(menu).getByText('Dueña Prueba · Propietaria')).toBeInTheDocument()
+    expect(within(menu).getByText('duena@example.test')).toBeInTheDocument()
 
     const links = within(within(menu).getAllByRole('list')[0]!).getAllByRole('link')
     expect(links.map((l) => l.textContent)).toEqual(SECTIONS.map((s) => s.label))

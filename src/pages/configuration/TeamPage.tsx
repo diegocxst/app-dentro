@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useAuth } from '@/auth/auth-context'
 import { Alert } from '@/components/ui/Alert'
 import { formatPhone } from '@/lib/phone'
+import { TeamTabs } from '@/pages/doctors/TeamTabs'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -29,7 +30,7 @@ import { useWorkspace } from '@/workspace/workspace-context'
 
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short' })
 
-/** Tu equipo (E1-B5c): invitar, cambiar rol y quitar. Solo propietario o administración gestionan. */
+/** Tu equipo (E1-B5c; sección del menú desde Ajustes-D): invitar, cambiar rol y quitar. Solo propietario o administración gestionan; el resto lo ve como directorio. */
 export function TeamPage() {
   const { active, branches } = useWorkspace()
   const { user } = useAuth()
@@ -72,7 +73,8 @@ export function TeamPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Configuración" title="Tu equipo" actions={<Link to="/configuracion" className="text-ui font-semibold text-violet">Volver</Link>} />
+      <PageHeader title="Tu equipo" />
+      <TeamTabs />
       <div className="flex flex-col gap-6">
         {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
         {!manager && <p className="m-0 text-ui text-ink-muted">Quién trabaja en la clínica y cómo contactarle. Solo la gerencia invita y cambia el equipo.</p>}

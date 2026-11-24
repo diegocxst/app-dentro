@@ -1,18 +1,34 @@
 import { NavLink } from 'react-router'
 import { GUIDE_PATH } from '@/app/navigation'
+import { useAuth } from '@/auth/auth-context'
 import { canSeeGuide, menuFor } from '@/lib/access'
+import { memberName } from '@/lib/doctors'
+import { roleTag, withTitle } from '@/lib/identity'
 import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
 import { cn } from '@/lib/cn'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { ClinicAvatar } from './ClinicAvatar'
 import { SignOutButton } from './SignOutButton'
-import { UserCard } from './UserCard'
 
 /** Menú lateral (fondo `night`). Réplica de `Menu.dc.html`. En móvil se abre como panel desde ☰. */
 export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
   const clinic = useClinic()
-  const role = useWorkspace().active?.role
+  const { user } = useAuth()
+  const { state, active } = useWorkspace()
+  const role = active?.role
+  // Quién entra: «Dra. Ana Ruiz · Doctor/a» y su correo (Ajustes-D).
+  const me = active
+    ? {
+        line: [
+          withTitle(state.status === 'ready' ? (state.profile?.title ?? '') : '', memberName(active.display_name ?? '', state.status === 'ready' ? (state.profile?.full_name ?? '') : '')),
+          roleTag(active.role, active.tenant.owner_title),
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        email: user?.email ?? '',
+      }
+    : null
   return (
     <nav
       aria-label={label}
@@ -23,7 +39,14 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
         <ClinicAvatar />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="font-display text-[17px] leading-[22px] font-bold break-words">{clinic.displayName}</span>
-          <span className="text-caption text-on-night-muted">{clinic.ownerLine}</span>
+          {me ? (
+            <span className="flex min-w-0 flex-col">
+              <span className="text-caption text-on-night-muted">{me.line}</span>
+              {me.email && <span className="truncate text-micro text-on-night-muted">{me.email}</span>}
+            </span>
+          ) : (
+            <span className="text-caption text-on-night-muted">{clinic.ownerLine}</span>
+          )}
         </div>
       </div>
 
@@ -69,8 +92,6 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
         </span>
       </NavLink>
       )}
-
-      <UserCard />
 
       <SignOutButton tone="night" className="-my-3" />
 

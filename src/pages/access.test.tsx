@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { canSeeConfig, canSeeSection, menuFor, mobileTabsFor } from '@/lib/access'
+import { roleTag, withTitle } from '@/lib/identity'
 import { BRANCH_ID, fakeDb, TENANT_ID } from '@/test/fakeSupabase'
 import { renderApp } from '@/test/renderApp'
 
@@ -16,13 +17,19 @@ const menuLinks = async () => {
 describe('Ajustes-D · reglas de acceso', () => {
   it('cada rol ve su menú', () => {
     expect(menuFor('owner').map((s) => s.label)).toContain('Crece tu clínica')
-    expect(menuFor('doctor').map((s) => s.label)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Presupuestos', 'Cobros', 'Seguimientos', 'Mis comisiones', 'Configuración'])
-    expect(menuFor('doctor_collab').find((s) => s.label === 'Mis comisiones')?.path).toBe('/doctores/comisiones')
+    expect(menuFor('doctor').map((s) => s.label)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Presupuestos', 'Cobros', 'Seguimientos', 'Tu equipo', 'Configuración'])
+    expect(menuFor('doctor_collab').find((s) => s.label === 'Tu equipo')?.path).toBe('/equipo')
     expect(menuFor('reception').map((s) => s.id)).toEqual(['inicio', 'agenda', 'leads', 'pacientes', 'presupuestos', 'cobros', 'seguimientos', 'doctores', 'configuracion'])
     expect(mobileTabsFor('doctor')).toEqual(['inicio', 'agenda', 'pacientes', 'presupuestos'])
     expect(mobileTabsFor('reception')).toEqual(['inicio', 'agenda', 'pacientes', 'leads'])
     expect(canSeeSection(undefined, 'inicio')).toBe(false)
-    expect(['identidad', 'equipo', 'sucursales', 'tratamientos', 'perfil'].filter((a) => canSeeConfig('doctor', a as never))).toEqual(['equipo', 'tratamientos', 'perfil'])
+    expect(['identidad', 'sucursales', 'tratamientos', 'perfil'].filter((a) => canSeeConfig('doctor', a as never))).toEqual(['tratamientos', 'perfil'])
+    expect(withTitle('Dra.', 'Ana Ruiz')).toBe('Dra. Ana Ruiz')
+    expect(withTitle('Dra.', 'Dra. Maricarmen')).toBe('Dra. Maricarmen')
+    expect(withTitle('', 'Ana Ruiz')).toBe('Ana Ruiz')
+    expect(roleTag('owner', 'Propietario')).toBe('Propietario')
+    expect(roleTag('owner', '')).toBe('Propietaria/o')
+    expect(roleTag('doctor', 'Propietario')).toBe('Doctor/a')
     expect(canSeeConfig('admin', 'identidad')).toBe(true)
   })
 })
@@ -32,13 +39,12 @@ describe('Ajustes-D · menú y rutas por rol', () => {
     const user = userEvent.setup()
     await renderApp('/configuracion', { role: 'doctor' })
     const links = await menuLinks()
-    expect(links).toContain('Mis comisiones')
+    expect(links).toContain('Tu equipo')
     expect(links).not.toContain('Leads')
     expect(links).not.toContain('Crece tu clínica')
     expect(links).not.toContain('Guía de inicio')
     const main = screen.getByRole('main')
     expect(within(main).getAllByRole('link').map((l) => l.textContent)).toEqual([
-      expect.stringContaining('Tu equipo'),
       expect.stringContaining('Tratamientos y precios'),
       expect.stringContaining('Mi perfil'),
     ])
@@ -53,8 +59,8 @@ describe('Ajustes-D · menú y rutas por rol', () => {
     ['/guia', '/'],
     ['/configuracion/identidad', '/configuracion'],
     ['/configuracion/sucursales', '/configuracion'],
-    ['/doctores', '/doctores/comisiones'],
-    ['/doctores/m-otro', '/doctores/comisiones'],
+    ['/doctores', '/equipo'],
+    ['/doctores/m-otro', '/equipo'],
   ])('un doctor que abre %s vuelve a %s', async (path, to) => {
     const { router } = await renderApp(path, { role: 'doctor' })
     await waitFor(() => expect(router.state.location.pathname).toBe(to))
@@ -70,7 +76,7 @@ describe('Ajustes-D · menú y rutas por rol', () => {
     await renderApp('/', { role: 'reception' })
     const links = await menuLinks()
     expect(links).toContain('Leads')
-    expect(links).toContain('Doctores')
+    expect(links).toContain('Tu equipo')
     expect(links).not.toContain('Crece tu clínica')
     expect(links).not.toContain('Guía de inicio')
   })
@@ -78,22 +84,23 @@ describe('Ajustes-D · menú y rutas por rol', () => {
   it('la gerencia ve todo, con la guía', async () => {
     await renderApp('/', { role: 'admin' })
     const links = await menuLinks()
-    expect(links).toEqual(expect.arrayContaining(['Leads', 'Crece tu clínica', 'Doctores', 'Guía de inicio']))
+    expect(links).toEqual(expect.arrayContaining(['Leads', 'Crece tu clínica', 'Tu equipo', 'Guía de inicio']))
   })
 })
 
 describe('Ajustes-D · tu cuenta en el menú', () => {
-  it('un doctor ve su nombre, «Doctor/a» y su correo', async () => {
+  it('un doctor ve debajo del logo su título, nombre, «Doctor/a» y su correo', async () => {
+    fakeDb.profiles.push({ id: '00000000-0000-4000-8000-000000000001', full_name: 'Luis Castro Prueba', phone_e164: null, avatar_path: null, title: 'Dr.' })
     await renderApp('/', { role: 'doctor' })
-    const card = await screen.findByRole('region', { name: 'Tu cuenta' })
-    expect(card).toHaveTextContent('Dueña Prueba')
-    expect(card).toHaveTextContent('Doctor/a')
-    expect(card).toHaveTextContent('duena@example.test')
+    const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
+    expect(await within(nav).findByText('Dr. Luis Castro Prueba · Doctor/a')).toBeInTheDocument()
+    expect(within(nav).getByText('duena@example.test')).toBeInTheDocument()
   })
 
-  it('la dueña ve su título de propietaria', async () => {
+  it('la dueña ve el título de propietaria de la clínica', async () => {
     await renderApp('/')
-    expect(await screen.findByRole('region', { name: 'Tu cuenta' })).toHaveTextContent('Propietaria')
+    const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
+    expect(await within(nav).findByText('Dueña Prueba · Propietaria')).toBeInTheDocument()
   })
 })
 
@@ -109,7 +116,7 @@ describe('Ajustes-D · Tu equipo como directorio', () => {
     )
     // El teléfono del perfil en la clínica gana al de la cuenta.
     fakeDb.doctor_settings.push({ membership_id: 'm-d2', tenant_id: TENANT_ID, specialty: 'Endodoncia', calendar_color: null, phone_e164: '+525599998888' })
-    await renderApp('/configuracion/equipo', { role: 'doctor' })
+    await renderApp('/equipo', { role: 'doctor' })
     const team = await screen.findByRole('region', { name: 'Equipo' })
     const karla = (await within(team).findByText('Dra. Karla Vega Prueba')).closest('li')!
     expect(karla).toHaveTextContent('Endodoncia')
@@ -117,11 +124,13 @@ describe('Ajustes-D · Tu equipo como directorio', () => {
     const recep = within(team).getByText('Recepción Prueba').closest('li')!
     expect(within(recep).getByRole('link')).toHaveAttribute('href', 'tel:+525533334444')
     expect(within(team).queryByRole('combobox')).not.toBeInTheDocument()
+    const tabs = screen.getByRole('navigation', { name: 'Secciones de tu equipo' })
+    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Tu equipo', 'Comisiones'])
   })
 
   it('un doctor ve quién no tiene acceso, sin la opción de invitarlo', async () => {
     fakeDb.memberships.push({ id: 'm-off', tenant_id: TENANT_ID, user_id: null, role: 'doctor', status: 'active', display_name: 'Dra. Sin Correo Prueba', created_at: '2026-11-16T00:00:00Z' })
-    await renderApp('/configuracion/equipo', { role: 'doctor' })
+    await renderApp('/equipo', { role: 'doctor' })
     const team = await screen.findByRole('region', { name: 'Equipo' })
     const row = (await within(team).findByText('Dra. Sin Correo Prueba')).closest('li')!
     expect(row).toHaveTextContent('Sin acceso a la app')

@@ -12,12 +12,19 @@ function seedDoctor() {
 }
 
 describe('Configuración › Tu equipo', () => {
-  it('Configuración enlaza a «Tu equipo»', async () => {
+  it('«Tu equipo» está en el menú principal, con su submenú', async () => {
     const user = userEvent.setup()
-    const { router } = await renderApp('/configuracion')
-    await user.click(await screen.findByRole('link', { name: /Tu equipo/ }))
-    expect(router.state.location.pathname).toBe('/configuracion/equipo')
+    const { router } = await renderApp('/')
+    await user.click(within(await screen.findByRole('navigation', { name: 'Menú principal' })).getByRole('link', { name: 'Tu equipo' }))
+    expect(router.state.location.pathname).toBe('/equipo')
     expect(await screen.findByRole('heading', { level: 1, name: 'Tu equipo' })).toBeInTheDocument()
+    const tabs = screen.getByRole('navigation', { name: 'Secciones de tu equipo' })
+    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Tu equipo', 'Doctores', 'Comisiones'])
+  })
+
+  it('la dirección anterior en Configuración lleva a «Tu equipo»', async () => {
+    const { router } = await renderApp('/configuracion/equipo')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/equipo'))
   })
 
   it('muestra el equipo; la propietaria no se puede editar ni quitar', async () => {

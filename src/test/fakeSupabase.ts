@@ -111,7 +111,7 @@ export function fakeTenant(overrides: Row = {}): Row {
 export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, role = 'owner', branch: Row = {}) {
   fakeDb.tenants.push(tenant)
   fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role, status: 'active', display_name: '', created_at: '2026-11-15T00:00:00Z' })
-  if (!fakeDb.profiles.some((p) => p.id === userId)) fakeDb.profiles.push({ id: userId, full_name: 'Dueña Prueba', phone_e164: null, avatar_path: null })
+  if (!fakeDb.profiles.some((p) => p.id === userId)) fakeDb.profiles.push({ id: userId, full_name: 'Dueña Prueba', phone_e164: null, avatar_path: null, title: '' })
   fakeDb.branches.push({ id: tenant.id === TENANT_ID ? BRANCH_ID : `b-${String(tenant.id)}`, tenant_id: tenant.id, name: 'Sucursal principal', address: '', is_active: true, timezone: 'America/Mexico_City', opening_hours: {}, ...branch })
 }
 
@@ -696,6 +696,11 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     if (p) {
       if (typeof args.p_full_name === 'string') p.full_name = args.p_full_name
       if (typeof args.p_phone_e164 === 'string') p.phone_e164 = args.p_phone_e164 || null
+      if (typeof args.p_title === 'string') {
+        // Igual que el servidor: solo «Dr.», «Dra.» o sin título.
+        if (!['', 'Dr.', 'Dra.'].includes(args.p_title.trim())) return Promise.resolve({ data: null, error: { code: '22023', message: 'Título inválido' } })
+        p.title = args.p_title.trim()
+      }
     }
     return Promise.resolve({ data: p ?? null, error: null })
   }

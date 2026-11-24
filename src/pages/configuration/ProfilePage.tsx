@@ -7,15 +7,17 @@ import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { updateMyProfile } from '@/data/profile'
 import { rpcErrorMessage } from '@/lib/errors'
 import { formatPhone, normalizePhone } from '@/lib/phone'
+import { PROFILE_TITLES, type ProfileTitle } from '@/lib/identity'
 import { ROLE_LABEL } from '@/lib/roles'
 import { profileSchema, type ProfileValues } from '@/lib/schemas'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 
-/** Mi perfil: nombre y teléfono de la persona (cuenta global, no de la clínica). */
+/** Mi perfil: título, nombre y teléfono de la persona (cuenta global, no de la clínica). */
 export function ProfilePage() {
   const { user } = useAuth()
   const { state, active, refresh } = useWorkspace()
@@ -28,13 +30,13 @@ export function ProfilePage() {
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { fullName: profile?.full_name ?? '', phone: profile?.phone_e164 ? formatPhone(profile.phone_e164) : '' },
+    defaultValues: { title: (profile?.title ?? '') as ProfileTitle, fullName: profile?.full_name ?? '', phone: profile?.phone_e164 ? formatPhone(profile.phone_e164) : '' },
   })
 
   const onSubmit = handleSubmit(async (v) => {
     setNotice(null)
     try {
-      await updateMyProfile(v.fullName, normalizePhone(v.phone))
+      await updateMyProfile(v.fullName, normalizePhone(v.phone), v.title)
       await refresh()
       reset(v)
       setNotice({ tone: 'success', text: 'Listo. Guardamos tu perfil.' })
@@ -49,6 +51,12 @@ export function ProfilePage() {
       <Card className="flex max-w-xl flex-col gap-5">
         <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
           {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
+          <Select
+            label="Título"
+            hint="Va antes de tu nombre en el menú."
+            options={PROFILE_TITLES.map((t) => ({ value: t.value, label: t.label }))}
+            {...register('title')}
+          />
           <Input label="Nombre completo" autoComplete="name" error={errors.fullName?.message} {...register('fullName')} />
           <Input label="Teléfono" type="tel" inputMode="tel" autoComplete="tel" placeholder="55 1234 5678" hint="Opcional. Lo ve tu equipo." error={errors.phone?.message} {...register('phone')} />
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-ui">

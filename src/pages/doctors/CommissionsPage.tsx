@@ -18,7 +18,7 @@ import { ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { CommissionDetail } from './CommissionDetail'
-import { DoctorsTabs } from './DoctorsTabs'
+import { TeamTabs } from './TeamTabs'
 
 /** P28 · Comisiones de doctores por periodo. Gerencia: todos; cada doctor: las suyas. */
 export function CommissionsPage() {
@@ -61,7 +61,7 @@ export function CommissionsPage() {
   if (!canSee) {
     return (
       <>
-        <DoctorsTabs />
+        <TeamTabs />
         <EmptyState headingLevel="h1" icon="doctores" title="Las comisiones las ve la gerencia" description="La dueña y la administración ven las comisiones de todos. Cada doctor ve solo las suyas." />
       </>
     )
@@ -105,7 +105,7 @@ export function CommissionsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Doctores"
+        eyebrow="Tu equipo"
         title="Comisiones"
         description="Se calculan sobre lo cobrado, no sobre lo presupuestado."
         actions={
@@ -118,7 +118,7 @@ export function CommissionsPage() {
           )
         }
       />
-      <DoctorsTabs />
+      <TeamTabs />
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="w-full sm:w-56">

@@ -21,22 +21,20 @@ export function canSeeSection(role: TenantRole | undefined, id: SectionId): bool
 /** Guía de inicio: solo quien arma la clínica. */
 export const canSeeGuide = (role: TenantRole | undefined) => isManager(role)
 
-export type ConfigArea = 'identidad' | 'equipo' | 'sucursales' | 'tratamientos' | 'perfil'
+export type ConfigArea = 'identidad' | 'sucursales' | 'tratamientos' | 'perfil'
 
-/** Sin gerencia: solo «Mi perfil», «Tratamientos y precios» y «Tu equipo» como directorio. */
+/** Sin gerencia: solo «Mi perfil» y «Tratamientos y precios» («Tu equipo» ya es sección del menú). */
 export function canSeeConfig(role: TenantRole | undefined, area: ConfigArea): boolean {
   if (isManager(role)) return true
-  return Boolean(role) && (area === 'equipo' || area === 'tratamientos' || area === 'perfil')
+  return Boolean(role) && (area === 'tratamientos' || area === 'perfil')
 }
 
 /** Comisiones: gerencia y doctores (recepción no). */
 export const canSeeCommissions = (role: TenantRole | undefined) => isManager(role) || isTreating(role)
 
-/** Menú lateral del rol. Para los doctores, «Doctores» es «Mis comisiones». */
+/** Menú lateral del rol. */
 export function menuFor(role: TenantRole | undefined): Section[] {
-  return SECTIONS.filter((s) => canSeeSection(role, s.id)).map((s) =>
-    s.id === 'doctores' && isTreating(role) ? { ...s, label: 'Mis comisiones', path: '/doctores/comisiones' } : s,
-  )
+  return SECTIONS.filter((s) => canSeeSection(role, s.id))
 }
 
 /** Barra inferior en móvil: quien no ve Leads tiene Presupuestos en su lugar. */

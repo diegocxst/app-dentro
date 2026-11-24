@@ -126,7 +126,7 @@ describe('M10 · identidad de la clínica', () => {
 })
 
 describe('M10 · mi perfil', () => {
-  it('guarda nombre y teléfono', async () => {
+  it('guarda título, nombre y teléfono', async () => {
     const user = userEvent.setup()
     await renderApp('/configuracion/perfil')
     const name = await screen.findByLabelText('Nombre completo')
@@ -135,9 +135,12 @@ describe('M10 · mi perfil', () => {
     await user.clear(name)
     await user.type(name, 'Ana Ruiz')
     await user.type(screen.getByLabelText('Teléfono'), '5512345678')
+    await user.selectOptions(screen.getByLabelText('Título'), 'Dra.')
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
-    expect(fakeSupabase.rpc).toHaveBeenCalledWith('update_my_profile', { p_full_name: 'Ana Ruiz', p_phone_e164: '+525512345678' })
+    expect(fakeSupabase.rpc).toHaveBeenCalledWith('update_my_profile', { p_full_name: 'Ana Ruiz', p_phone_e164: '+525512345678', p_title: 'Dra.' })
     expect(await screen.findByText('Listo. Guardamos tu perfil.')).toBeInTheDocument()
+    // El menú ya muestra el título antes del nombre.
+    expect(await within(screen.getByRole('navigation', { name: 'Menú principal' })).findByText('Dra. Ana Ruiz · Propietaria')).toBeInTheDocument()
   })
 
   it('rechaza un teléfono que no se puede interpretar', async () => {
