@@ -25,6 +25,19 @@ export async function listQuoteColumn(opts: { tenantId: string; status: QuoteSta
   return { rows: await withPatientNames((data ?? []) as Quote[]), total: count ?? 0 }
 }
 
+export const QUOTES_PAGE_SIZE = 25
+
+/** Vista de lista (Ajustes-D): todos los presupuestos, del más reciente al más viejo, paginados en el servidor. */
+export async function listQuotes(opts: { tenantId: string; doctorId?: string; status?: QuoteStatus; page: number }): Promise<{ rows: QuoteCard[]; total: number }> {
+  const from = opts.page * QUOTES_PAGE_SIZE
+  let q = supabase.from('quotes').select('*', { count: 'exact' }).eq('tenant_id', opts.tenantId)
+  if (opts.doctorId) q = q.eq('doctor_id', opts.doctorId)
+  if (opts.status) q = q.eq('status', opts.status)
+  const { data, error, count } = await q.order('created_at', { ascending: false }).range(from, from + QUOTES_PAGE_SIZE - 1)
+  if (error) throw error
+  return { rows: await withPatientNames((data ?? []) as Quote[]), total: count ?? 0 }
+}
+
 export async function listPatientQuotes(patientId: string): Promise<Quote[]> {
   const { data, error } = await supabase.from('quotes').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }).range(0, 49)
   if (error) throw error

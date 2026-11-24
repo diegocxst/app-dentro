@@ -179,3 +179,40 @@ describe('M4-A · Kanban y etapas', () => {
     expect(within(list).getByText(/P-0142/)).toBeInTheDocument()
   })
 })
+
+describe('Ajustes-D · presupuestos en lista', () => {
+  it('cambia de Kanban a Lista, filtra por etapa y pagina de 25 en 25', async () => {
+    seed()
+    seedQuote()
+    for (let i = 2; i <= 27; i++) {
+      fakeDb.quotes.push({
+        id: `q-${i}`, tenant_id: TENANT_ID, folio: 142 + i, patient_id: 'p-1', doctor_id: DOCTOR, title: `Resina ${i}`, status: i === 27 ? 'aceptado' : 'borrador', total: 1200,
+        down_payment: 0, installments: 0, valid_until: '2026-12-18', notes: null, lost_reason: null, sent_at: null, last_followup_at: null,
+        status_changed_at: '2026-11-10T12:00:00Z', created_by: null, created_at: '2026-11-10T12:00:00Z', updated_at: '2026-11-10T12:00:00Z',
+      })
+    }
+    const user = userEvent.setup()
+    const { router } = await renderApp('/presupuestos')
+    expect(await screen.findByRole('region', { name: 'Presentado' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Lista' }))
+    await waitFor(() => expect(router.state.location.search).toBe('?vista=lista'))
+    expect(screen.getByRole('button', { name: 'Lista' })).toHaveAttribute('aria-pressed', 'true')
+    const list = await screen.findByRole('list', { name: 'Presupuestos' })
+    expect(within(list).getAllByRole('link')).toHaveLength(25)
+    const first = within(list).getAllByRole('link')[0]!
+    expect(first).toHaveTextContent('P-0142')
+    expect(first).toHaveTextContent('Laura Méndez Prueba')
+    expect(first).toHaveTextContent('Presentado')
+    expect(first).toHaveAttribute('href', '/presupuestos/q-1')
+    expect(screen.getByText('1–25 de 27')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    expect(await screen.findByText('26–27 de 27')).toBeInTheDocument()
+    expect(fakeSupabase.from).toHaveBeenCalledWith('quotes')
+    await user.selectOptions(screen.getByLabelText('Etapa'), 'aceptado')
+    await waitFor(() => expect(within(screen.getByRole('list', { name: 'Presupuestos' })).getAllByRole('link')).toHaveLength(1))
+    expect(screen.getByText('1–1 de 1')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Kanban' }))
+    await waitFor(() => expect(router.state.location.search).toBe(''))
+    expect(await screen.findByRole('region', { name: 'Aceptado' })).toBeInTheDocument()
+  })
+})

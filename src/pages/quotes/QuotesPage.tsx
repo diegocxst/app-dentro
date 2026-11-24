@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { Badge } from '@/components/ui/Badge'
 import { buttonClasses } from '@/components/ui/button-styles'
@@ -12,16 +12,23 @@ import { cn } from '@/lib/cn'
 import { followupTag, folioLabel, money, QUOTE_COLUMNS, type QuoteStats, type QuoteStatus } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
+import { QuotesList } from './QuotesList'
 
 type Column = { rows: QuoteCard[]; total: number }
+const VIEWS = [
+  { id: 'kanban', label: 'Kanban' },
+  { id: 'lista', label: 'Lista' },
+] as const
 
-/** P18 · Kanban de presupuestos con indicadores del mes. */
+/** P18 · Presupuestos con indicadores del mes, en Kanban o en lista (`?vista=lista`). */
 export function QuotesPage() {
   const { active, branches, activeBranchId } = useWorkspace()
   const tz = branches.find((b) => b.id === activeBranchId)?.timezone ?? DEFAULT_TZ
   const doctors = useDoctors(active?.tenant_id)
   const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
   const [doctorId, setDoctorId] = useState('')
+  const [params, setParams] = useSearchParams()
+  const view = params.get('vista') === 'lista' ? 'lista' : 'kanban'
   const [columns, setColumns] = useState<Record<QuoteStatus, Column> | null>(null)
   const [stats, setStats] = useState<QuoteStats | null>(null)
   const [failed, setFailed] = useState(false)
@@ -89,17 +96,37 @@ export function QuotesPage() {
             ))}
           </dl>
 
-          {!isDoctor && (
-            <div className="w-full sm:w-64">
-              <Select
-                label="Doctor"
-                options={[{ value: '', label: 'Todos' }, ...doctors.map((d) => ({ value: d.id, label: d.name }))]}
-                value={doctorId}
-                onChange={(e) => setDoctorId(e.target.value)}
-              />
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            {!isDoctor ? (
+              <div className="w-full sm:w-64">
+                <Select
+                  label="Doctor"
+                  options={[{ value: '', label: 'Todos' }, ...doctors.map((d) => ({ value: d.id, label: d.name }))]}
+                  value={doctorId}
+                  onChange={(e) => setDoctorId(e.target.value)}
+                />
+              </div>
+            ) : (
+              <span />
+            )}
+            <div role="group" aria-label="Vista de presupuestos" className="inline-flex rounded-md border border-border bg-surface-raised p-1">
+              {VIEWS.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  aria-pressed={view === v.id}
+                  onClick={() => setParams(v.id === 'lista' ? { vista: 'lista' } : {}, { replace: true })}
+                  className={cn('min-h-9 rounded-sm px-3 text-ui font-semibold', view === v.id ? 'bg-violet text-on-violet' : 'text-ink-muted hover:text-ink')}
+                >
+                  {v.label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
+          {view === 'lista' ? (
+            <QuotesList key={doctorId} tenantId={active.tenant_id} doctorId={doctorId} doctorName={doctorName} />
+          ) : (
           <div className="-mx-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
             <div className="grid snap-x snap-mandatory auto-cols-[minmax(260px,1fr)] grid-flow-col gap-3">
               {QUOTE_COLUMNS.map((c) => {
@@ -146,6 +173,7 @@ export function QuotesPage() {
               })}
             </div>
           </div>
+          )}
         </div>
       )}
     </>
