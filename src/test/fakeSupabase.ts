@@ -69,9 +69,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[]; commission_schemes: Row[]; commission_entries: Row[]; commission_payouts: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[]; commission_schemes: Row[]; commission_entries: Row[]; commission_payouts: Row[]; doctor_settings: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [], commission_schemes: [], commission_entries: [], commission_payouts: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [], commission_schemes: [], commission_entries: [], commission_payouts: [], doctor_settings: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -110,7 +110,7 @@ export function fakeTenant(overrides: Row = {}): Row {
 /** Siembra una clínica con la persona de la sesión como dueña y una sucursal. */
 export function seedClinic(tenant: Row = fakeTenant(), userId = fakeUser().id, role = 'owner', branch: Row = {}) {
   fakeDb.tenants.push(tenant)
-  fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role, status: 'active', created_at: '2026-11-15T00:00:00Z' })
+  fakeDb.memberships.push({ id: `m-${String(tenant.id)}`, tenant_id: tenant.id, user_id: userId, role, status: 'active', display_name: '', created_at: '2026-11-15T00:00:00Z' })
   if (!fakeDb.profiles.some((p) => p.id === userId)) fakeDb.profiles.push({ id: userId, full_name: 'Dueña Prueba', phone_e164: null, avatar_path: null })
   fakeDb.branches.push({ id: tenant.id === TENANT_ID ? BRANCH_ID : `b-${String(tenant.id)}`, tenant_id: tenant.id, name: 'Sucursal principal', address: '', is_active: true, timezone: 'America/Mexico_City', opening_hours: {}, ...branch })
 }
@@ -201,6 +201,7 @@ function functionHandler(name: string, body: Record<string, unknown>): FnResult 
     const existing = fakeDb.invitations.find((i) => i.tenant_id === body.tenant_id && i.email === body.email && i.status === 'pending')
     if (existing) {
       existing.role = body.role
+      existing.membership_id = body.membership_id ?? existing.membership_id ?? null
     } else {
       fakeDb.invitations.push({
         id: `inv-${fakeDb.invitations.length + 1}`,
@@ -208,6 +209,7 @@ function functionHandler(name: string, body: Record<string, unknown>): FnResult 
         email: body.email,
         role: body.role,
         branch_ids: body.branch_ids,
+        membership_id: body.membership_id ?? null,
         status: 'pending',
         expires_at: '2026-11-22T00:00:00Z',
         created_at: '2026-11-15T00:00:00Z',
@@ -221,6 +223,21 @@ function functionHandler(name: string, body: Record<string, unknown>): FnResult 
 type RpcResult = Promise<{ data: unknown; error: { code: string; message: string } | null }>
 export const rpcOverrides: Record<string, (args: Record<string, unknown>) => RpcResult> = {}
 
+
+
+// ── Doctores (M6-B1): nombre en la clínica, perfil y doctores sin acceso, con las reglas de la base ──
+const DOCTOR_COLORS = ['violet', 'turquoise', 'orange', 'info', 'success', 'warning']
+/** Nombre en la clínica o, si está vacío, el de la cuenta. */
+export const memberLabel = (m: Row) => String(m.display_name ?? '').trim() || String(fakeDb.profiles.find((p) => p.id === m.user_id)?.full_name ?? '').trim()
+function badDoctorFields(a: Record<string, unknown>) {
+  return String(a.p_specialty ?? '').length > 80 || (a.p_color != null && !DOCTOR_COLORS.includes(String(a.p_color))) || (a.p_phone != null && !/^\+[1-9]\d{7,14}$/.test(String(a.p_phone)))
+}
+function upsertDoctorSettings(m: Row, a: Record<string, unknown>) {
+  const row = { membership_id: m.id, tenant_id: m.tenant_id, specialty: String(a.p_specialty ?? '').trim(), calendar_color: a.p_color ?? null, phone_e164: a.p_phone ?? null }
+  const i = fakeDb.doctor_settings.findIndex((d) => d.membership_id === m.id)
+  if (i >= 0) fakeDb.doctor_settings[i] = row
+  else fakeDb.doctor_settings.push(row)
+}
 
 // ── Comisiones (M6-A): mismas reglas y límites que la base (periodo ≤ 400 días, ≤ 200 movimientos) ──
 const err = (code: string) => Promise.resolve({ data: null, error: { code, message: code } })
@@ -269,7 +286,7 @@ function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | n
       const sum = (rs: Row[]) => Math.round(rs.reduce((t, e) => t + Number(e.amount), 0) * 100) / 100
       const payouts = fakeDb.commission_payouts.filter((po) => po.doctor_id === m.id && po.period_from === args.p_from)
       return {
-        doctor_id: m.id, full_name: fakeDb.profiles.find((p) => p.id === m.user_id)?.full_name || 'Sin nombre', role: m.role,
+        doctor_id: m.id, full_name: memberLabel(m) || 'Sin nombre', role: m.role,
         scheme_kind: s?.kind ?? null, percent: s?.percent ?? null, rent_amount: s?.rent_amount ?? null,
         patients: new Set(pays.map((x) => x.patient_id)).size, collected: pays.reduce((t, x) => t + Number(x.amount), 0),
         commission: sum(ents), pending: sum(ents.filter((e) => !e.payout_id)), paid: sum(ents.filter((e) => e.payout_id)),
@@ -487,7 +504,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
           lead_id: a.lead_id ?? null,
           patient_name: p?.full_name ?? '',
           patient_phone: p?.phone_e164 ?? null,
-          doctor_name: fakeDb.profiles.find((x) => x.id === m?.user_id)?.full_name ?? '',
+          doctor_name: m ? memberLabel(m) : '',
           chair_name: fakeDb.chairs.find((x) => x.id === a.chair_id)?.name ?? '',
           branch_name: fakeDb.branches.find((x) => x.id === a.branch_id)?.name ?? '',
           treatment_name: fakeDb.treatments.find((x) => x.id === a.treatment_id)?.name ?? null,
@@ -733,8 +750,26 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     if (inv) inv.status = 'revoked'
     return Promise.resolve({ data: inv ?? null, error: null })
   }
+  if (fn === 'create_doctor' || fn === 'update_doctor_profile') {
+    const target = fn === 'update_doctor_profile' ? fakeDb.memberships.find((x) => x.id === args.p_membership && x.status === 'active') : null
+    const tenant = fn === 'create_doctor' ? args.p_tenant : target?.tenant_id
+    const mine = fakeDb.memberships.find((m) => m.tenant_id === tenant && m.user_id === current?.user.id && m.status === 'active')
+    if (fn === 'update_doctor_profile' && (!target || !mine)) return err('P0002')
+    if (!mine || (mine.role !== 'owner' && mine.role !== 'admin')) return err('42501')
+    const name = String(args.p_name ?? '').trim()
+    const offline = fn === 'create_doctor' || target?.user_id == null
+    if (fn === 'create_doctor' && !['doctor', 'doctor_collab'].includes(String(args.p_role ?? 'doctor'))) return err('22023')
+    if (name.length > 120 || (name.length < 2 && (offline || name !== ''))) return err('22023')
+    if (badDoctorFields(args)) return err('22023')
+    const m: Row = target ?? { id: `m-doc-${fakeDb.memberships.length + 1}`, tenant_id: tenant, user_id: null, role: args.p_role ?? 'doctor', status: 'active', created_at: '2026-11-23T12:00:00Z' }
+    m.display_name = name
+    if (!target) fakeDb.memberships.push(m)
+    upsertDoctorSettings(m, args)
+    return Promise.resolve({ data: structuredClone(m), error: null })
+  }
   if (fn === 'update_member_role' || fn === 'revoke_member') {
     const m = fakeDb.memberships.find((x) => x.id === args.p_membership)
+    if (m && fn === 'update_member_role' && m.user_id == null && !['doctor', 'doctor_collab'].includes(String(args.p_role))) return err('22023')
     if (m && fn === 'update_member_role') m.role = args.p_role
     if (m && fn === 'revoke_member') m.status = 'revoked'
     return Promise.resolve({ data: m ?? null, error: null })

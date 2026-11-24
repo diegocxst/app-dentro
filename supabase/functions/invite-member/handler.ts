@@ -16,7 +16,7 @@ export type Deps = {
   /** Llama a `create_invitation` como el usuario dueño del JWT. */
   createInvitation: (
     jwt: string,
-    args: { p_tenant: string; p_email: string; p_role: string; p_branch_ids: string[] },
+    args: { p_tenant: string; p_email: string; p_role: string; p_branch_ids: string[]; p_membership?: string },
   ) => Promise<{ data: { id: string } | null; error: RpcError }>
   /** Envía la invitación de Supabase Auth (clave de servicio). */
   sendInvite: (email: string, redirectTo: string) => Promise<{ error: InviteError }>
@@ -53,6 +53,8 @@ function rpcFailure(error: NonNullable<RpcError>, origin: string): Response {
       return fail(403, 'forbidden', 'No tienes permiso para invitar en esta clínica.', origin)
     case '23505':
       return fail(409, 'already_member', 'Esa persona ya es parte de tu equipo.', origin)
+    case 'P0002':
+      return fail(404, 'not_found', 'Ese doctor ya no está disponible para invitar.', origin)
     case '22023':
     case '23514':
       return fail(400, 'invalid', 'Revisa el correo, el rol y las sucursales.', origin)
@@ -97,13 +99,16 @@ export async function handleInvite(req: Request, deps: Deps): Promise<Response> 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const role = typeof body.role === 'string' ? body.role : ''
   const branches = Array.isArray(body.branch_ids) ? body.branch_ids : []
+  // Opcional: el doctor sin acceso al que se liga la invitación (M6-B1).
+  const membership = body.membership_id === undefined || body.membership_id === null ? null : body.membership_id
   if (
     !UUID.test(tenant) ||
     !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ||
     email.length > 254 ||
     !ROLES.has(role) ||
     branches.length > 50 ||
-    !branches.every((b) => typeof b === 'string' && UUID.test(b))
+    !branches.every((b) => typeof b === 'string' && UUID.test(b)) ||
+    (membership !== null && (typeof membership !== 'string' || !UUID.test(membership)))
   ) {
     return fail(400, 'invalid', 'Revisa el correo, el rol y las sucursales.', origin)
   }
@@ -113,6 +118,7 @@ export async function handleInvite(req: Request, deps: Deps): Promise<Response> 
     p_email: email,
     p_role: role,
     p_branch_ids: branches as string[],
+    ...(membership ? { p_membership: membership as string } : {}),
   })
   if (error || !data) return rpcFailure(error ?? {}, origin)
 

@@ -35,6 +35,9 @@ import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
 import { CobrosPage } from '@/pages/payments/CobrosPage'
 import { CommissionsPage } from '@/pages/doctors/CommissionsPage'
+import { DoctorPage } from '@/pages/doctors/DoctorPage'
+import { DoctorsPage } from '@/pages/doctors/DoctorsPage'
+import { NewDoctorPage } from '@/pages/doctors/NewDoctorPage'
 import { RegisterPaymentPage } from '@/pages/payments/RegisterPaymentPage'
 import { QuotePage } from '@/pages/quotes/QuotePage'
 import { QuotesPage } from '@/pages/quotes/QuotesPage'
@@ -107,7 +110,10 @@ export const routes: RouteObject[] = [
           { path: 'presupuestos/:id', element: <QuotePage /> },
           { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
           { path: 'cobros', element: <CobrosPage /> },
-          { path: 'doctores', element: <CommissionsPage /> },
+          { path: 'doctores', element: <DoctorsPage /> },
+          { path: 'doctores/nuevo', element: <NewDoctorPage /> },
+          { path: 'doctores/comisiones', element: <CommissionsPage /> },
+          { path: 'doctores/:id', element: <DoctorPage /> },
           { path: 'cobros/nuevo', element: <RegisterPaymentPage /> },
           { path: 'cobros/:id/comprobante', element: <SendReceiptPage /> },
           { path: 'pacientes', element: <PatientsPage /> },

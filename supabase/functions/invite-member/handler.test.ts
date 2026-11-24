@@ -39,6 +39,14 @@ describe('Edge Function invite-member', () => {
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe(SITE)
   })
 
+  it('liga la invitación al doctor sin acceso cuando viene membership_id', async () => {
+    const d = deps()
+    const MEMBER = '30000000-0000-4000-8000-000000000001'
+    const res = await handleInvite(post({ ...valid, membership_id: MEMBER }), d)
+    expect(res.status).toBe(200)
+    expect(d.createInvitation).toHaveBeenCalledWith('jwt-de-prueba', expect.objectContaining({ p_membership: MEMBER }))
+  })
+
   it('sin sesión no hace nada', async () => {
     const d = deps()
     const res = await handleInvite(post(valid, ''), d)
@@ -52,6 +60,7 @@ describe('Edge Function invite-member', () => {
     ['correo inválido', { ...valid, email: 'no-es-correo' }],
     ['clínica inválida', { ...valid, tenant_id: 'x' }],
     ['sucursal inválida', { ...valid, branch_ids: ['x'] }],
+    ['doctor inválido', { ...valid, membership_id: 'x' }],
   ])('rechaza %s sin llamar a la base', async (_, body) => {
     const d = deps()
     const res = await handleInvite(post(body), d)
@@ -63,6 +72,7 @@ describe('Edge Function invite-member', () => {
     ['42501', 403, 'forbidden'],
     ['23505', 409, 'already_member'],
     ['22023', 400, 'invalid'],
+    ['P0002', 404, 'not_found'],
     ['28000', 401, 'session'],
     ['XX000', 500, 'server'],
   ])('si la base responde %s, contesta %i y NO envía correo', async (code, status, errCode) => {

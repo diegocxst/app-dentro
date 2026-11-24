@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
@@ -11,20 +11,14 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { commissionSummary, setCommissionPeriod } from '@/data/commissions'
 import { DEFAULT_TZ, todayIn } from '@/lib/agenda'
 import { cn } from '@/lib/cn'
+import { initials } from '@/lib/doctors'
 import { commissionsCsv, commissionStatus, PERIOD_KINDS, periodTotals, recentPeriods, schemeLabel, type CommissionPeriodKind, type CommissionRow } from '@/lib/commissions'
 import { money } from '@/lib/quotes'
 import { ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { CommissionDetail } from './CommissionDetail'
-
-const initials = (name: string) =>
-  name
-    .replace(/^(dra?\.|dr\.)\s*/i, '')
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('')
+import { DoctorsTabs } from './DoctorsTabs'
 
 /** P28 · Comisiones de doctores por periodo. Gerencia: todos; cada doctor: las suyas. */
 export function CommissionsPage() {
@@ -33,7 +27,8 @@ export function CommissionsPage() {
   const [kind, setKind] = useState<CommissionPeriodKind>(active?.tenant.commission_period === 'mensual' ? 'mensual' : 'quincenal')
   const [periodIdx, setPeriodIdx] = useState(0)
   const [rows, setRows] = useState<CommissionRow[] | null>(null)
-  const [picked, setPicked] = useState<string | null>(null)
+  const [params] = useSearchParams()
+  const [picked, setPicked] = useState<string | null>(params.get('doctor'))
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [periodError, setPeriodError] = useState<string | null>(null)
@@ -64,7 +59,12 @@ export function CommissionsPage() {
 
   if (!active) return null
   if (!canSee) {
-    return <EmptyState headingLevel="h1" icon="doctores" title="Las comisiones las ve la gerencia" description="La dueña y la administración ven las comisiones de todos. Cada doctor ve solo las suyas." />
+    return (
+      <>
+        <DoctorsTabs />
+        <EmptyState headingLevel="h1" icon="doctores" title="Las comisiones las ve la gerencia" description="La dueña y la administración ven las comisiones de todos. Cada doctor ve solo las suyas." />
+      </>
+    )
   }
 
   const changeKind = async (k: CommissionPeriodKind) => {
@@ -118,6 +118,7 @@ export function CommissionsPage() {
           )
         }
       />
+      <DoctorsTabs />
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="w-full sm:w-56">
@@ -140,7 +141,7 @@ export function CommissionsPage() {
       ) : !rows ? (
         <Skeleton className="h-96 w-full" label="Cargando comisiones" />
       ) : rows.length === 0 ? (
-        <EmptyState icon="doctores" title="Aún no hay doctores" description="Invita a tu equipo desde Configuración › Equipo para asignarles su esquema de comisión." />
+        <EmptyState icon="doctores" title="Aún no hay doctores" description="Agrega a tus doctores para asignarles su esquema de comisión." />
       ) : (
         <div className="flex flex-col gap-6">
           <dl className="m-0 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -155,10 +156,10 @@ export function CommissionsPage() {
           {isManager && rows.every((r) => r.role === 'owner') && (
             <Alert tone="info">
               La dueña no lleva comisión. Para asignar un esquema,{' '}
-              <Link to="/configuracion/equipo" className="font-semibold text-violet">
-                invita a un doctor a tu equipo
+              <Link to="/doctores/nuevo" className="font-semibold text-violet">
+                agrega a un doctor
               </Link>
-              ; aparecerá aquí cuando acepte.
+              , con o sin correo.
             </Alert>
           )}
 

@@ -153,6 +153,11 @@ select pg_temp.expect_error(format($$select public.create_invitation(%L, 'nuevo.
 select pg_temp.expect_error(format($$select public.create_invitation(%L, 'nuevo.dr@example.test', 'doctor', '{}', %L)$$, pg_temp.v('a'), pg_temp.v('ownb')), 'P0002', 'no se liga a un miembro de otra clínica');
 select public.create_invitation(pg_temp.v('a'), 'otro.correo@example.test', 'doctor', '{}', pg_temp.v('off'));
 select public.create_invitation(pg_temp.v('a'), 'nuevo.dr@example.test', 'doctor', '{}', pg_temp.v('off'));
+-- «Reenviar» (sin doctor) conserva el vínculo.
+select public.create_invitation(pg_temp.v('a'), 'nuevo.dr@example.test', 'doctor');
+select pg_temp.assert_true(
+  (select membership_id = pg_temp.v('off') from public.invitations where email = 'nuevo.dr@example.test' and status = 'pending'),
+  'reenviar conserva el doctor ligado');
 select pg_temp.assert_true(
   (select count(*) filter (where status = 'pending') = 1 and count(*) filter (where status = 'revoked') = 1
    from public.invitations where membership_id = pg_temp.v('off')),

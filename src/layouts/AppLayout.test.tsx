@@ -49,7 +49,7 @@ describe('AppLayout', () => {
     await user.click(topbarNuevo!)
     const menu = screen.getByRole('menu', { name: 'Crear nuevo' })
     expect(within(menu).getAllByRole('menuitem').map((i) => i.textContent)).toEqual(['Cita', 'Paciente', 'Lead', 'Presupuesto', 'Doctor'])
-    expect(within(menu).getByRole('menuitem', { name: 'Doctor' })).toHaveAttribute('href', '/configuracion/equipo')
+    expect(within(menu).getByRole('menuitem', { name: 'Doctor' })).toHaveAttribute('href', '/doctores/nuevo')
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })

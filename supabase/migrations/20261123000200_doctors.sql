@@ -211,7 +211,8 @@ begin
   update public.invitations set
     role = p_role,
     branch_ids = coalesce(p_branch_ids, '{}'),
-    membership_id = p_membership,
+    -- «Reenviar» sin doctor no rompe el vínculo que ya tenía.
+    membership_id = coalesce(p_membership, membership_id),
     invited_by = (select auth.uid()),
     expires_at = now() + interval '7 days'
   where tenant_id = p_tenant and email = v_email and status = 'pending'

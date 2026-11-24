@@ -1,5 +1,5 @@
-// Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0017 · 2026-11-23. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: 0018 (doctores) editada a mano hasta aplicar la migración y regenerar.
+// Generado con: npx supabase gen types typescript --remote --schema public · migraciones 0001–0017 · 2026-11-23.
 export type Json =
   | string
   | number
@@ -574,6 +574,36 @@ export type Database = {
           },
         ]
       }
+      doctor_settings: {
+        Row: {
+          calendar_color: string | null
+          created_at: string
+          membership_id: string
+          phone_e164: string | null
+          specialty: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          calendar_color?: string | null
+          created_at?: string
+          membership_id: string
+          phone_e164?: string | null
+          specialty?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          calendar_color?: string | null
+          created_at?: string
+          membership_id?: string
+          phone_e164?: string | null
+          specialty?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -584,6 +614,7 @@ export type Database = {
           expires_at: string
           id: string
           invited_by: string | null
+          membership_id: string | null
           role: Database["public"]["Enums"]["tenant_role"]
           status: Database["public"]["Enums"]["invitation_status"]
           tenant_id: string
@@ -598,6 +629,7 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          membership_id?: string | null
           role: Database["public"]["Enums"]["tenant_role"]
           status?: Database["public"]["Enums"]["invitation_status"]
           tenant_id: string
@@ -612,6 +644,7 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          membership_id?: string | null
           role?: Database["public"]["Enums"]["tenant_role"]
           status?: Database["public"]["Enums"]["invitation_status"]
           tenant_id?: string
@@ -792,21 +825,23 @@ export type Database = {
       memberships: {
         Row: {
           created_at: string
+          display_name: string
           id: string
           role: Database["public"]["Enums"]["tenant_role"]
           status: Database["public"]["Enums"]["membership_status"]
           tenant_id: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
+          display_name?: string
           id?: string
           role: Database["public"]["Enums"]["tenant_role"]
           status?: Database["public"]["Enums"]["membership_status"]
           tenant_id: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -814,8 +849,9 @@ export type Database = {
           role?: Database["public"]["Enums"]["tenant_role"]
           status?: Database["public"]["Enums"]["membership_status"]
           tenant_id?: string
+          display_name?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1682,10 +1718,31 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_doctor: {
+        Args: {
+          p_color?: string
+          p_name: string
+          p_phone?: string
+          p_role?: Database["public"]["Enums"]["tenant_role"]
+          p_specialty?: string
+          p_tenant: string
+        }
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+        }
+      }
       create_invitation: {
         Args: {
           p_branch_ids?: string[]
           p_email: string
+          p_membership?: string
           p_role: Database["public"]["Enums"]["tenant_role"]
           p_tenant: string
         }
@@ -2517,6 +2574,25 @@ export type Database = {
           to: "leads"
           isOneToOne: true
           isSetofReturn: false
+        }
+      }
+      update_doctor_profile: {
+        Args: {
+          p_color?: string
+          p_membership: string
+          p_name: string
+          p_phone?: string
+          p_specialty?: string
+        }
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
         }
       }
       update_member_role: {

@@ -1,9 +1,8 @@
+import { doctorColorClass } from '@/lib/doctors'
 import type { AgendaItem } from '@/data/agenda'
 import { hoursFor, longDayLabel, zonedParts, type Hours } from '@/lib/agenda'
 import { cn } from '@/lib/cn'
 
-/** Colores de los puntos por doctor (tokens del sistema «dentro»), en orden. */
-const DOT = ['bg-violet', 'bg-turquoise', 'bg-orange', 'bg-info', 'bg-success', 'bg-warning', 'bg-error', 'bg-ink-muted'] as const
 const WEEKDAYS = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom']
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
   month: string
   today: string
   items: AgendaItem[]
-  doctors: { id: string; name: string }[]
+  doctors: { id: string; name: string; color?: string | null }[]
   hours: Hours | null
   tz: string
   onDay: (date: string) => void
@@ -19,7 +18,10 @@ type Props = {
 
 /** Vista Mes: cuántas citas hay cada día y un punto por doctor; al tocar un día se abre la vista Día. */
 export function MonthView({ days, month, today, items, doctors, hours, tz, onDay }: Props) {
-  const dotOf = (doctorId: string) => DOT[Math.max(0, doctors.findIndex((d) => d.id === doctorId)) % DOT.length]!
+  const dotOf = (doctorId: string) => {
+    const i = Math.max(0, doctors.findIndex((d) => d.id === doctorId))
+    return doctorColorClass(doctors[i]?.color, i)
+  }
   const byDay = new Map<string, AgendaItem[]>()
   for (const a of items) {
     const d = zonedParts(new Date(a.starts_at), tz).date

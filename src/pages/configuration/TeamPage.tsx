@@ -20,6 +20,7 @@ import {
   type Invitation,
   type TeamMember,
 } from '@/data/team'
+import { OFFLINE_ROLES } from '@/lib/doctors'
 import { clinicErrorMessage } from '@/lib/errors'
 import { ASSIGNABLE_ROLES, isManager, ROLE_LABEL, type AssignableRole } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
@@ -102,8 +103,8 @@ export function TeamPage() {
                     <MemberRow
                       key={m.id}
                       member={m}
-                      editable={manager && m.role !== 'owner' && m.user_id !== user?.id}
-                      isMe={m.user_id === user?.id}
+                      editable={manager && m.role !== 'owner' && (!m.hasAccess || m.user_id !== user?.id)}
+                      isMe={m.hasAccess && m.user_id === user?.id}
                       onRole={(role) => void run(() => updateMemberRole(m.id, role), `Cambiamos el rol de ${m.fullName}.`)}
                       onRevoke={() => void run(() => revokeMember(m.id), `${m.fullName} ya no es parte de tu equipo.`)}
                     />
@@ -134,7 +135,7 @@ export function TeamPage() {
                             void (async () => {
                               setNotice(null)
                               try {
-                                const out = await inviteMember({ tenantId, email: inv.email, role: inv.role as AssignableRole, branchIds: inv.branch_ids })
+                                const out = await inviteMember({ tenantId, email: inv.email, role: inv.role as AssignableRole, branchIds: inv.branch_ids, membershipId: inv.membership_id })
                                 setNotice(outcomeNotice(out, inv.email))
                                 reload()
                               } catch (e) {
@@ -182,6 +183,14 @@ function MemberRow({
           {member.fullName}
           {isMe && <span className="font-normal text-ink-muted"> (tú)</span>}
         </span>
+        {!member.hasAccess && (
+          <span className="text-caption text-ink-muted">
+            Sin acceso a la app ·{' '}
+            <Link to={`/doctores/${member.id}`} className="font-semibold text-violet">
+              Invitarlo
+            </Link>
+          </span>
+        )}
         {!editable && (
           <span>
             <Badge tone={member.role === 'owner' ? 'violet' : 'neutral'}>{ROLE_LABEL[member.role]}</Badge>
@@ -194,7 +203,7 @@ function MemberRow({
             <Select
               label={`Rol de ${member.fullName}`}
               className="text-ui"
-              options={ASSIGNABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
+              options={(member.hasAccess ? ASSIGNABLE_ROLES : OFFLINE_ROLES).map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
               value={member.role}
               onChange={(e) => onRole(e.target.value as AssignableRole)}
             />

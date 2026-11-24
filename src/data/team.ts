@@ -1,38 +1,66 @@
 import type { Tables, TenantRole } from '@/lib/db'
 import type { AssignableRole } from '@/lib/roles'
+import { memberName } from '@/lib/doctors'
 import { supabase } from '@/lib/supabase'
 
-export type TeamMember = Pick<Tables<'memberships'>, 'id' | 'user_id' | 'role' | 'status' | 'created_at'> & { fullName: string }
-export type Invitation = Pick<Tables<'invitations'>, 'id' | 'email' | 'role' | 'status' | 'expires_at' | 'created_at' | 'branch_ids'>
+export type TeamMember = Pick<Tables<'memberships'>, 'id' | 'user_id' | 'role' | 'status' | 'created_at'> & {
+  /** Nombre con el que aparece en la clínica. */
+  fullName: string
+  /** Nombre que puso la gerencia ('' = el de la cuenta). */
+  displayName: string
+  /** Nombre de su cuenta ('' si es un doctor sin acceso). */
+  accountName: string
+  /** ¿Puede entrar a la app? (los doctores sin acceso no tienen cuenta). */
+  hasAccess: boolean
+  specialty: string
+  color: string | null
+  phone: string | null
+}
+export type Invitation = Pick<Tables<'invitations'>, 'id' | 'email' | 'role' | 'status' | 'expires_at' | 'created_at' | 'branch_ids' | 'membership_id'>
 
-/** Miembros activos de la clínica con su nombre (RLS: solo compañeros). */
+/** Miembros activos de la clínica con su nombre y perfil (RLS: solo compañeros). */
 export async function fetchTeam(tenantId: string): Promise<TeamMember[]> {
   const { data: members, error } = await supabase
     .from('memberships')
-    .select('id, user_id, role, status, created_at')
+    .select('id, user_id, role, status, created_at, display_name')
     .eq('tenant_id', tenantId)
     .eq('status', 'active')
     .order('created_at', { ascending: true })
   if (error) throw error
-  const rows = (members ?? []) as Omit<TeamMember, 'fullName'>[]
+  const rows = (members ?? []) as (Pick<Tables<'memberships'>, 'id' | 'user_id' | 'role' | 'status' | 'created_at' | 'display_name'>)[]
   if (rows.length === 0) return []
-  const { data: profiles, error: pErr } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .in(
-      'id',
-      rows.map((m) => m.user_id),
-    )
-  if (pErr) throw pErr
-  const names = new Map(((profiles ?? []) as { id: string; full_name: string }[]).map((p) => [p.id, p.full_name]))
-  return rows.map((m) => ({ ...m, fullName: names.get(m.user_id) || 'Sin nombre' }))
+  const userIds = rows.map((m) => m.user_id).filter((id): id is string => Boolean(id))
+  const [profilesRes, settingsRes] = await Promise.all([
+    userIds.length ? supabase.from('profiles').select('id, full_name').in('id', userIds) : Promise.resolve({ data: [], error: null }),
+    supabase.from('doctor_settings').select('membership_id, specialty, calendar_color, phone_e164').eq('tenant_id', tenantId),
+  ])
+  if (profilesRes.error) throw profilesRes.error
+  if (settingsRes.error) throw settingsRes.error
+  const names = new Map(((profilesRes.data ?? []) as { id: string; full_name: string }[]).map((p) => [p.id, p.full_name]))
+  const settings = new Map(
+    ((settingsRes.data ?? []) as Pick<Tables<'doctor_settings'>, 'membership_id' | 'specialty' | 'calendar_color' | 'phone_e164'>[]).map((d) => [d.membership_id, d]),
+  )
+  return rows.map(({ display_name, ...m }) => {
+    const accountName = (m.user_id && names.get(m.user_id)) || ''
+    const s = settings.get(m.id)
+    return {
+      ...m,
+      displayName: display_name,
+      accountName,
+      fullName: memberName(display_name, accountName),
+      hasAccess: m.user_id !== null,
+      specialty: s?.specialty ?? '',
+      color: s?.calendar_color ?? null,
+      phone: s?.phone_e164 ?? null,
+    }
+  })
 }
 
 /** Invitaciones pendientes (RLS: solo propietario o administración). */
 export async function fetchPendingInvitations(tenantId: string): Promise<Invitation[]> {
   const { data, error } = await supabase
     .from('invitations')
-    .select('id, email, role, status, expires_at, created_at, branch_ids')
+    .select('id, email, role, status, expires_at, created_at, branch_ids, membership_id')
     .eq('tenant_id', tenantId)
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
@@ -52,9 +80,16 @@ export class InviteError extends Error {
 }
 
 /** Crea la invitación y envía el correo (Edge Function `invite-member`). */
-export async function inviteMember(input: { tenantId: string; email: string; role: AssignableRole; branchIds: string[] }): Promise<InviteOutcome> {
+export async function inviteMember(input: { tenantId: string; email: string; role: AssignableRole; branchIds: string[]; membershipId?: string | null }): Promise<InviteOutcome> {
   const { data, error } = await supabase.functions.invoke('invite-member', {
-    body: { tenant_id: input.tenantId, email: input.email, role: input.role, branch_ids: input.branchIds },
+    body: {
+      tenant_id: input.tenantId,
+      email: input.email,
+      role: input.role,
+      branch_ids: input.branchIds,
+      // Doctor sin acceso: al aceptar, su cuenta se liga a ese mismo registro.
+      ...(input.membershipId ? { membership_id: input.membershipId } : {}),
+    },
   })
   if (!error) return (data as { status: InviteOutcome }).status
   // 4xx/5xx: la función manda { status: 'error', code, message } o { status: 'email_failed' }.

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchTeam } from '@/data/team'
 
-export type DoctorOption = { id: string; name: string }
+export type DoctorOption = { id: string; name: string; color?: string | null; hasAccess?: boolean }
 
 /** Miembros que pueden ser doctor tratante (propietario, administración, doctor, colaborador). */
 export function useDoctors(tenantId: string | undefined) {
@@ -12,7 +12,7 @@ export function useDoctors(tenantId: string | undefined) {
     fetchTeam(tenantId).then(
       (team) => {
         if (!current) return
-        setDoctors(team.filter((m) => m.role !== 'reception').map((m) => ({ id: m.id, name: m.fullName })))
+        setDoctors(team.filter((m) => m.role !== 'reception').map((m) => ({ id: m.id, name: m.fullName, color: m.color, hasAccess: m.hasAccess })))
       },
       () => undefined,
     )
