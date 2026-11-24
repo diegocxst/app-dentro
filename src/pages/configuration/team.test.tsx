@@ -123,7 +123,7 @@ describe('Configuración › Tu equipo', () => {
 
   it('un doctor ve el equipo pero no puede invitar ni editar', async () => {
     await renderApp('/configuracion/equipo', { role: 'doctor' })
-    expect(await screen.findByText(/Solo la dueña, el dueño o la administración/)).toBeInTheDocument()
+    expect(await screen.findByText(/Solo la gerencia invita y cambia el equipo/)).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Invita a alguien' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Invitaciones pendientes' })).not.toBeInTheDocument()
     expect(fakeSupabase.from).not.toHaveBeenCalledWith('invitations')

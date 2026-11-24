@@ -1,25 +1,34 @@
 import { Link } from 'react-router'
 import { sectionById } from '@/app/navigation'
 import { Icon, type IconName } from '@/components/ui/Icon'
+import { canSeeConfig, type ConfigArea } from '@/lib/access'
+import { isManager } from '@/lib/roles'
+import { useWorkspace } from '@/workspace/workspace-context'
 import { PageHeader } from '@/pages/PageHeader'
 
-const LINKS: { to: string; title: string; text: string; icon: IconName }[] = [
-  { to: '/configuracion/identidad', title: 'Identidad de tu clínica', text: 'Nombre, logo, color, responsable y WhatsApp.', icon: 'inicio' },
-  { to: '/configuracion/equipo', title: 'Tu equipo', text: 'Invita a doctores y recepción, y decide qué puede hacer cada quien.', icon: 'doctores' },
-  { to: '/configuracion/sucursales', title: 'Sucursales y unidades dentales', text: 'Dónde atiendes, en qué horario y con cuántas unidades dentales.', icon: 'sucursal' },
-  { to: '/configuracion/tratamientos', title: 'Tratamientos y precios', text: 'Tu catálogo para armar presupuestos en segundos.', icon: 'presupuestos' },
-  { to: '/configuracion/perfil', title: 'Mi perfil', text: 'Tu nombre y tu teléfono.', icon: 'pacientes' },
+const LINKS: { area: ConfigArea; to: string; title: string; text: string; icon: IconName }[] = [
+  { area: 'identidad', to: '/configuracion/identidad', title: 'Identidad de tu clínica', text: 'Nombre, logo, color, responsable y WhatsApp.', icon: 'inicio' },
+  { area: 'equipo', to: '/configuracion/equipo', title: 'Tu equipo', text: 'Invita a doctores y recepción, y decide qué puede hacer cada quien.', icon: 'doctores' },
+  { area: 'sucursales', to: '/configuracion/sucursales', title: 'Sucursales y unidades dentales', text: 'Dónde atiendes, en qué horario y con cuántas unidades dentales.', icon: 'sucursal' },
+  { area: 'tratamientos', to: '/configuracion/tratamientos', title: 'Tratamientos y precios', text: 'Tu catálogo para armar presupuestos en segundos.', icon: 'presupuestos' },
+  { area: 'perfil', to: '/configuracion/perfil', title: 'Mi perfil', text: 'Tu nombre y tu teléfono.', icon: 'pacientes' },
 ]
 
 /** Configuración (M10 · P31–P33). Integraciones y perfil público (P34) llegan con E6. */
 export function ConfigurationPage() {
   const section = sectionById('configuracion')
+  const role = useWorkspace().active?.role
+  const manager = isManager(role)
+  // Sin gerencia, «Tu equipo» es un directorio de solo consulta.
+  const links = LINKS.filter((l) => canSeeConfig(role, l.area)).map((l) =>
+    l.area === 'equipo' && !manager ? { ...l, text: 'Quién trabaja en la clínica y cómo contactarle.' } : l,
+  )
   return (
     <>
       <PageHeader title={section.label} />
       <div className="flex flex-col gap-6">
         <ul className="m-0 flex list-none flex-col gap-3 p-0">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <li key={l.to}>
               <Link
                 to={l.to}
@@ -37,7 +46,7 @@ export function ConfigurationPage() {
             </li>
           ))}
         </ul>
-        <p className="m-0 text-caption text-ink-muted">Integraciones (Meta) y tu perfil público llegan muy pronto.</p>
+        {manager && <p className="m-0 text-caption text-ink-muted">Integraciones (Meta) y tu perfil público llegan muy pronto.</p>}
       </div>
     </>
   )

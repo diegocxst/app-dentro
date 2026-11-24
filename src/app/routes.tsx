@@ -29,6 +29,8 @@ import { StepTeamPage } from '@/pages/onboarding/StepTeamPage'
 import { StepTreatmentsPage } from '@/pages/onboarding/StepTreatmentsPage'
 import { StepWhatsappPage } from '@/pages/onboarding/StepWhatsappPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
+import { Allow } from '@/workspace/Allow'
+import { canSeeConfig, canSeeGuide, canSeeSection, isTreating } from '@/lib/access'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
@@ -96,21 +98,23 @@ export const routes: RouteObject[] = [
         ),
         children: [
           ...SECTIONS.filter((s) => s.id !== 'configuracion' && s.id !== 'pacientes' && s.id !== 'agenda' && s.id !== 'leads' && s.id !== 'presupuestos' && s.id !== 'cobros' && s.id !== 'doctores').map((s): RouteObject =>
-            s.path === '/' ? { index: true, element: <HomePage /> } : { path: s.path.slice(1), element: <SectionPage id={s.id} /> },
+            s.path === '/'
+              ? { index: true, element: <HomePage /> }
+              : { path: s.path.slice(1), element: <Allow when={(r) => canSeeSection(r, s.id)}><SectionPage id={s.id} /></Allow> },
           ),
           { path: 'agenda', element: <AgendaPage /> },
           { path: 'agenda/nueva', element: <AppointmentFormPage /> },
           { path: 'agenda/:id/editar', element: <AppointmentFormPage /> },
-          { path: 'leads', element: <LeadsPage /> },
-          { path: 'leads/nuevo', element: <NewLeadPage /> },
-          { path: 'leads/:id', element: <LeadPage /> },
-          { path: 'leads/:id/convertir', element: <ConvertLeadPage /> },
+          { path: 'leads', element: <Allow when={(r) => canSeeSection(r, 'leads')}><LeadsPage /></Allow> },
+          { path: 'leads/nuevo', element: <Allow when={(r) => canSeeSection(r, 'leads')}><NewLeadPage /></Allow> },
+          { path: 'leads/:id', element: <Allow when={(r) => canSeeSection(r, 'leads')}><LeadPage /></Allow> },
+          { path: 'leads/:id/convertir', element: <Allow when={(r) => canSeeSection(r, 'leads')}><ConvertLeadPage /></Allow> },
           { path: 'presupuestos', element: <QuotesPage /> },
           { path: 'presupuestos/nuevo', element: <QuotePage /> },
           { path: 'presupuestos/:id', element: <QuotePage /> },
           { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
           { path: 'cobros', element: <CobrosPage /> },
-          { path: 'doctores', element: <DoctorsPage /> },
+          { path: 'doctores', element: <Allow when={(r) => !isTreating(r)} to="/doctores/comisiones"><DoctorsPage /></Allow> },
           { path: 'doctores/nuevo', element: <NewDoctorPage /> },
           { path: 'doctores/comisiones', element: <CommissionsPage /> },
           { path: 'doctores/:id', element: <DoctorPage /> },
@@ -122,11 +126,11 @@ export const routes: RouteObject[] = [
           { path: 'pacientes/:id/editar', element: <EditPatientPage /> },
           { path: 'configuracion', element: <ConfigurationPage /> },
           { path: 'configuracion/equipo', element: <TeamPage /> },
-          { path: 'configuracion/sucursales', element: <BranchesConfigPage /> },
+          { path: 'configuracion/sucursales', element: <Allow when={(r) => canSeeConfig(r, 'sucursales')} to="/configuracion"><BranchesConfigPage /></Allow> },
           { path: 'configuracion/tratamientos', element: <TreatmentsConfigPage /> },
-          { path: 'configuracion/identidad', element: <IdentityPage /> },
+          { path: 'configuracion/identidad', element: <Allow when={(r) => canSeeConfig(r, 'identidad')} to="/configuracion"><IdentityPage /></Allow> },
           { path: 'configuracion/perfil', element: <ProfilePage /> },
-          { path: GUIDE_PATH.slice(1), element: <GuidePage /> },
+          { path: GUIDE_PATH.slice(1), element: <Allow when={canSeeGuide}><GuidePage /></Allow> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

@@ -9,6 +9,8 @@ import { PageHeader } from './PageHeader'
 import { sectionById } from '@/app/navigation'
 import { MyDay } from '@/components/agenda/MyDay'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { DoctorSummary } from '@/components/home/DoctorSummary'
+import { canSeeGuide, isTreating } from '@/lib/access'
 
 // «Citas de hoy» ya lo muestra «Mi día» (M3-B), con datos reales.
 const EMPTY_KPIS = [
@@ -28,7 +30,20 @@ export function HomePage() {
   const [tourOpen, setTourOpen] = useState(!tourSeen)
 
   const done = active ? guideDone(active.tenant.onboarding_state).size : GUIDE_TOTAL
-  if (done >= GUIDE_TOTAL) {
+  // Los doctores no arman la clínica: ven su día y su resumen (Ajustes-D).
+  if (isTreating(active?.role)) {
+    return (
+      <>
+        <PageHeader title={sectionById('inicio').label} />
+        <div className="flex flex-col gap-8">
+          <MyDay />
+          <DoctorSummary />
+        </div>
+      </>
+    )
+  }
+  // Recepción tampoco ve la guía.
+  if (done >= GUIDE_TOTAL || !canSeeGuide(active?.role)) {
     const section = sectionById('inicio')
     return (
       <>

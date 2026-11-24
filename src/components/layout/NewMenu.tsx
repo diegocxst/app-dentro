@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { NEW_ACTIONS } from '@/app/navigation'
 import { Icon } from '@/components/ui/Icon'
 import { useDismiss } from '@/hooks/useDismiss'
+import { canSeeSection } from '@/lib/access'
 import { cn } from '@/lib/cn'
 import { isManager } from '@/lib/roles'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -17,7 +18,7 @@ type NewMenuProps = {
 export function NewMenu({ variant, className }: NewMenuProps) {
   const [open, setOpen] = useState(false)
   const { active } = useWorkspace()
-  const actions = NEW_ACTIONS.filter((a) => !a.managersOnly || isManager(active?.role))
+  const actions = NEW_ACTIONS.filter((a) => (!a.managersOnly || isManager(active?.role)) && (!a.section || canSeeSection(active?.role, a.section)))
   const ref = useRef<HTMLDivElement>(null)
   const menuId = useId()
   const close = useCallback(() => setOpen(false), [])

@@ -1,12 +1,14 @@
 import { NavLink } from 'react-router'
+import { canSeeCommissions, isTreating } from '@/lib/access'
 import { cn } from '@/lib/cn'
 import { useWorkspace } from '@/workspace/workspace-context'
 
-/** Pestañas de la sección Doctores. Comisiones: gerencia y doctores (recepción no). */
+/** Pestañas de la sección Doctores. Comisiones: gerencia y doctores (recepción no). Un doctor solo ve sus comisiones: sin pestañas. */
 export function DoctorsTabs() {
   const { active } = useWorkspace()
   const role = active?.role
-  const seesCommissions = role === 'owner' || role === 'admin' || role === 'doctor' || role === 'doctor_collab'
+  if (isTreating(role)) return null
+  const seesCommissions = canSeeCommissions(role)
   const tabs = [{ to: '/doctores', label: 'Equipo', end: true }, ...(seesCommissions ? [{ to: '/doctores/comisiones', label: 'Comisiones', end: false }] : [])]
   return (
     <nav aria-label="Secciones de doctores" className="mb-6 flex gap-1 border-b border-border">

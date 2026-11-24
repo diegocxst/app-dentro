@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '@/auth/auth-context'
 import { Alert } from '@/components/ui/Alert'
+import { formatPhone } from '@/lib/phone'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -74,7 +75,7 @@ export function TeamPage() {
       <PageHeader eyebrow="Configuración" title="Tu equipo" actions={<Link to="/configuracion" className="text-ui font-semibold text-violet">Volver</Link>} />
       <div className="flex flex-col gap-6">
         {notice && <Alert tone={notice.tone}>{notice.text}</Alert>}
-        {!manager && <Alert tone="info">Solo la dueña, el dueño o la administración pueden invitar y cambiar el equipo.</Alert>}
+        {!manager && <p className="m-0 text-ui text-ink-muted">Quién trabaja en la clínica y cómo contactarle. Solo la gerencia invita y cambia el equipo.</p>}
         {loadError && <LoadError title="No pudimos cargar tu equipo" onRetry={reload} />}
 
         <div className="flex flex-wrap items-start gap-6">
@@ -194,6 +195,17 @@ function MemberRow({
         {!editable && (
           <span>
             <Badge tone={member.role === 'owner' ? 'violet' : 'neutral'}>{ROLE_LABEL[member.role]}</Badge>
+          </span>
+        )}
+        {(member.specialty || member.phone) && (
+          <span className="text-caption text-ink-muted">
+            {member.specialty}
+            {member.specialty && member.phone && ' · '}
+            {member.phone && (
+              <a href={`tel:${member.phone}`} className="text-ink-muted">
+                {formatPhone(member.phone)}
+              </a>
+            )}
           </span>
         )}
       </div>

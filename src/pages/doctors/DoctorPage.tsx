@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, Navigate, useLocation, useParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { outcomeNotice, type Notice } from '@/components/team/notice'
 import { Alert } from '@/components/ui/Alert'
@@ -19,6 +19,7 @@ import { DOCTOR_COLORS, doctorColorClass, initials, TREATING_ROLES, type DoctorC
 import { rpcErrorMessage } from '@/lib/errors'
 import { formatPhone } from '@/lib/phone'
 import { isManager, ROLE_LABEL } from '@/lib/roles'
+import { isTreating } from '@/lib/access'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { ColorPicker } from './ColorPicker'
@@ -58,6 +59,8 @@ export function DoctorPage() {
   }, [tenantId, id, attempt])
 
   if (!active) return null
+  // Un doctor solo abre su propio perfil (el directorio está en Configuración › Tu equipo).
+  if (isTreating(active.role) && id !== active.id) return <Navigate to="/doctores/comisiones" replace />
   if (failed) return <LoadError title="No pudimos cargar al doctor" onRetry={reload} />
   if (member === undefined) return <Skeleton className="h-96 w-full" label="Cargando doctor" />
   if (member === null) {

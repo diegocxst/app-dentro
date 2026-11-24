@@ -1,14 +1,17 @@
 import { NavLink } from 'react-router'
-import { GUIDE_PATH, SECTIONS } from '@/app/navigation'
+import { GUIDE_PATH } from '@/app/navigation'
+import { canSeeGuide, menuFor } from '@/lib/access'
 import { Icon } from '@/components/ui/Icon'
 import { useClinic } from '@/lib/clinic-context'
 import { cn } from '@/lib/cn'
+import { useWorkspace } from '@/workspace/workspace-context'
 import { ClinicAvatar } from './ClinicAvatar'
 import { SignOutButton } from './SignOutButton'
 
 /** Menú lateral (fondo `night`). Réplica de `Menu.dc.html`. En móvil se abre como panel desde ☰. */
 export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
   const clinic = useClinic()
+  const role = useWorkspace().active?.role
   return (
     <nav
       aria-label={label}
@@ -24,7 +27,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
       </div>
 
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
-        {SECTIONS.map((s) => (
+        {menuFor(role).map((s) => (
           <li key={s.id}>
             <NavLink
               to={s.path}
@@ -47,6 +50,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
 
       <div className="grow" />
 
+      {canSeeGuide(role) && (
       <NavLink
         to={GUIDE_PATH}
         data-tour="guia"
@@ -63,6 +67,7 @@ export function Sidebar({ label = 'Menú principal' }: { label?: string }) {
           {clinic.guide.done}/{clinic.guide.total}
         </span>
       </NavLink>
+      )}
 
       <SignOutButton tone="night" className="-my-3" />
 

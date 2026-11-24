@@ -31,17 +31,18 @@ export async function fetchTeam(tenantId: string): Promise<TeamMember[]> {
   if (rows.length === 0) return []
   const userIds = rows.map((m) => m.user_id).filter((id): id is string => Boolean(id))
   const [profilesRes, settingsRes] = await Promise.all([
-    userIds.length ? supabase.from('profiles').select('id, full_name').in('id', userIds) : Promise.resolve({ data: [], error: null }),
+    userIds.length ? supabase.from('profiles').select('id, full_name, phone_e164').in('id', userIds) : Promise.resolve({ data: [], error: null }),
     supabase.from('doctor_settings').select('membership_id, specialty, calendar_color, phone_e164').eq('tenant_id', tenantId),
   ])
   if (profilesRes.error) throw profilesRes.error
   if (settingsRes.error) throw settingsRes.error
-  const names = new Map(((profilesRes.data ?? []) as { id: string; full_name: string }[]).map((p) => [p.id, p.full_name]))
+  const profiles = new Map(((profilesRes.data ?? []) as { id: string; full_name: string; phone_e164: string | null }[]).map((p) => [p.id, p]))
   const settings = new Map(
     ((settingsRes.data ?? []) as Pick<Tables<'doctor_settings'>, 'membership_id' | 'specialty' | 'calendar_color' | 'phone_e164'>[]).map((d) => [d.membership_id, d]),
   )
   return rows.map(({ display_name, ...m }) => {
-    const accountName = (m.user_id && names.get(m.user_id)) || ''
+    const profile = m.user_id ? profiles.get(m.user_id) : undefined
+    const accountName = profile?.full_name || ''
     const s = settings.get(m.id)
     return {
       ...m,
@@ -51,7 +52,8 @@ export async function fetchTeam(tenantId: string): Promise<TeamMember[]> {
       hasAccess: m.user_id !== null,
       specialty: s?.specialty ?? '',
       color: s?.calendar_color ?? null,
-      phone: s?.phone_e164 ?? null,
+      // El de su perfil en la clínica; si no hay, el de su cuenta.
+      phone: s?.phone_e164 ?? profile?.phone_e164 ?? null,
     }
   })
 }

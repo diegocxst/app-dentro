@@ -1,0 +1,142 @@
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { canSeeConfig, canSeeSection, menuFor, mobileTabsFor } from '@/lib/access'
+import { BRANCH_ID, fakeDb, TENANT_ID } from '@/test/fakeSupabase'
+import { renderApp } from '@/test/renderApp'
+
+const ME = `m-${TENANT_ID}`
+const menuLinks = async () => {
+  const nav = await screen.findByRole('navigation', { name: 'Menú principal' })
+  return within(nav)
+    .getAllByRole('link')
+    .map((l) => l.textContent?.replace(/\d+\/\d+$/, '').trim())
+}
+
+describe('Ajustes-D · reglas de acceso', () => {
+  it('cada rol ve su menú', () => {
+    expect(menuFor('owner').map((s) => s.label)).toContain('Crece tu clínica')
+    expect(menuFor('doctor').map((s) => s.label)).toEqual(['Inicio', 'Agenda', 'Pacientes', 'Presupuestos', 'Cobros', 'Seguimientos', 'Mis comisiones', 'Configuración'])
+    expect(menuFor('doctor_collab').find((s) => s.label === 'Mis comisiones')?.path).toBe('/doctores/comisiones')
+    expect(menuFor('reception').map((s) => s.id)).toEqual(['inicio', 'agenda', 'leads', 'pacientes', 'presupuestos', 'cobros', 'seguimientos', 'doctores', 'configuracion'])
+    expect(mobileTabsFor('doctor')).toEqual(['inicio', 'agenda', 'pacientes', 'presupuestos'])
+    expect(mobileTabsFor('reception')).toEqual(['inicio', 'agenda', 'pacientes', 'leads'])
+    expect(canSeeSection(undefined, 'inicio')).toBe(false)
+    expect(['identidad', 'equipo', 'sucursales', 'tratamientos', 'perfil'].filter((a) => canSeeConfig('doctor', a as never))).toEqual(['equipo', 'tratamientos', 'perfil'])
+    expect(canSeeConfig('admin', 'identidad')).toBe(true)
+  })
+})
+
+describe('Ajustes-D · menú y rutas por rol', () => {
+  it('un doctor no ve Leads, Crece, la guía ni la gestión; «+ Nuevo» no ofrece Lead', async () => {
+    const user = userEvent.setup()
+    await renderApp('/configuracion', { role: 'doctor' })
+    const links = await menuLinks()
+    expect(links).toContain('Mis comisiones')
+    expect(links).not.toContain('Leads')
+    expect(links).not.toContain('Crece tu clínica')
+    expect(links).not.toContain('Guía de inicio')
+    const main = screen.getByRole('main')
+    expect(within(main).getAllByRole('link').map((l) => l.textContent)).toEqual([
+      expect.stringContaining('Tu equipo'),
+      expect.stringContaining('Tratamientos y precios'),
+      expect.stringContaining('Mi perfil'),
+    ])
+    await user.click(screen.getAllByRole('button', { name: /Nuevo/ })[0]!)
+    expect(screen.queryByRole('menuitem', { name: /Lead/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /Cita/ })).toBeInTheDocument()
+  })
+
+  it.each([
+    ['/leads', '/'],
+    ['/crece', '/'],
+    ['/guia', '/'],
+    ['/configuracion/identidad', '/configuracion'],
+    ['/configuracion/sucursales', '/configuracion'],
+    ['/doctores', '/doctores/comisiones'],
+    ['/doctores/m-otro', '/doctores/comisiones'],
+  ])('un doctor que abre %s vuelve a %s', async (path, to) => {
+    const { router } = await renderApp(path, { role: 'doctor' })
+    await waitFor(() => expect(router.state.location.pathname).toBe(to))
+  })
+
+  it('un doctor sí abre su propio perfil', async () => {
+    const { router } = await renderApp(`/doctores/${ME}`, { role: 'doctor' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Dueña Prueba' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe(`/doctores/${ME}`)
+  })
+
+  it('recepción ve Leads pero no Crece, la guía ni las comisiones', async () => {
+    await renderApp('/', { role: 'reception' })
+    const links = await menuLinks()
+    expect(links).toContain('Leads')
+    expect(links).toContain('Doctores')
+    expect(links).not.toContain('Crece tu clínica')
+    expect(links).not.toContain('Guía de inicio')
+  })
+
+  it('la gerencia ve todo, con la guía', async () => {
+    await renderApp('/', { role: 'admin' })
+    const links = await menuLinks()
+    expect(links).toEqual(expect.arrayContaining(['Leads', 'Crece tu clínica', 'Doctores', 'Guía de inicio']))
+  })
+})
+
+describe('Ajustes-D · Tu equipo como directorio', () => {
+  it('un doctor ve nombre, rol, especialidad y teléfono de sus compañeros', async () => {
+    fakeDb.memberships.push(
+      { id: 'm-d2', tenant_id: TENANT_ID, user_id: 'u-d2', role: 'doctor', status: 'active', display_name: '', created_at: '2026-11-16T00:00:00Z' },
+      { id: 'm-r1', tenant_id: TENANT_ID, user_id: 'u-r1', role: 'reception', status: 'active', display_name: '', created_at: '2026-11-17T00:00:00Z' },
+    )
+    fakeDb.profiles.push(
+      { id: 'u-d2', full_name: 'Dra. Karla Vega Prueba', phone_e164: '+525511112222', avatar_path: null },
+      { id: 'u-r1', full_name: 'Recepción Prueba', phone_e164: '+525533334444', avatar_path: null },
+    )
+    // El teléfono del perfil en la clínica gana al de la cuenta.
+    fakeDb.doctor_settings.push({ membership_id: 'm-d2', tenant_id: TENANT_ID, specialty: 'Endodoncia', calendar_color: null, phone_e164: '+525599998888' })
+    await renderApp('/configuracion/equipo', { role: 'doctor' })
+    const team = await screen.findByRole('region', { name: 'Equipo' })
+    const karla = (await within(team).findByText('Dra. Karla Vega Prueba')).closest('li')!
+    expect(karla).toHaveTextContent('Endodoncia')
+    expect(within(karla).getByRole('link', { name: /99 9988 88|9999 8888|99998888/ })).toHaveAttribute('href', 'tel:+525599998888')
+    const recep = within(team).getByText('Recepción Prueba').closest('li')!
+    expect(within(recep).getByRole('link')).toHaveAttribute('href', 'tel:+525533334444')
+    expect(within(team).queryByRole('combobox')).not.toBeInTheDocument()
+  })
+})
+
+describe('Ajustes-D · Inicio del doctor', () => {
+  afterEach(() => vi.useRealTimers())
+
+  it('resume sus citas de la semana, sus pacientes y sus tratamientos del mes', async () => {
+    // Miércoles 9 ene 2030, 9:00 en CDMX.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2030-01-09T15:00:00Z'))
+    fakeDb.chairs.push({ id: 'ch-1', tenant_id: TENANT_ID, branch_id: BRANCH_ID, name: 'Sillón 1', is_active: true })
+    fakeDb.treatments.push(
+      { id: 't-1', tenant_id: TENANT_ID, name: 'Limpieza Prueba', price: 800, is_active: true },
+      { id: 't-2', tenant_id: TENANT_ID, name: 'Resina Prueba', price: 1200, is_active: true },
+    )
+    fakeDb.patients.push(
+      { id: 'p-1', tenant_id: TENANT_ID, full_name: 'Laura Méndez Prueba', primary_doctor_id: ME, phone_e164: null, archived_at: null, tags: [], source: 'manual', created_at: '2026-11-16T10:00:00Z' },
+      { id: 'p-2', tenant_id: TENANT_ID, full_name: 'Jorge Ramírez Prueba', primary_doctor_id: ME, phone_e164: null, archived_at: null, tags: [], source: 'manual', created_at: '2026-11-16T10:00:00Z' },
+    )
+    const cita = (id: string, start: string, treatment: string, status = 'programada', doctor = ME) =>
+      fakeDb.appointments.push({
+        id, tenant_id: TENANT_ID, branch_id: BRANCH_ID, chair_id: 'ch-1', doctor_id: doctor, patient_id: 'p-1', treatment_id: treatment,
+        kind: 'tratamiento', status, starts_at: start, ends_at: start.replace('T16', 'T17').replace('T18', 'T19'), notes: null, cancel_reason: null,
+      })
+    cita('a1', '2030-01-07T16:00:00Z', 't-1')
+    cita('a2', '2030-01-09T18:00:00Z', 't-1', 'confirmada')
+    cita('a3', '2030-01-20T16:00:00Z', 't-2')
+    cita('a4', '2030-01-08T16:00:00Z', 't-2', 'cancelada')
+    cita('a5', '2030-01-09T16:00:00Z', 't-2', 'programada', 'm-otro')
+    await renderApp('/', { role: 'doctor' })
+    const summary = await screen.findByRole('region', { name: 'Mi resumen' })
+    await waitFor(() => expect(within(summary).getByText('Citas esta semana').closest('div')).toHaveTextContent('2'))
+    expect(within(summary).getByText('Mis pacientes').closest('div')).toHaveTextContent('2')
+    const list = within(summary).getByRole('list', { name: 'Tratamientos del mes' })
+    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Limpieza Prueba2 citas', 'Resina Prueba1 cita'])
+    expect(within(summary).getByRole('link', { name: 'Ver mis comisiones' })).toHaveAttribute('href', '/doctores/comisiones')
+  })
+})

@@ -57,8 +57,8 @@ describe('M1-A · Kanban de leads', () => {
 
   it('un doctor no ve los leads', async () => {
     seedLead()
-    await renderApp('/leads', { role: 'doctor' })
-    expect(await screen.findByRole('heading', { name: 'Los leads los trabaja recepción' })).toBeInTheDocument()
+    const { router } = await renderApp('/leads', { role: 'doctor' })
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'))
     expect(screen.queryByText('Fernanda Lozano Prueba')).not.toBeInTheDocument()
   })
 })

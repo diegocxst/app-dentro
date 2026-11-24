@@ -1,15 +1,14 @@
 import { NavLink } from 'react-router'
-import { MOBILE_TAB_IDS, sectionById } from '@/app/navigation'
-import { Icon, type IconName } from '@/components/ui/Icon'
+import { sectionById } from '@/app/navigation'
+import { Icon } from '@/components/ui/Icon'
+import { mobileTabsFor } from '@/lib/access'
 import { cn } from '@/lib/cn'
+import { useWorkspace } from '@/workspace/workspace-context'
 
-const TABS: { label: string; path: string; icon: IconName }[] = MOBILE_TAB_IDS.map((id) => {
-  const s = sectionById(id)
-  return { label: s.label, path: s.path, icon: s.icon }
-})
-
-/** Barra inferior en móvil y tablet: Inicio · Agenda · Pacientes · Leads (el resto, en el menú ☰). */
+/** Barra inferior en móvil y tablet: Inicio · Agenda · Pacientes · Leads o Presupuestos (el resto, en el menú ☰). */
 export function MobileTabBar() {
+  const role = useWorkspace().active?.role
+  const TABS = mobileTabsFor(role).map((id) => sectionById(id))
   return (
     <nav
       aria-label="Navegación"

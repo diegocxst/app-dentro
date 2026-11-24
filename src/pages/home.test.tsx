@@ -41,10 +41,17 @@ describe('Inicio de primer uso (E2-A)', () => {
     expect(await within(menu).findByLabelText('2 de 7 listos')).toHaveTextContent('2/7')
   })
 
-  it('un doctor ve la guía pero no la marca', async () => {
+  it('un doctor no ve la guía: ve su día y su resumen', async () => {
     await renderApp('/', { role: 'doctor' })
-    const guide = await screen.findByRole('region', { name: 'Guía de inicio' })
-    expect(within(guide).getByRole('button', { name: 'Marcar como listo: Invita a tu equipo' })).toBeDisabled()
+    expect(await screen.findByRole('region', { name: 'Mi resumen' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Guía de inicio' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Recorrido de bienvenida' })).not.toBeInTheDocument()
+  })
+
+  it('recepción no ve la guía aunque no esté completa', async () => {
+    await renderApp('/', { role: 'reception' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Guía de inicio' })).not.toBeInTheDocument()
   })
 
   it('con la guía completa, Inicio vuelve al tablero', async () => {

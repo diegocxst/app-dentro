@@ -127,14 +127,11 @@ export const SECTIONS: readonly Section[] = [
 
 export const GUIDE_PATH = '/guia'
 
-/** Pestañas de la barra inferior en móvil: Inicio · Agenda · Pacientes · Leads (el resto, en el menú ☰). */
-export const MOBILE_TAB_IDS: readonly SectionId[] = ['inicio', 'agenda', 'pacientes', 'leads']
-
 /** Opciones del botón "+ Nuevo" (llevan a la sección donde se creará cada cosa). */
-export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName; managersOnly?: boolean }[] = [
+export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName; managersOnly?: boolean; section?: SectionId }[] = [
   { label: 'Cita', path: '/agenda/nueva', icon: 'agenda' },
   { label: 'Paciente', path: '/pacientes/nuevo', icon: 'pacientes' },
-  { label: 'Lead', path: '/leads/nuevo', icon: 'leads' },
+  { label: 'Lead', path: '/leads/nuevo', icon: 'leads', section: 'leads' },
   { label: 'Presupuesto', path: '/presupuestos/nuevo', icon: 'presupuestos' },
   // Invitar a un doctor al equipo: solo la dueña y la administración.
   { label: 'Doctor', path: '/doctores/nuevo', icon: 'doctores', managersOnly: true },

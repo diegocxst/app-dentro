@@ -112,10 +112,10 @@ describe('M10 · identidad de la clínica', () => {
     await waitFor(() => expect(within(menu).getByRole('img', { name: 'Logo de Clínica Prueba' })).toHaveTextContent('CP'))
   })
 
-  it('recepción ve la identidad pero no la cambia', async () => {
-    await renderApp('/configuracion/identidad', { role: 'reception' })
-    expect(await screen.findByLabelText('Nombre de la clínica o consultorio')).toBeDisabled()
-    expect(screen.queryByRole('button', { name: 'Guardar cambios' })).not.toBeInTheDocument()
+  it('recepción no entra a la identidad: vuelve a Configuración', async () => {
+    const { router } = await renderApp('/configuracion/identidad', { role: 'reception' })
+    await waitFor(() => expect(router.state.location.pathname).toBe('/configuracion'))
+    expect(screen.queryByLabelText('Nombre de la clínica o consultorio')).not.toBeInTheDocument()
   })
 
   it('la guía lleva a Identidad', async () => {
