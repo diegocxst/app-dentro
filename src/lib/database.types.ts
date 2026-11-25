@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0021 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: doctor_quote_report y doctor_history (0022) se agregaron a mano hasta aplicar la migración en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0022 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -1957,19 +1956,19 @@ export type Database = {
       doctor_quote_report: {
         Args: { p_from: string; p_tenant: string; p_to: string }
         Returns: {
-          doctor_id: string
-          full_name: string
-          role: Database["public"]["Enums"]["tenant_role"]
-          presented: number
-          presented_amount: number
           accepted: number
           accepted_amount: number
-          waiting: number
-          waiting_amount: number
-          unfinished: number
-          unfinished_amount: number
+          doctor_id: string
+          full_name: string
           lost: number
           lost_amount: number
+          presented: number
+          presented_amount: number
+          role: Database["public"]["Enums"]["tenant_role"]
+          unfinished: number
+          unfinished_amount: number
+          waiting: number
+          waiting_amount: number
         }[]
       }
       export_patient_data: { Args: { p_patient: string }; Returns: Json }
