@@ -328,6 +328,7 @@ function ScheduleCard({ member, canEdit, onSaved }: { member: TeamMember; canEdi
         legend={`Horario de ${member.fullName}`}
         maxRanges={2}
         emptySummary="Sin horario propio: usa el de la sucursal"
+        closedLabel="No atiende"
         initial={member.schedule ?? {}}
         canEdit={canEdit}
         onSave={async (hours) => {

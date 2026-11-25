@@ -22,10 +22,12 @@ type Props = {
   emptySummary?: string
   /** Texto del botón para abrir el formulario. */
   editLabel?: string
+  /** Texto de un día sin horario (sucursal «Cerrado»; doctor «No atiende»). */
+  closedLabel?: string
 }
 
 /** Horario por día, abierto o cerrado, con hasta `maxRanges` horarios. Sucursal (3) y doctor (2). */
-export function HoursEditor({ branchName, initial, canEdit, onSave, title = 'Horario de atención', legend, maxRanges = MAX_RANGES, emptySummary, editLabel = 'Editar horario' }: Props) {
+export function HoursEditor({ branchName, initial, canEdit, onSave, title = 'Horario de atención', legend, maxRanges = MAX_RANGES, emptySummary, editLabel = 'Editar horario', closedLabel = 'Cerrado' }: Props) {
   const [hours, setHours] = useState<OpeningHours>(initial)
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -89,7 +91,7 @@ export function HoursEditor({ branchName, initial, canEdit, onSave, title = 'Hor
                   />
                   {d.label}
                 </label>
-                {!isOpen && <span className="text-caption text-ink-muted">Cerrado</span>}
+                {!isOpen && <span className="text-caption text-ink-muted">{closedLabel}</span>}
                 {ranges.map((r, i) => (
                   <span key={i} className="flex items-center gap-1.5">
                     <input
