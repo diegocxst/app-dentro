@@ -29,7 +29,7 @@ export type InviteResult =
   | { status: 'error'; code: string; message: string }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const ROLES = new Set(['admin', 'reception', 'doctor', 'doctor_collab'])
+const ROLES = new Set(['admin', 'reception', 'doctor', 'doctor_collab', 'doctor_intern'])
 
 function json(body: InviteResult, status: number, origin: string): Response {
   return new Response(JSON.stringify(body), {

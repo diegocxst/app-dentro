@@ -47,6 +47,13 @@ describe('Edge Function invite-member', () => {
     expect(d.createInvitation).toHaveBeenCalledWith('jwt-de-prueba', expect.objectContaining({ p_membership: MEMBER }))
   })
 
+  it('acepta invitar a un pasante (M6-B2a) y rechaza roles que no existen', async () => {
+    const d = deps()
+    expect((await handleInvite(post({ ...valid, role: 'doctor_intern' }), d)).status).toBe(200)
+    expect(d.createInvitation).toHaveBeenCalledWith('jwt-de-prueba', expect.objectContaining({ p_role: 'doctor_intern' }))
+    expect((await handleInvite(post({ ...valid, role: 'owner' }), deps())).status).toBe(400)
+  })
+
   it('sin sesión no hace nada', async () => {
     const d = deps()
     const res = await handleInvite(post(valid, ''), d)
