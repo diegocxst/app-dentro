@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { fetchTeam } from '@/data/team'
+import type { OpeningHours } from '@/lib/hours'
 
-export type DoctorOption = { id: string; name: string; color?: string | null; hasAccess?: boolean }
+export type DoctorOption = { id: string; name: string; color?: string | null; hasAccess?: boolean; schedule?: OpeningHours | null }
 
-/** Miembros que pueden ser doctor tratante (propietario, administración, doctor, colaborador). */
+/** Miembros que pueden ser doctor tratante (propietario, administración, doctor, colaborador, pasante), con su horario. */
 export function useDoctors(tenantId: string | undefined) {
   const [doctors, setDoctors] = useState<DoctorOption[]>([])
   useEffect(() => {
@@ -12,7 +13,7 @@ export function useDoctors(tenantId: string | undefined) {
     fetchTeam(tenantId).then(
       (team) => {
         if (!current) return
-        setDoctors(team.filter((m) => m.role !== 'reception').map((m) => ({ id: m.id, name: m.fullName, color: m.color, hasAccess: m.hasAccess })))
+        setDoctors(team.filter((m) => m.role !== 'reception').map((m) => ({ id: m.id, name: m.fullName, color: m.color, hasAccess: m.hasAccess, schedule: m.schedule })))
       },
       () => undefined,
     )

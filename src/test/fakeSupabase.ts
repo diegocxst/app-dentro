@@ -235,7 +235,7 @@ function badDoctorFields(a: Record<string, unknown>) {
 function upsertDoctorSettings(m: Row, a: Record<string, unknown>) {
   const row = { membership_id: m.id, tenant_id: m.tenant_id, specialty: String(a.p_specialty ?? '').trim(), calendar_color: a.p_color ?? null, phone_e164: a.p_phone ?? null }
   const i = fakeDb.doctor_settings.findIndex((d) => d.membership_id === m.id)
-  if (i >= 0) fakeDb.doctor_settings[i] = row
+  if (i >= 0) fakeDb.doctor_settings[i] = { ...fakeDb.doctor_settings[i], ...row } // como el servidor: no toca el horario
   else fakeDb.doctor_settings.push(row)
 }
 
@@ -265,6 +265,23 @@ function badPeriod(from: unknown, to: unknown) {
   if (!from || !to) return true
   const days = (Date.parse(String(to)) - Date.parse(String(from))) / 86400000
   return days < 0 || days > 400
+}
+
+
+/** Igual que private.within_doctor_hours (0021): sin horario propio, sí; si tiene, la cita cabe en un turno. */
+function withinDoctorHours(doctorId: unknown, branchId: unknown, startIso: unknown, endIso: unknown): boolean {
+  const schedule = fakeDb.doctor_settings.find((d) => d.membership_id === doctorId)?.schedule as Record<string, [string, string][]> | null | undefined
+  if (!schedule) return true
+  const tz = String(fakeDb.branches.find((b) => b.id === branchId)?.timezone ?? 'America/Mexico_City')
+  const parts = (iso: unknown) => {
+    const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit' })
+    const p = Object.fromEntries(f.formatToParts(new Date(String(iso))).map((x) => [x.type, x.value]))
+    return { day: String(p.weekday).toLowerCase().slice(0, 3), date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` }
+  }
+  const a = parts(startIso)
+  const b = parts(endIso)
+  if (a.date !== b.date) return false
+  return (schedule[a.day] ?? []).some(([from, to]) => a.time >= from && b.time <= to)
 }
 
 function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | null {
@@ -395,6 +412,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
         .map((q): Row => ({ ...q, paid: paidOf(q.id), balance: Number(q.total) - paidOf(q.id) }))
     const won = (q: Row) => ['aceptado', 'en_tratamiento', 'terminado'].includes(String(q.status))
     if (fn === 'patient_account') {
+      if (fakeDb.memberships.some((m) => m.user_id === current?.user.id && m.status === 'active' && m.role === 'doctor_intern')) return Promise.resolve({ data: null, error: { code: '42501', message: 'Sin acceso a montos' } })
       const qs = open(args.p_patient)
       const paid = fakeDb.payments.filter((x) => x.patient_id === args.p_patient && !x.voided_at).reduce((t, x) => t + Number(x.amount), 0)
       return Promise.resolve({ data: { quotes: qs, paid_total: paid, balance: qs.filter(won).reduce((t, q) => t + Number(q.balance), 0), last_payment_at: null }, error: null })
@@ -446,6 +464,8 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     return Promise.resolve({ data: q, error: null })
   }
   if (fn === 'quote_stats') {
+    // El pasante no ve montos (0021).
+    if (fakeDb.memberships.some((m) => m.tenant_id === args.p_tenant && m.user_id === current?.user.id && m.role === 'doctor_intern')) return Promise.resolve({ data: null, error: { code: '42501', message: 'Sin acceso' } })
     const won = fakeDb.quotes.filter((q) => ['aceptado', 'en_tratamiento', 'terminado'].includes(String(q.status)))
     const decided = won.length + fakeDb.quotes.filter((q) => q.status === 'perdido').length
     const doubt = fakeDb.quotes.filter((q) => q.status === 'en_duda').reduce((t, q) => t + Number(q.total), 0)
@@ -557,6 +577,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
         Date.parse(String(a.ends_at)) > s0,
     )
     if (clash) return Promise.resolve({ data: null, error: { code: '23P01', message: 'conflicting key value violates exclusion constraint' } })
+    if (!withinDoctorHours(args.p_doctor, args.p_branch, args.p_starts_at, args.p_ends_at)) return Promise.resolve({ data: null, error: { code: 'DH002', message: 'Fuera del horario del doctor' } })
     const fields = {
       doctor_id: args.p_doctor, branch_id: args.p_branch, chair_id: args.p_chair, starts_at: args.p_starts_at, ends_at: args.p_ends_at,
       kind: args.p_kind ?? 'tratamiento', treatment_id: args.p_treatment ?? null, notes: args.p_notes ?? null,
@@ -755,6 +776,19 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     if (inv) inv.status = 'revoked'
     return Promise.resolve({ data: inv ?? null, error: null })
   }
+  if (fn === 'set_doctor_schedule') {
+    // Igual que el servidor: la gerencia o el propio doctor; hasta dos turnos por día.
+    const target = fakeDb.memberships.find((x) => x.id === args.p_membership)
+    const mine = target && fakeDb.memberships.find((m) => m.tenant_id === target.tenant_id && m.user_id === current?.user.id && m.status === 'active')
+    if (!target || !mine) return err('P0002')
+    if (!['owner', 'admin'].includes(String(mine.role)) && mine.id !== target.id) return err('42501')
+    const hours = args.p_hours as Record<string, [string, string][]> | null
+    if (hours && Object.values(hours).some((r) => r.length > 2)) return err('22023')
+    const i = fakeDb.doctor_settings.findIndex((d) => d.membership_id === target.id)
+    if (i >= 0) fakeDb.doctor_settings[i]!.schedule = hours
+    else fakeDb.doctor_settings.push({ membership_id: target.id, tenant_id: target.tenant_id, specialty: '', calendar_color: null, phone_e164: null, schedule: hours })
+    return Promise.resolve({ data: fakeDb.doctor_settings.find((d) => d.membership_id === target.id) ?? null, error: null })
+  }
   if (fn === 'create_doctor' || fn === 'update_doctor_profile') {
     const target = fn === 'update_doctor_profile' ? fakeDb.memberships.find((x) => x.id === args.p_membership && x.status === 'active') : null
     const tenant = fn === 'create_doctor' ? args.p_tenant : target?.tenant_id
@@ -763,7 +797,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
     if (!mine || (mine.role !== 'owner' && mine.role !== 'admin')) return err('42501')
     const name = String(args.p_name ?? '').trim()
     const offline = fn === 'create_doctor' || target?.user_id == null
-    if (fn === 'create_doctor' && !['doctor', 'doctor_collab'].includes(String(args.p_role ?? 'doctor'))) return err('22023')
+    if (fn === 'create_doctor' && !['doctor', 'doctor_collab', 'doctor_intern'].includes(String(args.p_role ?? 'doctor'))) return err('22023')
     if (name.length > 120 || (name.length < 2 && (offline || name !== ''))) return err('22023')
     if (badDoctorFields(args)) return err('22023')
     const m: Row = target ?? { id: `m-doc-${fakeDb.memberships.length + 1}`, tenant_id: tenant, user_id: null, role: args.p_role ?? 'doctor', status: 'active', created_at: '2026-11-23T12:00:00Z' }
@@ -774,7 +808,7 @@ function rpcHandler(fn: string, args: Record<string, unknown>): RpcResult {
   }
   if (fn === 'update_member_role' || fn === 'revoke_member') {
     const m = fakeDb.memberships.find((x) => x.id === args.p_membership)
-    if (m && fn === 'update_member_role' && m.user_id == null && !['doctor', 'doctor_collab'].includes(String(args.p_role))) return err('22023')
+    if (m && fn === 'update_member_role' && m.user_id == null && !['doctor', 'doctor_collab', 'doctor_intern'].includes(String(args.p_role))) return err('22023')
     if (m && fn === 'update_member_role') m.role = args.p_role
     if (m && fn === 'revoke_member') m.status = 'revoked'
     return Promise.resolve({ data: m ?? null, error: null })

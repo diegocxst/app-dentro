@@ -1,5 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0019 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
+// ⚠️ PROVISIONAL: a mano con la 0020 (rol doctor_intern) y la 0021 (doctor_settings.schedule, set_doctor_schedule) hasta aplicarlas en dev y regenerar. Base: migraciones 0001–0019 · 2026-11-24.
 export type Json =
   | string
   | number
@@ -545,6 +545,7 @@ export type Database = {
           created_at: string
           membership_id: string
           phone_e164: string | null
+          schedule: Json | null
           specialty: string
           tenant_id: string
           updated_at: string
@@ -554,6 +555,7 @@ export type Database = {
           created_at?: string
           membership_id: string
           phone_e164?: string | null
+          schedule?: Json | null
           specialty?: string
           tenant_id: string
           updated_at?: string
@@ -563,6 +565,7 @@ export type Database = {
           created_at?: string
           membership_id?: string
           phone_e164?: string | null
+          schedule?: Json | null
           specialty?: string
           tenant_id?: string
           updated_at?: string
@@ -2318,6 +2321,25 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_doctor_schedule: {
+        Args: { p_hours: Json; p_membership: string }
+        Returns: {
+          calendar_color: string | null
+          created_at: string
+          membership_id: string
+          phone_e164: string | null
+          schedule: Json | null
+          specialty: string
+          tenant_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "doctor_settings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_commission_scheme: {
         Args: {
           p_kind?: Database["public"]["Enums"]["commission_kind"]
@@ -2828,7 +2850,13 @@ export type Database = {
         | "terminado"
         | "perdido"
       tenant_kind: "independent" | "clinic"
-      tenant_role: "owner" | "admin" | "reception" | "doctor" | "doctor_collab"
+      tenant_role:
+        | "owner"
+        | "admin"
+        | "reception"
+        | "doctor"
+        | "doctor_collab"
+        | "doctor_intern"
       tenant_status: "active" | "suspended" | "cancelled"
     }
     CompositeTypes: {
@@ -3015,7 +3043,7 @@ export const Constants = {
         "perdido",
       ],
       tenant_kind: ["independent", "clinic"],
-      tenant_role: ["owner", "admin", "reception", "doctor", "doctor_collab"],
+      tenant_role: ["owner", "admin", "reception", "doctor", "doctor_collab", "doctor_intern"],
       tenant_status: ["active", "suspended", "cancelled"],
     },
   },

@@ -15,6 +15,7 @@ import { cn } from '@/lib/cn'
 import { rpcErrorMessage } from '@/lib/errors'
 import { ageFrom, sourceLabel } from '@/lib/patients'
 import { formatPhone } from '@/lib/phone'
+import { seesMoney } from '@/lib/access'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { DocumentsTab } from './DocumentsTab'
 import { usePatientAppointments } from '@/hooks/usePatientAppointments'
@@ -94,11 +95,12 @@ export function PatientPage() {
     }
   }
 
+  const money = seesMoney(active?.role)
   const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: 'resumen', label: 'Resumen' },
     { id: 'citas', label: 'Citas', ...(appts.items?.length ? { count: appts.items.length } : {}) },
-    { id: 'presupuestos', label: 'Presupuestos' },
-    { id: 'pagos', label: 'Pagos' },
+    // El pasante no ve montos: sin presupuestos ni pagos (M6-B2a).
+    ...(money ? [{ id: 'presupuestos' as const, label: 'Presupuestos' }, { id: 'pagos' as const, label: 'Pagos' }] : []),
     { id: 'documentos', label: 'Documentos', ...(docCount ? { count: docCount } : {}) },
     { id: 'notas', label: 'Notas', count: record.notes.length },
   ]
@@ -182,7 +184,7 @@ export function PatientPage() {
 
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === 'resumen' && (
-          <Summary record={record} onNotes={() => setTab('notas')} next={<NextAppointment items={appts.items} />}>
+          <Summary record={record} onNotes={() => setTab('notas')} money={money} next={<NextAppointment items={appts.items} />}>
             <PrivacyCard patientId={p.id} patientName={p.full_name} role={active?.role} tenantActive={active?.tenant.status === 'active'} />
           </Summary>
         )}
@@ -218,7 +220,7 @@ export function PatientPage() {
   )
 }
 
-function Summary({ record, onNotes, next, children }: { record: PatientRecord; onNotes: () => void; next: ReactNode; children?: ReactNode }) {
+function Summary({ record, onNotes, next, money, children }: { record: PatientRecord; onNotes: () => void; next: ReactNode; money: boolean; children?: ReactNode }) {
   const last = record.notes[0]
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -226,10 +228,12 @@ function Summary({ record, onNotes, next, children }: { record: PatientRecord; o
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Próxima cita</span>
         {next}
       </Card>
-      <Card className="flex flex-col gap-1">
-        <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Cuenta</span>
-        <AccountSummary patientId={record.patient.id} />
-      </Card>
+      {money && (
+        <Card className="flex flex-col gap-1">
+          <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Cuenta</span>
+          <AccountSummary patientId={record.patient.id} />
+        </Card>
+      )}
       <Card className="flex flex-col gap-1">
         <span className="text-label tracking-[0.06em] text-ink-muted uppercase">Consentimiento</span>
         {record.consent ? (

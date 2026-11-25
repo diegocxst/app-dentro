@@ -1,6 +1,7 @@
 import type { Tables, TenantRole } from '@/lib/db'
 import type { AssignableRole } from '@/lib/roles'
 import { memberName } from '@/lib/doctors'
+import { parseHours, type OpeningHours } from '@/lib/hours'
 import { supabase } from '@/lib/supabase'
 
 export type TeamMember = Pick<Tables<'memberships'>, 'id' | 'user_id' | 'role' | 'status' | 'created_at'> & {
@@ -15,6 +16,8 @@ export type TeamMember = Pick<Tables<'memberships'>, 'id' | 'user_id' | 'role' |
   specialty: string
   color: string | null
   phone: string | null
+  /** Horario semanal propio (M6-B2a); null = usa el de la sucursal. */
+  schedule: OpeningHours | null
 }
 export type Invitation = Pick<Tables<'invitations'>, 'id' | 'email' | 'role' | 'status' | 'expires_at' | 'created_at' | 'branch_ids' | 'membership_id'>
 
@@ -32,13 +35,13 @@ export async function fetchTeam(tenantId: string): Promise<TeamMember[]> {
   const userIds = rows.map((m) => m.user_id).filter((id): id is string => Boolean(id))
   const [profilesRes, settingsRes] = await Promise.all([
     userIds.length ? supabase.from('profiles').select('id, full_name, phone_e164').in('id', userIds) : Promise.resolve({ data: [], error: null }),
-    supabase.from('doctor_settings').select('membership_id, specialty, calendar_color, phone_e164').eq('tenant_id', tenantId),
+    supabase.from('doctor_settings').select('membership_id, specialty, calendar_color, phone_e164, schedule').eq('tenant_id', tenantId),
   ])
   if (profilesRes.error) throw profilesRes.error
   if (settingsRes.error) throw settingsRes.error
   const profiles = new Map(((profilesRes.data ?? []) as { id: string; full_name: string; phone_e164: string | null }[]).map((p) => [p.id, p]))
   const settings = new Map(
-    ((settingsRes.data ?? []) as Pick<Tables<'doctor_settings'>, 'membership_id' | 'specialty' | 'calendar_color' | 'phone_e164'>[]).map((d) => [d.membership_id, d]),
+    ((settingsRes.data ?? []) as Pick<Tables<'doctor_settings'>, 'membership_id' | 'specialty' | 'calendar_color' | 'phone_e164' | 'schedule'>[]).map((d) => [d.membership_id, d]),
   )
   return rows.map(({ display_name, ...m }) => {
     const profile = m.user_id ? profiles.get(m.user_id) : undefined
@@ -54,6 +57,7 @@ export async function fetchTeam(tenantId: string): Promise<TeamMember[]> {
       color: s?.calendar_color ?? null,
       // El de su perfil en la clínica; si no hay, el de su cuenta.
       phone: s?.phone_e164 ?? profile?.phone_e164 ?? null,
+      schedule: s?.schedule ? parseHours(s.schedule) : null,
     }
   })
 }

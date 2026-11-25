@@ -157,9 +157,10 @@ describe('M6-A · Comisiones', () => {
     expect(screen.queryByRole('button', { name: 'Exportar' })).not.toBeInTheDocument()
   })
 
-  it('recepción no ve comisiones', async () => {
-    await renderApp('/doctores/comisiones', { role: 'reception' })
-    expect(await screen.findByRole('heading', { level: 1, name: 'Las comisiones las ve la gerencia' })).toBeInTheDocument()
+  it('recepción no ve comisiones: la lleva a «Tu equipo»', async () => {
+    const { router } = await renderApp('/doctores/comisiones', { role: 'reception' })
+    await waitFor(() => expect(router.state.location.pathname).toBe('/equipo'))
+    expect(screen.queryByRole('heading', { level: 1, name: 'Comisiones' })).not.toBeInTheDocument()
   })
 
   it('si se anula un pago ya pagado al doctor, queda un ajuste negativo por descontar', async () => {

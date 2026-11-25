@@ -7,14 +7,18 @@ import { isManager } from './roles'
  * Solo oculta pantallas: los permisos reales los aplica el servidor (RLS y RPC).
  */
 
-/** Doctores que atienden y no gestionan la clínica. */
-export const isTreating = (role: TenantRole | undefined) => role === 'doctor' || role === 'doctor_collab'
+/** Doctores que atienden y no gestionan la clínica (incluye al pasante). */
+export const isTreating = (role: TenantRole | undefined) => role === 'doctor' || role === 'doctor_collab' || role === 'doctor_intern'
+
+/** ¿Ve montos? Todos menos el pasante: sin presupuestos, cobros ni comisiones (M6-B2a). */
+export const seesMoney = (role: TenantRole | undefined) => Boolean(role) && role !== 'doctor_intern'
 
 export function canSeeSection(role: TenantRole | undefined, id: SectionId): boolean {
   if (!role) return false
   if (isManager(role)) return true
   if (id === 'crece') return false
   if (id === 'leads') return role === 'reception'
+  if (id === 'presupuestos' || id === 'cobros') return seesMoney(role)
   return true
 }
 
@@ -30,14 +34,15 @@ export function canSeeConfig(role: TenantRole | undefined, area: ConfigArea): bo
 }
 
 /** Comisiones: gerencia y doctores (recepción no). */
-export const canSeeCommissions = (role: TenantRole | undefined) => isManager(role) || isTreating(role)
+export const canSeeCommissions = (role: TenantRole | undefined) => isManager(role) || role === 'doctor' || role === 'doctor_collab'
 
 /** Menú lateral del rol. */
 export function menuFor(role: TenantRole | undefined): Section[] {
   return SECTIONS.filter((s) => canSeeSection(role, s.id))
 }
 
-/** Barra inferior en móvil: quien no ve Leads tiene Presupuestos en su lugar. */
+/** Barra inferior en móvil: quien no ve Leads tiene Presupuestos (o Seguimientos, el pasante). */
 export function mobileTabsFor(role: TenantRole | undefined): SectionId[] {
-  return ['inicio', 'agenda', 'pacientes', canSeeSection(role, 'leads') ? 'leads' : 'presupuestos']
+  const fourth: SectionId = canSeeSection(role, 'leads') ? 'leads' : canSeeSection(role, 'presupuestos') ? 'presupuestos' : 'seguimientos'
+  return ['inicio', 'agenda', 'pacientes', fourth]
 }

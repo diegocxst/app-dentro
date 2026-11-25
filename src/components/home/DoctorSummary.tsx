@@ -6,13 +6,15 @@ import { listAppointments } from '@/data/agenda'
 import { listPatients } from '@/data/patients'
 import { quoteStats } from '@/data/quotes'
 import { addDays, addMonths, DEFAULT_TZ, kindLabel, todayIn, weekStart, zonedParts, zonedToUtc } from '@/lib/agenda'
-import { money, type QuoteStats } from '@/lib/quotes'
+import { canSeeCommissions, seesMoney } from '@/lib/access'
+import { money as formatMoney, type QuoteStats } from '@/lib/quotes'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 type Summary = {
   week: number
   patients: number
-  stats: QuoteStats
+  /** null para el pasante: no ve montos ni presupuestos. */
+  stats: QuoteStats | null
   treatments: { name: string; count: number }[]
 }
 
@@ -21,7 +23,7 @@ const COUNTS = (status: string) => status !== 'cancelada' && status !== 'no_asis
 
 /**
  * Resumen del doctor en Inicio (Ajustes-D): sus citas de la semana, sus pacientes,
- * sus presupuestos del mes y los tratamientos que más agenda. El servidor ya filtra
+ * sus presupuestos del mes (no el pasante) y los tratamientos que más agenda. El servidor ya filtra
  * todo a lo suyo (RLS y `list_appointments`).
  */
 export function DoctorSummary() {
@@ -29,6 +31,7 @@ export function DoctorSummary() {
   const tz = branches.find((b) => b.id === activeBranchId)?.timezone ?? DEFAULT_TZ
   const tenantId = active?.tenant_id
   const doctorId = active?.id
+  const money = seesMoney(active?.role)
   const today = todayIn(tz)
   const [data, setData] = useState<Summary | null>(null)
   const [failed, setFailed] = useState(false)
@@ -46,7 +49,7 @@ export function DoctorSummary() {
     Promise.all([
       listAppointments({ from: zonedToUtc(from, '00:00', tz), to: zonedToUtc(to, '00:00', tz) }),
       listPatients({ tenantId, page: 0 }),
-      quoteStats(tenantId, zonedToUtc(month, '00:00', tz), doctorId),
+      money ? quoteStats(tenantId, zonedToUtc(month, '00:00', tz), doctorId) : Promise.resolve(null),
     ]).then(
       ([appts, patients, stats]) => {
         if (!current) return
@@ -75,7 +78,7 @@ export function DoctorSummary() {
     return () => {
       current = false
     }
-  }, [tenantId, doctorId, today, tz, attempt])
+  }, [tenantId, doctorId, money, today, tz, attempt])
 
   if (failed) return <LoadError title="No pudimos cargar tu resumen" onRetry={() => setAttempt((n) => n + 1)} />
   if (!data) return <Skeleton className="h-40 w-full" label="Cargando tu resumen" />
@@ -83,8 +86,12 @@ export function DoctorSummary() {
   const kpis = [
     { label: 'Citas esta semana', value: String(data.week), to: `/agenda?vista=semana` },
     { label: 'Mis pacientes', value: String(data.patients), to: '/pacientes' },
-    { label: 'Presupuestos aceptados este mes', value: String(data.stats.won), to: '/presupuestos' },
-    { label: 'En duda, por recuperar', value: money(data.stats.in_doubt_total), to: '/presupuestos' },
+    ...(data.stats
+      ? [
+          { label: 'Presupuestos aceptados este mes', value: String(data.stats.won), to: '/presupuestos' },
+          { label: 'En duda, por recuperar', value: formatMoney(data.stats.in_doubt_total), to: '/presupuestos' },
+        ]
+      : []),
   ]
 
   return (
@@ -119,9 +126,11 @@ export function DoctorSummary() {
             ))}
           </ul>
         )}
-        <Link to="/doctores/comisiones" className="text-ui font-semibold text-violet">
-          Ver mis comisiones
-        </Link>
+        {canSeeCommissions(active?.role) && (
+          <Link to="/doctores/comisiones" className="text-ui font-semibold text-violet">
+            Ver mis comisiones
+          </Link>
+        )}
       </div>
     </section>
   )

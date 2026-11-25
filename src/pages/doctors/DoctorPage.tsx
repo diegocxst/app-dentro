@@ -5,12 +5,13 @@ import { outcomeNotice, type Notice } from '@/components/team/notice'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { HoursEditor } from '@/components/catalog/HoursEditor'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { commissionSummary } from '@/data/commissions'
-import { updateDoctorProfile } from '@/data/doctors'
+import { setDoctorSchedule, updateDoctorProfile } from '@/data/doctors'
 import { fetchPendingInvitations, fetchTeam, inviteMember, type Invitation, type TeamMember } from '@/data/team'
 import { DEFAULT_TZ, todayIn } from '@/lib/agenda'
 import { cn } from '@/lib/cn'
@@ -121,6 +122,12 @@ export function DoctorPage() {
           )}
 
           <div className="flex flex-col gap-6">
+            <ScheduleCard
+              key={`horario-${member.id}-${attempt}`}
+              member={member}
+              canEdit={(manager || isMe) && active.tenant.status === 'active'}
+              onSaved={(n) => (setNotice(n), reload())}
+            />
             {manager && !member.hasAccess && <AccessCard member={member} tenantId={active.tenant_id} onNotice={setNotice} />}
             {member.role !== 'owner' && (manager || isMe) && (
               <CommissionCard member={member} tenantId={active.tenant_id} period={recentPeriods(todayIn(tz), kind, 1)[0]!} canManage={manager} />
@@ -303,6 +310,32 @@ function CommissionCard({ member, tenantId, period, canManage }: { member: TeamM
           {canManage && <SchemeForm key={`${row.scheme_kind}-${row.percent}-${row.rent_amount}`} row={row} onSaved={() => setVersion((v) => v + 1)} />}
         </>
       )}
+    </Card>
+  )
+}
+
+/** Horario del doctor (M6-B2a): no deja agendar fuera de él. Lo cambian la gerencia y el propio doctor. */
+function ScheduleCard({ member, canEdit, onSaved }: { member: TeamMember; canEdit: boolean; onSaved: (n: Notice) => void }) {
+  return (
+    <Card as="section" aria-labelledby="horario-titulo" className="flex flex-col gap-3">
+      <h2 id="horario-titulo" className="m-0 text-subtitle">
+        Horario
+      </h2>
+      <p className="m-0 text-caption text-ink-muted">Fuera de este horario no se le pueden agendar citas. Si no tiene, se usa el de la sucursal.</p>
+      <HoursEditor
+        branchName={member.fullName}
+        title="Atiende"
+        legend={`Horario de ${member.fullName}`}
+        maxRanges={2}
+        emptySummary="Sin horario propio: usa el de la sucursal"
+        initial={member.schedule ?? {}}
+        canEdit={canEdit}
+        onSave={async (hours) => {
+          const empty = !Object.values(hours).some((r) => r?.length)
+          await setDoctorSchedule(member.id, empty ? null : hours)
+          onSaved({ tone: 'success', text: empty ? 'Quitamos el horario: se usará el de la sucursal.' : 'Guardamos el horario.' })
+        }}
+      />
     </Card>
   )
 }

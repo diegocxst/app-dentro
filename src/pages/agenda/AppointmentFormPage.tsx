@@ -17,7 +17,8 @@ import {
   APPOINTMENT_KINDS,
   DEFAULT_TZ,
   DURATIONS,
-  hoursFor,
+  doctorRanges,
+  OUT_OF_DOCTOR_HOURS,
   OUT_OF_HOURS,
   startOptions,
   todayIn,
@@ -32,6 +33,7 @@ import {
 import { formatPhone } from '@/lib/phone'
 import { PatientPicker } from '@/components/patients/PatientPicker'
 import { PageHeader } from '@/pages/PageHeader'
+import { isTreating } from '@/lib/access'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 const textareaClasses = 'w-full rounded-sm border border-border bg-surface-raised p-3 text-ui text-ink placeholder:text-ink-muted focus:outline-2 focus:outline-violet'
@@ -84,7 +86,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const tenantId = active?.tenant_id ?? ''
-  const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
+  const isDoctor = isTreating(active?.role)
   const doctors = useDoctors(tenantId)
   const [chairs, setChairs] = useState<Chair[]>([])
   const [treatments, setTreatments] = useState<Treatment[]>([])
@@ -158,7 +160,8 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
   }, [presetPatient])
 
   const branchChairs = chairs.filter((c) => c.branch_id === branchId && (c.is_active || c.id === existing?.chair_id))
-  const ranges = hoursFor(branch?.opening_hours as Hours | null, date)
+  // Sucursal y, si tiene, el horario del doctor elegido (M6-B2a).
+  const ranges = doctorRanges(branch?.opening_hours as Hours | null, doctors.find((d) => d.id === doctorId)?.schedule as Hours | null | undefined, date)
   const options = startOptions(ranges, duration)
   const timeOptions = time && !options.includes(time) ? [time, ...options].sort() : options
   const doctorOptions = isDoctor ? doctors.filter((d) => d.id === active?.id) : doctors
@@ -175,7 +178,8 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
     const endTime = fromMinutes(toMinutes(time) + duration)
     if (!withinHours(ranges, time, endTime)) {
       setOutOfHours(true)
-      return setError(OUT_OF_HOURS)
+      // ¿Es la sucursal o el horario del doctor?
+      return setError(withinHours(doctorRanges(branch?.opening_hours as Hours | null, null, date), time, endTime) ? OUT_OF_DOCTOR_HOURS : OUT_OF_HOURS)
     }
     if (!branch) return setError('Elige la sucursal.')
     const input = {
@@ -199,7 +203,7 @@ function AppointmentForm({ existing }: { existing: Appointment | null }) {
       navigate(`/agenda?${new URLSearchParams({ fecha: date, cita: saved.id }).toString()}`)
     } catch (err) {
       const ex = err as { code?: string; message?: string }
-      setOutOfHours(ex.code === 'DH001')
+      setOutOfHours(ex.code === 'DH001' || ex.code === 'DH002')
       setError(agendaErrorMessage(ex))
     } finally {
       setBusy(false)

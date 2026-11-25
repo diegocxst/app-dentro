@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { createDoctor } from '@/data/doctors'
 import { inviteMember } from '@/data/team'
-import type { OfflineRole } from '@/lib/doctors'
+import { OFFLINE_ROLES, type OfflineRole } from '@/lib/doctors'
 import { rpcErrorMessage } from '@/lib/errors'
 import { isManager, ROLE_HINT, ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
@@ -72,7 +72,7 @@ export function NewDoctorPage() {
         <Input label="Nombre" value={values.name} maxLength={120} placeholder="Ej. Dra. Ana Pérez" error={errors.name} onChange={(e) => set({ name: e.target.value })} />
         <Select
           label="Tipo"
-          options={(['doctor', 'doctor_collab'] as const).map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
+          options={OFFLINE_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
           hint={ROLE_HINT[role]}
           value={role}
           onChange={(e) => setRole(e.target.value as OfflineRole)}

@@ -1,5 +1,5 @@
 import type { AppointmentKind, AppointmentStatus } from '@/lib/agenda'
-import { OUT_OF_HOURS } from '@/lib/agenda'
+import { OUT_OF_DOCTOR_HOURS, OUT_OF_HOURS } from '@/lib/agenda'
 import type { Database, Tables } from '@/lib/db'
 import { rpcErrorMessage } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
@@ -96,6 +96,8 @@ export function agendaErrorMessage(e: { code?: string; message?: string } | null
       return 'Ese horario ya está ocupado: la unidad dental o el doctor tienen otra cita.'
     case 'DH001':
       return OUT_OF_HOURS
+    case 'DH002':
+      return OUT_OF_DOCTOR_HOURS
     case '42501':
       return e.message?.includes('tu agenda') ? 'Solo puedes agendar citas en tu agenda.' : 'No tienes permiso para hacer este cambio.'
     case 'P0002':

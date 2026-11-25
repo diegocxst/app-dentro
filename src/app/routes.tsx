@@ -30,7 +30,7 @@ import { StepTreatmentsPage } from '@/pages/onboarding/StepTreatmentsPage'
 import { StepWhatsappPage } from '@/pages/onboarding/StepWhatsappPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
 import { Allow } from '@/workspace/Allow'
-import { canSeeConfig, canSeeGuide, canSeeSection, isTreating } from '@/lib/access'
+import { canSeeCommissions, canSeeConfig, canSeeGuide, canSeeSection, isTreating } from '@/lib/access'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
@@ -109,18 +109,18 @@ export const routes: RouteObject[] = [
           { path: 'leads/nuevo', element: <Allow when={(r) => canSeeSection(r, 'leads')}><NewLeadPage /></Allow> },
           { path: 'leads/:id', element: <Allow when={(r) => canSeeSection(r, 'leads')}><LeadPage /></Allow> },
           { path: 'leads/:id/convertir', element: <Allow when={(r) => canSeeSection(r, 'leads')}><ConvertLeadPage /></Allow> },
-          { path: 'presupuestos', element: <QuotesPage /> },
-          { path: 'presupuestos/nuevo', element: <QuotePage /> },
-          { path: 'presupuestos/:id', element: <QuotePage /> },
-          { path: 'presupuestos/:id/enviar', element: <SendQuotePage /> },
-          { path: 'cobros', element: <CobrosPage /> },
+          { path: 'presupuestos', element: <Allow when={(r) => canSeeSection(r, 'presupuestos')}><QuotesPage /></Allow> },
+          { path: 'presupuestos/nuevo', element: <Allow when={(r) => canSeeSection(r, 'presupuestos')}><QuotePage /></Allow> },
+          { path: 'presupuestos/:id', element: <Allow when={(r) => canSeeSection(r, 'presupuestos')}><QuotePage /></Allow> },
+          { path: 'presupuestos/:id/enviar', element: <Allow when={(r) => canSeeSection(r, 'presupuestos')}><SendQuotePage /></Allow> },
+          { path: 'cobros', element: <Allow when={(r) => canSeeSection(r, 'cobros')}><CobrosPage /></Allow> },
           { path: 'equipo', element: <TeamPage /> },
           { path: 'doctores', element: <Allow when={(r) => !isTreating(r)} to="/equipo"><DoctorsPage /></Allow> },
           { path: 'doctores/nuevo', element: <NewDoctorPage /> },
-          { path: 'doctores/comisiones', element: <CommissionsPage /> },
+          { path: 'doctores/comisiones', element: <Allow when={canSeeCommissions} to="/equipo"><CommissionsPage /></Allow> },
           { path: 'doctores/:id', element: <DoctorPage /> },
-          { path: 'cobros/nuevo', element: <RegisterPaymentPage /> },
-          { path: 'cobros/:id/comprobante', element: <SendReceiptPage /> },
+          { path: 'cobros/nuevo', element: <Allow when={(r) => canSeeSection(r, 'cobros')}><RegisterPaymentPage /></Allow> },
+          { path: 'cobros/:id/comprobante', element: <Allow when={(r) => canSeeSection(r, 'cobros')}><SendReceiptPage /></Allow> },
           { path: 'pacientes', element: <PatientsPage /> },
           { path: 'pacientes/nuevo', element: <NewPatientPage /> },
           { path: 'pacientes/:id', element: <PatientPage /> },

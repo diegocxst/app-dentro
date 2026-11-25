@@ -14,6 +14,7 @@ import { normalizePhone } from '@/lib/phone'
 import { isManager } from '@/lib/roles'
 import { newPatientSchema, type NewPatientValues, type PatientValues } from '@/lib/schemas'
 import { PageHeader } from '@/pages/PageHeader'
+import { isTreating } from '@/lib/access'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { PatientFields } from './PatientFields'
 
@@ -23,7 +24,7 @@ export function NewPatientPage() {
   const navigate = useNavigate()
   const doctors = useDoctors(active?.tenant_id)
   const [error, setError] = useState<string | null>(null)
-  const canPickDoctor = !(active?.role === 'doctor' || active?.role === 'doctor_collab')
+  const canPickDoctor = !isTreating(active?.role)
   const {
     register,
     handleSubmit,

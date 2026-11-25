@@ -20,9 +20,9 @@ export function doctorColorClass(color: string | null | undefined, index: number
 }
 
 /** Roles que atienden pacientes (pueden ser doctor tratante). */
-export const TREATING_ROLES: TenantRole[] = ['owner', 'admin', 'doctor', 'doctor_collab']
+export const TREATING_ROLES: TenantRole[] = ['owner', 'admin', 'doctor', 'doctor_collab', 'doctor_intern']
 /** Roles que puede tener un doctor sin acceso. */
-export const OFFLINE_ROLES = ['doctor', 'doctor_collab'] as const
+export const OFFLINE_ROLES = ['doctor', 'doctor_collab', 'doctor_intern'] as const
 export type OfflineRole = (typeof OFFLINE_ROLES)[number]
 
 /** Nombre con el que aparece en la clínica: el que puso la gerencia o el de su cuenta. */

@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { listQuoteColumn, quoteStats, type QuoteCard } from '@/data/quotes'
 import { useDoctors } from '@/hooks/useDoctors'
 import { DEFAULT_TZ, todayIn, zonedToUtc } from '@/lib/agenda'
+import { isTreating } from '@/lib/access'
 import { cn } from '@/lib/cn'
 import { followupTag, folioLabel, money, QUOTE_COLUMNS, type QuoteStats, type QuoteStatus } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
@@ -25,7 +26,7 @@ export function QuotesPage() {
   const { active, branches, activeBranchId } = useWorkspace()
   const tz = branches.find((b) => b.id === activeBranchId)?.timezone ?? DEFAULT_TZ
   const doctors = useDoctors(active?.tenant_id)
-  const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
+  const isDoctor = isTreating(active?.role)
   const [doctorId, setDoctorId] = useState('')
   const [params, setParams] = useSearchParams()
   const view = params.get('vista') === 'lista' ? 'lista' : 'kanban'

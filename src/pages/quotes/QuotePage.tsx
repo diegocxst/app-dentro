@@ -43,6 +43,7 @@ import {
   type QuoteStatus,
 } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
+import { isTreating } from '@/lib/access'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -99,7 +100,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const tenantId = active?.tenant_id ?? ''
-  const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
+  const isDoctor = isTreating(active?.role)
   const doctors = useDoctors(tenantId)
   const [treatments, setTreatments] = useState<Treatment[]>([])
   const q = existing?.quote ?? null

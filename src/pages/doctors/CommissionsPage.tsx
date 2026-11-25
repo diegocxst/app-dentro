@@ -14,6 +14,7 @@ import { cn } from '@/lib/cn'
 import { initials } from '@/lib/doctors'
 import { commissionsCsv, commissionStatus, PERIOD_KINDS, periodTotals, recentPeriods, schemeLabel, type CommissionPeriodKind, type CommissionRow } from '@/lib/commissions'
 import { money } from '@/lib/quotes'
+import { canSeeCommissions } from '@/lib/access'
 import { ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -36,7 +37,7 @@ export function CommissionsPage() {
   const tenantId = active?.tenant_id
   const role = active?.role
   const isManager = role === 'owner' || role === 'admin'
-  const canSee = isManager || role === 'doctor' || role === 'doctor_collab'
+  const canSee = canSeeCommissions(role)
   const canManage = isManager && active?.tenant.status === 'active'
   const periods = recentPeriods(todayIn(tz), kind, 6)
   const period = periods[periodIdx] ?? periods[0]!

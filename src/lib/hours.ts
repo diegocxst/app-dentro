@@ -18,11 +18,11 @@ export const MAX_RANGES = 3
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/
 
 /** Mensaje del primer problema, o `null` si el horario es válido. */
-export function hoursProblem(hours: OpeningHours): string | null {
+export function hoursProblem(hours: OpeningHours, max: number = MAX_RANGES): string | null {
   for (const d of DAYS) {
     const ranges = hours[d.id]
     if (!ranges) continue
-    if (ranges.length > MAX_RANGES) return `${d.label}: máximo ${MAX_RANGES} horarios por día.`
+    if (ranges.length > max) return `${d.label}: máximo ${max} horarios por día.`
     let prevEnd: string | null = null
     for (const [start, end] of ranges) {
       if (!HHMM.test(start) || !HHMM.test(end)) return `${d.label}: escribe las horas completas.`

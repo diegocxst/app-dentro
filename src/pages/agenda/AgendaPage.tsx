@@ -16,6 +16,7 @@ import {
   DEFAULT_TZ,
   dayLabel,
   fromMinutes,
+  doctorRanges,
   hoursFor,
   monthGrid,
   monthLabel,
@@ -27,6 +28,7 @@ import {
   zonedToUtc,
   type Hours,
 } from '@/lib/agenda'
+import { isTreating } from '@/lib/access'
 import { cn } from '@/lib/cn'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -61,7 +63,7 @@ export function AgendaPage() {
   const [chairs, setChairs] = useState<Chair[]>([])
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
   const allDoctors = useDoctors(active?.tenant_id)
-  const isDoctor = active?.role === 'doctor' || active?.role === 'doctor_collab'
+  const isDoctor = isTreating(active?.role)
   const canWrite = active?.tenant.status === 'active'
   const monthDays = useMemo(() => (view === 'mes' ? monthGrid(date) : []), [view, date])
   const from = view === 'semana' ? weekStart(date) : view === 'mes' ? monthDays[0]! : date
@@ -129,6 +131,7 @@ export function AgendaPage() {
   }
 
   const hours = branch.opening_hours as Hours | null
+  const scheduleOf = (id: string | undefined) => (allDoctors.find((d) => d.id === id)?.schedule as Hours | null | undefined) ?? null
   // Solo las citas de los días que se ven: mientras llega la consulta nueva,
   // `items` todavía trae las de la vista anterior (p. ej. de la semana).
   const rangeEnd = addDays(from, days)
@@ -164,7 +167,8 @@ export function AgendaPage() {
       ? {
           columns: weekDays.map((d) => ({ id: d, name: shortDay.format(new Date(`${d}T12:00:00Z`)).replace('.', ''), today: d === today })),
           colOf: (a: AgendaItem) => localOf(a).date,
-          rangesOf: (colId: string) => hoursFor(hours, colId),
+          // Un doctor ve su semana: también su horario.
+          rangesOf: (colId: string) => (isDoctor ? doctorRanges(hours, scheduleOf(active?.id), colId) : hoursFor(hours, colId)),
           slotLabel: (colName: string, time: string) => `Agendar el ${colName} a las ${time}`,
           slotHref: (colId: string, time: string) => newHref({ fecha: colId, hora: time }),
           countLabel: false,
@@ -183,7 +187,8 @@ export function AgendaPage() {
         : {
             columns: doctors.map((d) => ({ id: d.id, name: d.name, today: false })),
             colOf: (a: AgendaItem) => a.doctor_id,
-            rangesOf: () => hoursFor(hours, date),
+            // Cada columna, con el horario de su doctor: fuera de él se sombrea y no se agenda.
+            rangesOf: (colId: string) => doctorRanges(hours, scheduleOf(colId), date),
             slotLabel: (colName: string, time: string) => `Agendar a las ${time} con ${colName}`,
             slotHref: (colId: string, time: string) => newHref({ doctor: colId, hora: time }),
             countLabel: true,

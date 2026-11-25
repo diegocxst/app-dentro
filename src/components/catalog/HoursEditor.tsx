@@ -12,10 +12,20 @@ type Props = {
   initial: OpeningHours
   canEdit: boolean
   onSave: (hours: OpeningHours) => Promise<void>
+  /** Título junto al resumen (por omisión, «Horario de atención»). */
+  title?: string
+  /** Leyenda del formulario (por omisión, «Horario de {sucursal}»). */
+  legend?: string
+  /** Horarios por día (sucursal 3; doctor 2). */
+  maxRanges?: number
+  /** Resumen cuando no hay ningún día (p. ej. «Usa el de la sucursal»). */
+  emptySummary?: string
+  /** Texto del botón para abrir el formulario. */
+  editLabel?: string
 }
 
-/** Horario de atención de una sucursal: por día, abierto o cerrado, con hasta 3 horarios. */
-export function HoursEditor({ branchName, initial, canEdit, onSave }: Props) {
+/** Horario por día, abierto o cerrado, con hasta `maxRanges` horarios. Sucursal (3) y doctor (2). */
+export function HoursEditor({ branchName, initial, canEdit, onSave, title = 'Horario de atención', legend, maxRanges = MAX_RANGES, emptySummary, editLabel = 'Editar horario' }: Props) {
   const [hours, setHours] = useState<OpeningHours>(initial)
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +42,7 @@ export function HoursEditor({ branchName, initial, canEdit, onSave }: Props) {
   }
 
   const save = async () => {
-    const problem = hoursProblem(hours)
+    const problem = hoursProblem(hours, maxRanges)
     if (problem) {
       setError(problem)
       return
@@ -48,20 +58,23 @@ export function HoursEditor({ branchName, initial, canEdit, onSave }: Props) {
     }
   }
 
+  const shown = open ? hours : initial
+  const summary = DAYS.some((d) => shown[d.id]?.length) ? summarizeHours(shown) : (emptySummary ?? summarizeHours(shown))
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-ui font-medium">Horario de atención</span>
-        <span className="text-caption text-ink-muted">{summarizeHours(open ? hours : initial)}</span>
+        <span className="text-ui font-medium">{title}</span>
+        <span className="text-caption text-ink-muted">{summary}</span>
         {canEdit && !open && (
           <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
-            Editar horario
+            {editLabel}
           </Button>
         )}
       </div>
       {open && (
         <fieldset className="m-0 flex flex-col gap-1 rounded-md border border-border p-3">
-          <legend className="px-1 text-caption text-ink-muted">Horario de {branchName}</legend>
+          <legend className="px-1 text-caption text-ink-muted">{legend ?? `Horario de ${branchName}`}</legend>
           {DAYS.map((d) => {
             const ranges = hours[d.id] ?? []
             const isOpen = ranges.length > 0
@@ -106,7 +119,7 @@ export function HoursEditor({ branchName, initial, canEdit, onSave }: Props) {
                     )}
                   </span>
                 ))}
-                {isOpen && ranges.length < MAX_RANGES && (
+                {isOpen && ranges.length < maxRanges && (
                   <button
                     type="button"
                     onClick={() => setDay(d.id, [...ranges, [ranges[ranges.length - 1]![1], '20:00']])}

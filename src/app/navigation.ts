@@ -132,7 +132,7 @@ export const NEW_ACTIONS: readonly { label: string; path: string; icon: IconName
   { label: 'Cita', path: '/agenda/nueva', icon: 'agenda' },
   { label: 'Paciente', path: '/pacientes/nuevo', icon: 'pacientes' },
   { label: 'Lead', path: '/leads/nuevo', icon: 'leads', section: 'leads' },
-  { label: 'Presupuesto', path: '/presupuestos/nuevo', icon: 'presupuestos' },
+  { label: 'Presupuesto', path: '/presupuestos/nuevo', icon: 'presupuestos', section: 'presupuestos' },
   // Invitar a un doctor al equipo: solo la dueña y la administración.
   { label: 'Doctor', path: '/doctores/nuevo', icon: 'doctores', managersOnly: true },
 ]

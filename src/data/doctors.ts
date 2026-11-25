@@ -1,4 +1,6 @@
+import type { Json } from '@/lib/db'
 import type { DoctorColor, OfflineRole } from '@/lib/doctors'
+import type { OpeningHours } from '@/lib/hours'
 import { supabase } from '@/lib/supabase'
 
 export type DoctorProfileInput = { name: string; specialty: string; color: DoctorColor | null; phone: string | null }
@@ -27,5 +29,12 @@ export async function updateDoctorProfile(membershipId: string, p: DoctorProfile
     p_color: p.color as string,
     p_phone: p.phone as string,
   })
+  if (error) throw error
+}
+
+/** Horario semanal del doctor (M6-B2a). `null` lo quita: entonces solo manda el de la sucursal. */
+export async function setDoctorSchedule(membershipId: string, hours: OpeningHours | null): Promise<void> {
+  // NULL quita el horario. El generador de tipos no modela NULL en argumentos sin default.
+  const { error } = await supabase.rpc('set_doctor_schedule', { p_membership: membershipId, p_hours: hours as Json })
   if (error) throw error
 }

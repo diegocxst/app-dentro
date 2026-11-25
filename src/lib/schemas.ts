@@ -82,7 +82,7 @@ export type ClinicValues = z.infer<typeof clinicSchema>
 // ── Invitar a alguien al equipo (E1-B5c) ────────────────────────────────────
 export const inviteSchema = z.object({
   email,
-  role: z.enum(['admin', 'reception', 'doctor', 'doctor_collab'], { message: 'Elige un rol.' }),
+  role: z.enum(['admin', 'reception', 'doctor', 'doctor_collab', 'doctor_intern'], { message: 'Elige un rol.' }),
   branchIds: z.array(z.string()),
 })
 export type InviteValues = z.infer<typeof inviteSchema>

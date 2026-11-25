@@ -125,6 +125,26 @@ export function confirmWhatsappUrl(phoneE164: string, input: { patient: string; 
 }
 
 export const OUT_OF_HOURS = 'Ese horario está fuera del horario de la sucursal. Escribe a la clínica o al doctor para revisar este caso.'
+export const OUT_OF_DOCTOR_HOURS = 'Ese horario está fuera del horario del doctor. Elige otra hora o pide a la clínica que ajuste su horario.'
+
+/** Partes en que se enciman dos listas de horarios del mismo día. */
+export function intersectRanges(a: [string, string][], b: [string, string][]): [string, string][] {
+  const out: [string, string][] = []
+  for (const [a1, a2] of a) {
+    for (const [b1, b2] of b) {
+      const from = a1 > b1 ? a1 : b1
+      const to = a2 < b2 ? a2 : b2
+      if (from < to) out.push([from, to])
+    }
+  }
+  return out.sort((x, y) => x[0].localeCompare(y[0]))
+}
+
+/** Horas en que se le puede agendar a un doctor: las de la sucursal y, si tiene, las suyas (M6-B2a). */
+export function doctorRanges(branch: Hours | null | undefined, schedule: Hours | null | undefined, date: string): [string, string][] {
+  const base = hoursFor(branch, date)
+  return schedule ? intersectRanges(base, hoursFor(schedule, date)) : base
+}
 
 /** Lunes de la semana de `date` (semana de lunes a domingo). */
 export function weekStart(date: string): string {
