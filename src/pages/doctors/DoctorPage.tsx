@@ -20,10 +20,11 @@ import { DOCTOR_COLORS, doctorColorClass, initials, TREATING_ROLES, type DoctorC
 import { rpcErrorMessage } from '@/lib/errors'
 import { formatPhone } from '@/lib/phone'
 import { isManager, ROLE_LABEL } from '@/lib/roles'
-import { isTreating } from '@/lib/access'
+import { canSeeReports, isTreating } from '@/lib/access'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 import { ColorPicker } from './ColorPicker'
+import { HistoryCard } from './HistoryCard'
 import { checkDoctorForm, EMAIL_RE, type DoctorFormErrors, type DoctorFormValues } from './doctorForm'
 import { SchemeForm } from './SchemeForm'
 
@@ -134,6 +135,7 @@ export function DoctorPage() {
             )}
           </div>
         </div>
+        {canSeeReports(active.role) && <HistoryCard doctorId={member.id} tz={tz} seesCommission={member.role !== 'owner'} />}
       </div>
     </>
   )

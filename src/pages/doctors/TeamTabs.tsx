@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router'
-import { canSeeCommissions, isTreating } from '@/lib/access'
+import { canSeeCommissions, canSeeReports, isTreating } from '@/lib/access'
 import { cn } from '@/lib/cn'
 import { useWorkspace } from '@/workspace/workspace-context'
 
 /**
- * Submenú de «Tu equipo»: Tu equipo · Doctores · Comisiones (Ajustes-D).
- * Los doctores no ven la lista de Doctores; recepción no ve Comisiones.
+ * Submenú de «Tu equipo»: Tu equipo · Doctores · Comisiones · Reportes.
+ * Los doctores no ven la lista de Doctores; recepción no ve Comisiones; Reportes, solo la dueña o el dueño.
  */
 export function TeamTabs() {
   const { active } = useWorkspace()
@@ -14,6 +14,7 @@ export function TeamTabs() {
     { to: '/equipo', label: 'Tu equipo', end: true },
     ...(isTreating(role) ? [] : [{ to: '/doctores', label: 'Doctores', end: true }]),
     ...(canSeeCommissions(role) ? [{ to: '/doctores/comisiones', label: 'Comisiones', end: false }] : []),
+    ...(canSeeReports(role) ? [{ to: '/doctores/reportes', label: 'Reportes', end: true }] : []),
   ]
   return (
     <nav aria-label="Secciones de tu equipo" className="mb-6 flex gap-1 overflow-x-auto border-b border-border">

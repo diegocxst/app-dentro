@@ -92,7 +92,7 @@ export function CommissionDetail({ row, period, canManage, onChanged }: Props) {
         </p>
       ) : (
         <div className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
-          <table className="w-full min-w-[520px] border-collapse text-ui">
+          <table className="w-full min-w-[620px] border-collapse text-ui">
             <caption className="sr-only">Movimientos del periodo</caption>
             <thead>
               <tr className="text-left text-caption text-ink-muted">
@@ -100,6 +100,7 @@ export function CommissionDetail({ row, period, canManage, onChanged }: Props) {
                 <th className="py-2 pr-3 font-medium">Paciente</th>
                 <th className="py-2 pr-3 font-medium">Concepto</th>
                 <th className="py-2 pr-3 text-right font-medium">Cobrado</th>
+                <th className="py-2 pr-3 text-right font-medium">Esquema</th>
                 <th className="py-2 text-right font-medium">Comisión</th>
               </tr>
             </thead>
@@ -112,6 +113,7 @@ export function CommissionDetail({ row, period, canManage, onChanged }: Props) {
                     {l.kind === 'ajuste' ? `Ajuste: pago ${receiptFolio(l.folio)} anulado` : l.quote_folio ? `${l.quote_title || folioLabel(l.quote_folio)} · ${receiptFolio(l.folio)}` : `Abono · ${receiptFolio(l.folio)}`}
                   </td>
                   <td className="py-2 pr-3 text-right whitespace-nowrap">{money(l.base)}</td>
+                  <td className="py-2 pr-3 text-right whitespace-nowrap text-ink-muted">{rateLabel(l)}</td>
                   <td className="py-2 text-right whitespace-nowrap">
                     {money(l.amount)}
                     {l.paid && <span className="sr-only"> (pagada)</span>}
@@ -186,3 +188,6 @@ export function CommissionDetail({ row, period, canManage, onChanged }: Props) {
     </Card>
   )
 }
+
+/** Con qué esquema se calculó cada movimiento (obs. 18): no cambia aunque después cambie el esquema. */
+const rateLabel = (l: CommissionLine) => (l.scheme_kind === 'chair_rent' ? 'Renta' : `${Number.isInteger(l.rate) ? l.rate : l.rate.toFixed(2)}%`)

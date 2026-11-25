@@ -12,6 +12,8 @@ export type CommissionLine = {
   amount: number
   period_date: string
   paid: boolean
+  /** Esquema con que se calculó (obs. 18); null en movimientos de un esquema ya borrado. */
+  scheme_kind?: CommissionKind | null
   folio: number
   patient: string
   quote_title: string | null

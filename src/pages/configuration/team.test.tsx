@@ -19,7 +19,7 @@ describe('Configuración › Tu equipo', () => {
     expect(router.state.location.pathname).toBe('/equipo')
     expect(await screen.findByRole('heading', { level: 1, name: 'Tu equipo' })).toBeInTheDocument()
     const tabs = screen.getByRole('navigation', { name: 'Secciones de tu equipo' })
-    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Tu equipo', 'Doctores', 'Comisiones'])
+    expect(within(tabs).getAllByRole('link').map((l) => l.textContent)).toEqual(['Tu equipo', 'Doctores', 'Comisiones', 'Reportes'])
   })
 
   it('la dirección anterior en Configuración lleva a «Tu equipo»', async () => {

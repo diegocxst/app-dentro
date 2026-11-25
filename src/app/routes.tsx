@@ -30,13 +30,14 @@ import { StepTreatmentsPage } from '@/pages/onboarding/StepTreatmentsPage'
 import { StepWhatsappPage } from '@/pages/onboarding/StepWhatsappPage'
 import { RequireClinic } from '@/workspace/RequireClinic'
 import { Allow } from '@/workspace/Allow'
-import { canSeeCommissions, canSeeConfig, canSeeGuide, canSeeSection, isTreating } from '@/lib/access'
+import { canSeeCommissions, canSeeReports, canSeeConfig, canSeeGuide, canSeeSection, isTreating } from '@/lib/access'
 import { WorkspaceProvider } from '@/workspace/WorkspaceProvider'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { SectionPage } from '@/pages/SectionPage'
 import { AgendaPage } from '@/pages/agenda/AgendaPage'
 import { CobrosPage } from '@/pages/payments/CobrosPage'
 import { CommissionsPage } from '@/pages/doctors/CommissionsPage'
+import { ReportsPage } from '@/pages/doctors/ReportsPage'
 import { DoctorPage } from '@/pages/doctors/DoctorPage'
 import { DoctorsPage } from '@/pages/doctors/DoctorsPage'
 import { NewDoctorPage } from '@/pages/doctors/NewDoctorPage'
@@ -118,6 +119,7 @@ export const routes: RouteObject[] = [
           { path: 'doctores', element: <Allow when={(r) => !isTreating(r)} to="/equipo"><DoctorsPage /></Allow> },
           { path: 'doctores/nuevo', element: <NewDoctorPage /> },
           { path: 'doctores/comisiones', element: <Allow when={canSeeCommissions} to="/equipo"><CommissionsPage /></Allow> },
+          { path: 'doctores/reportes', element: <Allow when={canSeeReports} to="/equipo"><ReportsPage /></Allow> },
           { path: 'doctores/:id', element: <DoctorPage /> },
           { path: 'cobros/nuevo', element: <Allow when={(r) => canSeeSection(r, 'cobros')}><RegisterPaymentPage /></Allow> },
           { path: 'cobros/:id/comprobante', element: <Allow when={(r) => canSeeSection(r, 'cobros')}><SendReceiptPage /></Allow> },

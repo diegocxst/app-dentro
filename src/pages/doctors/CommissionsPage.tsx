@@ -15,6 +15,8 @@ import { initials } from '@/lib/doctors'
 import { commissionsCsv, commissionStatus, PERIOD_KINDS, periodTotals, recentPeriods, schemeLabel, type CommissionPeriodKind, type CommissionRow } from '@/lib/commissions'
 import { money } from '@/lib/quotes'
 import { canSeeCommissions } from '@/lib/access'
+import { roleTag } from '@/lib/identity'
+import { clinicBreakdown } from '@/lib/reports'
 import { ROLE_LABEL } from '@/lib/roles'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
@@ -154,6 +156,8 @@ export function CommissionsPage() {
             ))}
           </dl>
 
+          {isManager && <Breakdown rows={rows} ownerLabel={roleTag('owner', active.tenant.owner_title)} />}
+
           {isManager && rows.every((r) => r.role === 'owner') && (
             <Alert tone="info">
               La dueña no lleva comisión. Para asignar un esquema,{' '}
@@ -219,5 +223,35 @@ export function CommissionsPage() {
         </div>
       )}
     </>
+  )
+}
+
+/** Desglose de lo que le queda a la clínica (obs. 15). */
+function Breakdown({ rows, ownerLabel }: { rows: CommissionRow[]; ownerLabel: string }) {
+  const b = clinicBreakdown(rows)
+  const lines = [
+    { label: 'Lo que pagaron los pacientes', value: money(b.collected) },
+    { label: 'Menos comisiones de los doctores', value: `- ${money(b.commissions)}` },
+    { label: 'Más rentas de unidad', value: `+ ${money(b.rent)}` },
+  ]
+  return (
+    <Card as="section" aria-labelledby="desglose-titulo" className="flex flex-col gap-3">
+      <h2 id="desglose-titulo" className="m-0 text-subtitle">
+        Lo que queda para la clínica
+      </h2>
+      <dl className="m-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-ui">
+        {lines.map((l) => (
+          <div key={l.label} className="contents">
+            <dt className="text-ink-muted">{l.label}</dt>
+            <dd className="m-0 text-right whitespace-nowrap">{l.value}</dd>
+          </div>
+        ))}
+        <dt className="border-t border-border pt-2 font-semibold">Le queda a la clínica</dt>
+        <dd className="m-0 border-t border-border pt-2 text-right font-semibold whitespace-nowrap">{money(b.clinic)}</dd>
+      </dl>
+      <p className="m-0 text-caption text-ink-muted">
+        Producción de {ownerLabel}: {money(b.owner)} de lo cobrado fue con sus propios pacientes. Las rentas cuentan aunque todavía no se cobren.
+      </p>
+    </Card>
   )
 }

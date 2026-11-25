@@ -322,7 +322,8 @@ function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | n
       .map((e) => {
         const pay = fakeDb.payments.find((x) => x.id === e.payment_id)
         const q = fakeDb.quotes.find((x) => x.id === pay?.quote_id)
-        return { id: e.id, kind: e.kind, base: e.base, rate: e.rate, amount: e.amount, period_date: e.period_date, paid: Boolean(e.payout_id), folio: pay?.folio,
+        return { id: e.id, kind: e.kind, base: e.base, rate: e.rate, amount: e.amount, period_date: e.period_date, paid: Boolean(e.payout_id),
+          scheme_kind: fakeDb.commission_schemes.find((x) => x.id === e.scheme_id)?.kind ?? null, folio: pay?.folio,
           method: pay?.method, patient: fakeDb.patients.find((x) => x.id === pay?.patient_id)?.full_name, quote_title: q?.title ?? null, quote_folio: q?.folio ?? null }
       })
       .sort((a, b) => String(b.period_date).localeCompare(String(a.period_date)) || Number(b.folio) - Number(a.folio))
@@ -357,6 +358,56 @@ function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | n
       percent: args.p_kind === 'percent_collected' ? pct : null, rent_amount: args.p_kind === 'chair_rent' ? Number(args.p_rent) : null, started_at: '2026-11-23T12:00:00Z', ended_at: null, created_by: current?.user.id }
     fakeDb.commission_schemes.push(row)
     return Promise.resolve({ data: row, error: null })
+  }
+  // Reportes (M6-B2b, 0022): solo la dueña o el dueño; periodo ≤ 400 días.
+  const isOwner = (tenant: unknown) => me(tenant)?.role === 'owner'
+  const quoteGroups = (qs: Row[]) => {
+    const g = (st: string[]) => qs.filter((q) => st.includes(String(q.status)))
+    const amt = (rs: Row[]) => rs.reduce((t, q) => t + Number(q.total), 0)
+    const won = g(['aceptado', 'en_tratamiento', 'terminado'])
+    const wait = g(['presentado', 'en_duda'])
+    const open = g(['aceptado', 'en_tratamiento'])
+    const lost = g(['perdido'])
+    return { presented: qs.length, presented_amount: amt(qs), accepted: won.length, accepted_amount: amt(won), waiting: wait.length, waiting_amount: amt(wait),
+      unfinished: open.length, unfinished_amount: amt(open), lost: lost.length, lost_amount: amt(lost) }
+  }
+  const periodQuotes = (tenant: unknown) =>
+    fakeDb.quotes.filter((q) => q.tenant_id === tenant && q.status !== 'borrador' && inRange(localDate(q.sent_at ?? q.created_at)))
+  if (fn === 'doctor_quote_report') {
+    if (!isOwner(args.p_tenant)) return err('42501')
+    if (badPeriod(args.p_from, args.p_to)) return err('22023')
+    const qs = periodQuotes(args.p_tenant)
+    const docs = fakeDb.memberships.filter(
+      (m) => m.tenant_id === args.p_tenant && ((m.status === 'active' && ['owner', 'admin', 'doctor', 'doctor_collab'].includes(String(m.role))) || qs.some((q) => q.doctor_id === m.id)),
+    )
+    const data = docs.map((m) => ({ doctor_id: m.id, full_name: memberLabel(m) || 'Sin nombre', role: m.role, ...quoteGroups(qs.filter((q) => q.doctor_id === m.id)) }))
+    const none = qs.filter((q) => !q.doctor_id)
+    if (none.length) data.push({ doctor_id: null as unknown as string, full_name: 'Sin doctor', role: null, ...quoteGroups(none) })
+    data.sort((a, b) => b.presented_amount - a.presented_amount || a.full_name.localeCompare(b.full_name))
+    return Promise.resolve({ data: data.slice(0, 200), error: null })
+  }
+  if (fn === 'doctor_history') {
+    const doc = fakeDb.memberships.find((m) => m.id === args.p_doctor)
+    if (!doc || !isOwner(doc.tenant_id)) return err('P0002')
+    if (badPeriod(args.p_from, args.p_to)) return err('22023')
+    const now = new Date().toISOString()
+    const toItem = (a: Row) => ({ id: a.id, starts_at: a.starts_at, status: a.status, kind: a.kind ?? 'tratamiento',
+      patient: fakeDb.patients.find((p) => p.id === a.patient_id)?.full_name ?? '', treatment: fakeDb.treatments.find((t) => t.id === a.treatment_id)?.name ?? null })
+    const all = fakeDb.appointments.filter((a) => a.doctor_id === doc.id)
+    const ap = all.filter((a) => inRange(localDate(a.starts_at)))
+    const sum = (rs: Row[]) => Math.round(rs.reduce((t, r) => t + Number(r.amount), 0) * 100) / 100
+    const data = {
+      appointments: { attended: ap.filter((a) => a.status === 'llego').length, no_show: ap.filter((a) => a.status === 'no_asistio').length,
+        cancelled: ap.filter((a) => a.status === 'cancelada').length, total: ap.length },
+      patients: new Set(ap.filter((a) => a.status === 'llego').map((a) => a.patient_id)).size,
+      collected: sum(fakeDb.payments.filter((x) => x.doctor_id === doc.id && !x.voided_at && inRange(localDate(x.paid_at)))),
+      commission: sum(fakeDb.commission_entries.filter((e) => e.doctor_id === doc.id && !e.voided_at && inRange(String(e.period_date)))),
+      quotes: quoteGroups(periodQuotes(doc.tenant_id).filter((q) => q.doctor_id === doc.id)),
+      upcoming: all.filter((a) => String(a.starts_at) >= now && ['programada', 'confirmada'].includes(String(a.status)))
+        .sort((a, b) => String(a.starts_at).localeCompare(String(b.starts_at))).slice(0, 10).map(toItem),
+      recent: ap.filter((a) => String(a.starts_at) < now).sort((a, b) => String(b.starts_at).localeCompare(String(a.starts_at))).slice(0, 10).map(toItem),
+    }
+    return Promise.resolve({ data, error: null })
   }
   if (fn === 'set_commission_period') {
     if (!isMgr(args.p_tenant)) return err('42501')

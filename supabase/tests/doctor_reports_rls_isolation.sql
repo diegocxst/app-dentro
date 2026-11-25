@@ -181,6 +181,8 @@ select set_config('rp.h2', public.doctor_history(pg_temp.v('d2'), current_date -
 select pg_temp.assert_true((current_setting('rp.h2')::jsonb #>> '{appointments,attended}')::int = 1
   and (current_setting('rp.h2')::jsonb ->> 'collected')::numeric = 300 and (current_setting('rp.h2')::jsonb ->> 'commission')::numeric = 0,
   'historial del otro doctor por separado');
+select pg_temp.assert_true((public.commission_lines(pg_temp.v('d1'), current_date - 30, current_date + 1) #>> '{rows,0,scheme_kind}') = 'percent_collected',
+  'cada movimiento dice con qué esquema se calculó');
 select pg_temp.expect_error(format($$select public.doctor_history(%L, current_date - 401, current_date)$$, pg_temp.v('d1')), '22023', 'historial: periodo de más de 400 días');
 select pg_temp.expect_error($$select public.doctor_history('00000000-0000-4000-8000-000000000999', current_date - 30, current_date)$$, 'P0002', 'historial de alguien que no existe');
 select pg_temp.login_as('admin_a');

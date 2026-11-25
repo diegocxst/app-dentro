@@ -35,6 +35,8 @@ export function canSeeConfig(role: TenantRole | undefined, area: ConfigArea): bo
 
 /** Comisiones: gerencia y doctores (recepción no). */
 export const canSeeCommissions = (role: TenantRole | undefined) => isManager(role) || role === 'doctor' || role === 'doctor_collab'
+/** Reportes del equipo e historial de cada doctor: solo la dueña o el dueño (M6-B2b). */
+export const canSeeReports = (role: TenantRole | undefined) => role === 'owner'
 
 /** Menú lateral del rol. */
 export function menuFor(role: TenantRole | undefined): Section[] {
