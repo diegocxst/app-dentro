@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { LoadError } from '@/components/feedback/LoadError'
 import { PaymentList } from '@/components/payments/PaymentList'
+import { NewPatientForm } from '@/components/patients/NewPatientForm'
 import { PatientPicker } from '@/components/patients/PatientPicker'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
@@ -121,6 +122,14 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   const flash = useFlashNotice()
   const [notice, setNotice] = useState<string | null>(flash)
   const [busy, setBusy] = useState(false)
+  // M4-C: alta del paciente sin salir del presupuesto (lo capturado se conserva).
+  const [newPatientName, setNewPatientName] = useState<string | null>(null)
+  const topRef = useRef<HTMLDivElement>(null)
+  // Al abrir o cerrar el alta, vuelve arriba (al paciente), sobre todo en el teléfono.
+  const showNewPatient = (name: string | null) => {
+    setNewPatientName(name)
+    requestAnimationFrame(() => topRef.current?.scrollIntoView?.({ block: 'start' }))
+  }
 
   useEffect(() => {
     if (!tenantId) return
@@ -194,6 +203,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
   const col = q ? quoteColumn(q.status) : null
   return (
     <>
+      <div ref={topRef} className="scroll-mt-24" />
       <PageHeader
         eyebrow={q ? `Presupuestos · ${folioLabel(q.folio)}` : 'Presupuestos'}
         title={q ? q.patientName : 'Nuevo presupuesto'}
@@ -212,7 +222,29 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
+      {newPatientName !== null && (
+        <section aria-labelledby="alta-paciente" className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 id="alta-paciente" className="m-0 text-subtitle">
+              Paciente nuevo
+            </h2>
+            <p className="m-0 text-ui text-ink-muted">Al guardarlo regresas al presupuesto con el paciente ya elegido. Lo que llevas del presupuesto no se pierde.</p>
+          </div>
+          <NewPatientForm
+            initialName={newPatientName}
+            initialDoctorId={doctorId}
+            onCancel={() => showNewPatient(null)}
+            onCreated={(p) => {
+              setPatient({ id: p.id, name: p.full_name })
+              showNewPatient(null)
+              setError(null)
+              setNotice(`Registramos a ${p.full_name}. Ya está en el presupuesto.`)
+            }}
+          />
+        </section>
+      )}
+
+      <div hidden={newPatientName !== null} className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <form onSubmit={(e) => void submit(e)} noValidate className="flex min-w-0 flex-col gap-6">
           {q && col && <StageCard quote={q} canWrite={canWrite} onChanged={onChanged} badge={<Badge tone={col.tone}>{col.label}</Badge>} />}
           {q && !['borrador', 'perdido'].includes(q.status) && <QuotePayments quote={q} />}
@@ -234,7 +266,7 @@ function QuoteEditor({ existing, onChanged }: { existing: { quote: QuoteCard; it
                   )}
                 </div>
               ) : (
-                <PatientPicker tenantId={tenantId} onPick={setPatient} />
+                <PatientPicker tenantId={tenantId} onPick={setPatient} onNew={showNewPatient} />
               )}
             </div>
             <Select

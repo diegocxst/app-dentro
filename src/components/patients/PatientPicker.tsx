@@ -5,8 +5,19 @@ import { listPatients, type PatientListItem } from '@/data/patients'
 import { useDebounced } from '@/hooks/useDebounced'
 import { formatPhone } from '@/lib/phone'
 
-/** Búsqueda de paciente por nombre o teléfono (Agenda y Presupuestos). */
-export function PatientPicker({ tenantId, onPick }: { tenantId: string; onPick: (p: { id: string; name: string }) => void }) {
+/**
+ * Búsqueda de paciente por nombre o teléfono (Agenda, Presupuestos y Cobros).
+ * Con `onNew`, ofrece «Paciente nuevo» ahí mismo (M4-C) en lugar de mandar al alta.
+ */
+export function PatientPicker({
+  tenantId,
+  onPick,
+  onNew,
+}: {
+  tenantId: string
+  onPick: (p: { id: string; name: string }) => void
+  onNew?: (search: string) => void
+}) {
   const [q, setQ] = useState('')
   const search = useDebounced(q.trim(), 250)
   const [results, setResults] = useState<PatientListItem[] | null>(null)
@@ -29,10 +40,15 @@ export function PatientPicker({ tenantId, onPick }: { tenantId: string; onPick: 
       <Input label="Busca al paciente" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre o teléfono" autoComplete="off" />
       {shown && shown.length === 0 && (
         <p className="m-0 text-caption text-ink-muted">
-          No encontramos a nadie.{' '}
-          <Link to="/pacientes/nuevo" className="font-semibold text-violet">
-            Registrar paciente
-          </Link>
+          No encontramos a nadie.
+          {!onNew && (
+            <>
+              {' '}
+              <Link to="/pacientes/nuevo" className="font-semibold text-violet">
+                Registrar paciente
+              </Link>
+            </>
+          )}
         </p>
       )}
       {shown && shown.length > 0 && (
@@ -50,6 +66,11 @@ export function PatientPicker({ tenantId, onPick }: { tenantId: string; onPick: 
             </li>
           ))}
         </ul>
+      )}
+      {onNew && (
+        <button type="button" onClick={() => onNew(q.trim())} className="min-h-11 self-start text-ui font-semibold text-violet">
+          Paciente nuevo
+        </button>
       )}
     </div>
   )

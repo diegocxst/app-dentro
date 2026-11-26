@@ -129,6 +129,52 @@ describe('M4-A · nuevo presupuesto', () => {
   })
 })
 
+describe('M4-C · paciente nuevo desde el presupuesto', () => {
+  it('da de alta al paciente sin salir y conserva lo capturado', async () => {
+    seed()
+    const user = userEvent.setup()
+    const { router } = await renderApp('/presupuestos/nuevo')
+    await screen.findByRole('option', { name: /Limpieza dental/ })
+    await user.selectOptions(screen.getByLabelText('Agregar del catálogo'), 't-2')
+    await user.type(screen.getByLabelText('Busca al paciente'), 'Ana Ruiz Prueba')
+    expect(await screen.findByText('No encontramos a nadie.')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Registrar paciente' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Paciente nuevo' }))
+
+    const form = screen.getByRole('form', { name: 'Nuevo paciente' })
+    expect(within(form).getByLabelText('Nombre completo')).toHaveValue('Ana Ruiz Prueba')
+    expect(screen.getByRole('button', { name: 'Guardar presupuesto', hidden: true })).not.toBeVisible()
+    await user.click(within(form).getByRole('button', { name: 'Guardar paciente' }))
+    expect(await within(form).findByText('Sin el consentimiento del paciente no podemos guardar sus datos.')).toBeInTheDocument()
+    await user.click(within(form).getByRole('checkbox', { name: /Confirmo que el paciente dio su consentimiento/ }))
+    await user.click(within(form).getByRole('button', { name: 'Guardar paciente' }))
+
+    expect(fakeSupabase.rpc).toHaveBeenCalledWith('create_patient', expect.objectContaining({ p_tenant: TENANT_ID, p_full_name: 'Ana Ruiz Prueba', p_consent_method: 'papel' }))
+    expect(await screen.findByRole('link', { name: 'Ana Ruiz Prueba' })).toHaveAttribute('href', '/pacientes/p-2')
+    expect(screen.queryByRole('form', { name: 'Nuevo paciente' })).not.toBeInTheDocument()
+    expect(screen.getByText('Registramos a Ana Ruiz Prueba. Ya está en el presupuesto.')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/presupuestos/nuevo')
+
+    await user.click(screen.getByRole('button', { name: 'Guardar presupuesto' }))
+    expect(fakeSupabase.rpc).toHaveBeenCalledWith('save_quote', expect.objectContaining({
+      p_patient: 'p-2',
+      p_items: [{ treatment_id: 't-2', concept: 'Limpieza dental', note: '', quantity: 1, unit_price: 850 }],
+    }))
+  })
+
+  it('«Cancelar» regresa al presupuesto sin crear a nadie', async () => {
+    seed()
+    const user = userEvent.setup()
+    await renderApp('/presupuestos/nuevo')
+    await user.click(await screen.findByRole('button', { name: 'Paciente nuevo' }))
+    const form = screen.getByRole('form', { name: 'Nuevo paciente' })
+    await user.click(within(form).getByRole('button', { name: 'Cancelar' }))
+    expect(screen.queryByRole('form', { name: 'Nuevo paciente' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar presupuesto' })).toBeVisible()
+    expect(fakeSupabase.rpc).not.toHaveBeenCalledWith('create_patient', expect.anything())
+  })
+})
+
 describe('M4-A · Kanban y etapas', () => {
   it('muestra el presupuesto en su columna con monto, doctor y seguimiento', async () => {
     seed()
