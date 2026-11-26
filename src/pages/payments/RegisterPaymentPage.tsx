@@ -17,7 +17,15 @@ import { folioLabel, money } from '@/lib/quotes'
 import { PageHeader } from '@/pages/PageHeader'
 import { useWorkspace } from '@/workspace/workspace-context'
 
-/** P22 · Registrar pago o abono (manual; el link de pago llega con E6). */
+/** Valor del selector para un pago sin presupuesto: queda como saldo a favor (M5-C). */
+const CREDIT = 'saldo'
+type Mode = 'abono' | 'completo'
+
+/**
+ * P22 · Registrar pago o abono (manual; el link de pago llega con E6). M5-C: primero el
+ * presupuesto y luego «Pagar el saldo completo» o «Apartado o abono»; sin presupuesto,
+ * el pago queda como saldo a favor y la base lo aplica sola.
+ */
 export function RegisterPaymentPage() {
   const { active, branches, activeBranchId } = useWorkspace()
   const [params] = useSearchParams()
@@ -27,6 +35,8 @@ export function RegisterPaymentPage() {
   const [patient, setPatient] = useState<{ id: string; name: string } | null>(null)
   const [quotes, setQuotes] = useState<AccountQuote[] | null>(null)
   const [quoteId, setQuoteId] = useState(params.get('presupuesto') ?? '')
+  const [credit, setCredit] = useState(0)
+  const [mode, setMode] = useState<Mode>('abono')
   const [amount, setAmount] = useState('')
   const [method, setMethod] = useState<PaymentMethod>('efectivo')
   const [date, setDate] = useState(today)
@@ -58,10 +68,16 @@ export function RegisterPaymentPage() {
         if (!current) return
         const open = a.quotes.filter((q) => q.balance > 0)
         setQuotes(open)
+        setCredit(a.credit)
+        setMode('abono')
         const pick = open.find((q) => q.id === params.get('presupuesto')) ?? (open.length === 1 ? open[0] : undefined)
         if (pick) {
           setQuoteId(pick.id)
           setAmount(String(suggestedAmount(pick)))
+        } else {
+          // Sin presupuestos con saldo, el pago solo puede quedar a favor; con varios, se elige.
+          setQuoteId(open.length === 0 ? CREDIT : '')
+          setAmount('')
         }
       },
       () => current && setQuotes([]),
@@ -79,8 +95,13 @@ export function RegisterPaymentPage() {
   const quote = quotes?.find((q) => q.id === quoteId) ?? null
   const pickQuote = (id: string) => {
     setQuoteId(id)
+    setMode('abono')
     const q = quotes?.find((x) => x.id === id)
-    if (q) setAmount(String(suggestedAmount(q)))
+    setAmount(q ? String(suggestedAmount(q)) : '')
+  }
+  const pickMode = (m: Mode) => {
+    setMode(m)
+    if (quote) setAmount(String(m === 'completo' ? quote.balance : suggestedAmount(quote)))
   }
 
   const submit = async (e: FormEvent) => {
@@ -88,6 +109,7 @@ export function RegisterPaymentPage() {
     setError(null)
     const value = Math.round(Number(amount) * 100) / 100
     if (!patient) return setError('Elige al paciente.')
+    if (!quote && quoteId !== CREDIT) return setError('Elige el presupuesto o «Sin presupuesto».')
     if (!Number.isFinite(value) || value <= 0) return setError('Escribe el monto.')
     if (quote && value > quote.balance) return setError(`El pago supera el saldo del presupuesto (${money(quote.balance)}).`)
     if (date > today) return setError('La fecha no puede ser futura.')
@@ -100,7 +122,11 @@ export function RegisterPaymentPage() {
       const to = back?.startsWith('/') ? back : quote ? `/presupuestos/${quote.id}` : `/pacientes/${patient.id}`
       // Al registrar se abre el comprobante para enviarlo; «Volver» lleva a donde ibas.
       navigate(`/cobros/${saved.id}/comprobante?${new URLSearchParams({ volver: to }).toString()}`, {
-        state: { notice: `Listo. Registramos el pago ${receiptFolio(saved.folio)} por ${money(value)}.` },
+        state: {
+          notice: quote
+            ? `Listo. Registramos el pago ${receiptFolio(saved.folio)} por ${money(value)}.`
+            : `Listo. Registramos el pago ${receiptFolio(saved.folio)} por ${money(value)} como saldo a favor.`,
+        },
       })
     } catch (err) {
       setError(rpcErrorMessage(err as { code?: string }, { invalid: 'Revisa el monto, la fecha y el presupuesto.' }))
@@ -144,26 +170,57 @@ export function RegisterPaymentPage() {
           ) : (
             <PatientPicker tenantId={active.tenant_id} onPick={setPatient} />
           )}
+          {patient && quotes && credit > 0 && (
+            <Alert tone="info">
+              Tiene {money(credit)} de saldo a favor. Se aplica solo en cuanto acepte un presupuesto.
+            </Alert>
+          )}
           {patient && quotes && (
             <Select
               label="¿A qué presupuesto?"
+              {...(quotes.length > 1 ? { placeholder: 'Elige el presupuesto' } : {})}
               options={[
                 ...quotes.map((q) => ({ value: q.id, label: `${folioLabel(q.folio)} · ${q.title || 'Presupuesto'} · saldo ${money(q.balance)}` })),
-                { value: '', label: 'Sin presupuesto (abono suelto)' },
+                { value: CREDIT, label: 'Sin presupuesto: queda como saldo a favor' },
               ]}
               value={quoteId}
               onChange={(e) => pickQuote(e.target.value)}
               hint={
                 quote
                   ? `Total ${money(quote.total)} · pagado ${money(quote.paid)} · saldo ${money(quote.balance)}${quote.status === 'presentado' || quote.status === 'en_duda' ? '. Al registrar este pago el presupuesto pasa a «Aceptado».' : ''}`
-                  : undefined
+                  : quoteId === CREDIT
+                    ? quotes.length === 0
+                      ? 'No tiene presupuestos con saldo. El pago queda como saldo a favor y se aplica solo cuando acepte uno.'
+                      : 'El pago queda como saldo a favor y se aplica solo al presupuesto aceptado más antiguo con saldo.'
+                    : undefined
               }
             />
+          )}
+          {quote && (
+            <div role="group" aria-label="¿Cuánto paga?" className="flex flex-wrap gap-2">
+              <button type="button" aria-pressed={mode === 'completo'} onClick={() => pickMode('completo')} className={mode === 'completo' ? buttonClasses('primary', 'sm') : buttonClasses('secondary', 'sm')}>
+                Saldo completo · {money(quote.balance)}
+              </button>
+              <button type="button" aria-pressed={mode === 'abono'} onClick={() => pickMode('abono')} className={mode === 'abono' ? buttonClasses('primary', 'sm') : buttonClasses('secondary', 'sm')}>
+                Apartado o abono
+              </button>
+            </div>
           )}
         </Card>
 
         <Card as="section" aria-label="Pago" className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label="Monto" type="number" min={0} step="0.01" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <Input
+            label="Monto"
+            type="number"
+            min={0}
+            max={quote?.balance}
+            step="0.01"
+            inputMode="decimal"
+            value={amount}
+            readOnly={mode === 'completo' && Boolean(quote)}
+            hint={mode === 'completo' && quote ? 'Liquida el presupuesto.' : quote ? `Hasta ${money(quote.balance)}.` : undefined}
+            onChange={(e) => setAmount(e.target.value)}
+          />
           <Input label="Fecha" type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} />
           <div role="group" aria-label="Forma de pago" className="flex flex-wrap gap-2 sm:col-span-2">
             {PAYMENT_METHODS.map((m) => (

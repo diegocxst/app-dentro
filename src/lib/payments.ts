@@ -25,7 +25,8 @@ export type AccountQuote = {
   paid: number
   balance: number
 }
-export type PatientAccount = { quotes: AccountQuote[]; paid_total: number; balance: number; last_payment_at: string | null }
+/** `credit`: saldo a favor (lo pagado que aún no se aplica a un presupuesto, M5-C). */
+export type PatientAccount = { quotes: AccountQuote[]; paid_total: number; balance: number; credit: number; last_payment_at: string | null }
 export type PaymentStats = { today: number; month: number; month_count: number; receivable: number }
 
 /**

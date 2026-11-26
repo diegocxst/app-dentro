@@ -95,7 +95,7 @@ describe('M6-B2b · historial del doctor', () => {
       { id: 'a-1', tenant_id: TENANT_ID, doctor_id: 'm-d1', patient_id: 'p-1', status: 'llego', kind: 'tratamiento', starts_at: `${today}T00:30:00Z`, ends_at: `${today}T01:00:00Z` },
       { id: 'a-2', tenant_id: TENANT_ID, doctor_id: 'm-d1', patient_id: 'p-1', status: 'programada', kind: 'valoracion', starts_at: at(addDays(tomorrow, 2)), ends_at: at(addDays(tomorrow, 2)) },
     )
-    fakeDb.payments.push({ id: 'x-1', tenant_id: TENANT_ID, folio: 1, patient_id: 'p-1', quote_id: null, doctor_id: 'm-d1', amount: 1500, method: 'efectivo', paid_at: at(today), voided_at: null })
+    fakeDb.payments.push({ id: 'x-1', tenant_id: TENANT_ID, folio: 1, patient_id: 'p-1', quote_id: 'q-x', doctor_id: 'm-d1', amount: 1500, method: 'efectivo', paid_at: at(today), voided_at: null })
     const user = userEvent.setup()
     await renderApp('/doctores/m-d1')
     const card = await screen.findByRole('region', { name: 'Historial' })
@@ -126,8 +126,8 @@ describe('M6-B2b · comisiones', () => {
       { id: 'cs-1', tenant_id: TENANT_ID, membership_id: 'm-d1', kind: 'chair_rent', percent: null, rent_amount: 3000, started_at: '2026-11-02T00:00:00Z', ended_at: null },
     )
     fakeDb.payments.push(
-      { id: 'x-1', tenant_id: TENANT_ID, folio: 1, patient_id: 'p-1', quote_id: null, doctor_id: 'm-d1', amount: 1000, method: 'efectivo', paid_at: at(today), voided_at: null },
-      { id: 'x-2', tenant_id: TENANT_ID, folio: 2, patient_id: 'p-1', quote_id: null, doctor_id: 'm-d1', amount: 900, method: 'efectivo', paid_at: at(today), voided_at: null },
+      { id: 'x-1', tenant_id: TENANT_ID, folio: 1, patient_id: 'p-1', quote_id: 'q-x', doctor_id: 'm-d1', amount: 1000, method: 'efectivo', paid_at: at(today), voided_at: null },
+      { id: 'x-2', tenant_id: TENANT_ID, folio: 2, patient_id: 'p-1', quote_id: 'q-x', doctor_id: 'm-d1', amount: 900, method: 'efectivo', paid_at: at(today), voided_at: null },
     )
     fakeDb.commission_entries.push(
       { id: 'ce-1', tenant_id: TENANT_ID, doctor_id: 'm-d1', payment_id: 'x-1', scheme_id: 'cs-0', kind: 'comision', base: 1000, rate: 40, amount: 400, period_date: today, payout_id: null, voided_at: null },

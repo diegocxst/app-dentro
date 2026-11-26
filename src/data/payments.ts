@@ -3,6 +3,8 @@ import type { Database, Tables } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
 export type Payment = Tables<'payments'>
+/** Un pago visto desde un presupuesto: el monto es lo que se le aplicó (M5-C). */
+export type QuotePayment = Payment & { key: string; source: 'pago' | 'saldo_a_favor' }
 export type PaymentRow = Payment & { patientName: string }
 export type Receivable = Database['public']['Functions']['receivables']['Returns'][number]
 export const PAYMENTS_PAGE_SIZE = 25
@@ -36,7 +38,7 @@ export async function patientAccount(patientId: string): Promise<PatientAccount>
   const { data, error } = await supabase.rpc('patient_account', { p_patient: patientId })
   if (error) throw error
   const a = data as unknown as PatientAccount
-  return { ...a, paid_total: Number(a.paid_total), balance: Number(a.balance), quotes: a.quotes.map((q) => ({ ...q, total: Number(q.total), down_payment: Number(q.down_payment), paid: Number(q.paid), balance: Number(q.balance) })) }
+  return { ...a, paid_total: Number(a.paid_total), balance: Number(a.balance), credit: Number(a.credit ?? 0), quotes: a.quotes.map((q) => ({ ...q, total: Number(q.total), down_payment: Number(q.down_payment), paid: Number(q.paid), balance: Number(q.balance) })) }
 }
 
 export type NewPayment = { patientId: string; quoteId: string | null; amount: number; method: PaymentMethod; paidAt: string; reference: string; notes: string }
@@ -73,11 +75,28 @@ export async function listReceivables(tenantId: string): Promise<Receivable[]> {
   return ((data ?? []) as Receivable[]).map((r) => ({ ...r, balance: Number(r.balance) }))
 }
 
-/** Pagos de un presupuesto (RLS: quien ve al paciente). */
-export async function listQuotePayments(quoteId: string): Promise<Payment[]> {
-  const { data, error } = await supabase.from('payments').select('*').eq('quote_id', quoteId).order('paid_at', { ascending: false }).range(0, 99)
+/**
+ * Pagos de un presupuesto: lo que se le aplicó, directo o desde el saldo a favor (M5-C).
+ * RLS: quien ve al paciente y ve montos.
+ */
+export async function listQuotePayments(quoteId: string): Promise<QuotePayment[]> {
+  const { data, error } = await supabase
+    .from('payment_allocations')
+    .select('id, payment_id, amount, source, applied_at, voided_at')
+    .eq('quote_id', quoteId)
+    .order('applied_at', { ascending: false })
+    .range(0, 99)
   if (error) throw error
-  return (data ?? []) as Payment[]
+  const rows = (data ?? []) as { id: string; payment_id: string; amount: number | string; source: string; applied_at: string; voided_at: string | null }[]
+  if (rows.length === 0) return []
+  const { data: pays, error: pErr } = await supabase.from('payments').select('*').in('id', [...new Set(rows.map((r) => r.payment_id))])
+  if (pErr) throw pErr
+  const byId = new Map(((pays ?? []) as Payment[]).map((p) => [p.id, p]))
+  return rows.flatMap((a) => {
+    const p = byId.get(a.payment_id)
+    if (!p) return []
+    return [{ ...p, key: a.id, source: a.source === 'saldo_a_favor' ? 'saldo_a_favor' : 'pago', amount: Number(a.amount), paid_at: a.applied_at, voided_at: a.voided_at ?? p.voided_at }]
+  })
 }
 
 export type Receipt = {
@@ -85,7 +104,7 @@ export type Receipt = {
   patientName: string
   patientPhone: string | null
   quote: { id: string; folio: number; title: string; total: number } | null
-  /** Saldo del presupuesto después de este pago (null si fue un abono suelto). */
+  /** Saldo del presupuesto después de este pago (null si quedó como saldo a favor). */
   balance: number | null
 }
 

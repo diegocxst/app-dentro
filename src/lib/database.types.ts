@@ -1,3 +1,4 @@
+// ⚠️ PROVISIONAL: incluye a mano la migración 0024 (payment_allocations y commission_entries.allocation_id) hasta aplicarla en dev y regenerar.
 // Generado con: npx supabase gen types typescript --remote --schema public
 // Proyecto dev dentro-dentistas-app · migraciones 0001–0023 · 2026-11-26. NO editar a mano: regenerar tras cada migración.
 export type Json =
@@ -356,6 +357,7 @@ export type Database = {
           fixed_amount: number | null
           id: string
           kind: Database["public"]["Enums"]["commission_entry_kind"]
+          allocation_id: string
           payment_id: string
           payout_id: string | null
           period_date: string
@@ -1189,6 +1191,48 @@ export type Database = {
             referencedColumns: ["tenant_id", "id"]
           },
         ]
+      }
+      payment_allocations: {
+        Row: {
+          amount: number
+          applied_at: string
+          created_by: string | null
+          doctor_id: string | null
+          id: string
+          patient_id: string
+          payment_id: string
+          quote_id: string
+          source: string
+          tenant_id: string
+          voided_at: string | null
+        }
+        Insert: {
+          amount: number
+          applied_at?: string
+          created_by?: string | null
+          doctor_id?: string | null
+          id?: string
+          patient_id: string
+          payment_id: string
+          quote_id: string
+          source: string
+          tenant_id: string
+          voided_at?: string | null
+        }
+        Update: {
+          amount?: number
+          applied_at?: string
+          created_by?: string | null
+          doctor_id?: string | null
+          id?: string
+          patient_id?: string
+          payment_id?: string
+          quote_id?: string
+          source?: string
+          tenant_id?: string
+          voided_at?: string | null
+        }
+        Relationships: []
       }
       payments: {
         Row: {

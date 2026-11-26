@@ -10,8 +10,11 @@ import { money } from '@/lib/quotes'
 
 const dateFmt = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
 
+/** `key` y `source` llegan cuando la lista es de un presupuesto (M5-C). */
+type Item = Payment & { patientName?: string; key?: string; source?: 'pago' | 'saldo_a_favor' }
+
 type Props = {
-  payments: (Payment & { patientName?: string })[]
+  payments: Item[]
   /** La gerencia puede anular (con motivo). */
   canVoid: boolean
   onChanged: () => void
@@ -24,13 +27,13 @@ export function PaymentList({ payments, canVoid, onChanged, label = 'Pagos' }: P
   return (
     <ul aria-label={label} className="m-0 flex list-none flex-col gap-2 p-0">
       {payments.map((p) => (
-        <PaymentItem key={p.id} p={p} canVoid={canVoid} onChanged={onChanged} />
+        <PaymentItem key={p.key ?? p.id} p={p} canVoid={canVoid} onChanged={onChanged} />
       ))}
     </ul>
   )
 }
 
-function PaymentItem({ p, canVoid, onChanged }: { p: Payment & { patientName?: string }; canVoid: boolean; onChanged: () => void }) {
+function PaymentItem({ p, canVoid, onChanged }: { p: Item; canVoid: boolean; onChanged: () => void }) {
   const [voiding, setVoiding] = useState(false)
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -63,6 +66,7 @@ function PaymentItem({ p, canVoid, onChanged }: { p: Payment & { patientName?: s
           <span className="text-caption text-ink-muted">
             {receiptFolio(p.folio)} · {dateFmt.format(new Date(p.paid_at))} · {methodLabel(p.method)}
             {p.reference ? ` · ${p.reference}` : ''}
+            {p.source === 'saldo_a_favor' ? ' · Desde saldo a favor' : !p.source && !p.quote_id ? ' · Saldo a favor' : ''}
           </span>
         </span>
         <span className="flex items-center gap-2">

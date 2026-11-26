@@ -38,7 +38,7 @@ export function PatientPayments({ patientId, canRegister, canVoid }: { patientId
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
-        <dl className="m-0 grid grow grid-cols-2 gap-3 sm:max-w-md">
+        <dl className={account.credit > 0 ? 'm-0 grid grow grid-cols-2 gap-3 sm:max-w-xl sm:grid-cols-3' : 'm-0 grid grow grid-cols-2 gap-3 sm:max-w-md'}>
           <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
             <dt className="text-caption text-ink-muted">Pagado</dt>
             <dd className="m-0 font-display text-subtitle">{money(account.paid_total)}</dd>
@@ -47,6 +47,12 @@ export function PatientPayments({ patientId, canRegister, canVoid }: { patientId
             <dt className="text-caption text-ink-muted">Saldo</dt>
             <dd className={account.balance > 0 ? 'm-0 font-display text-subtitle text-warning' : 'm-0 font-display text-subtitle'}>{money(account.balance)}</dd>
           </div>
+          {account.credit > 0 && (
+            <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface-raised p-4">
+              <dt className="text-caption text-ink-muted">Saldo a favor</dt>
+              <dd className="m-0 font-display text-subtitle text-success">{money(account.credit)}</dd>
+            </div>
+          )}
         </dl>
         {canRegister && (
           <Link to={`/cobros/nuevo?paciente=${patientId}&volver=/pacientes/${patientId}`} className={buttonClasses('primary')}>
@@ -54,6 +60,9 @@ export function PatientPayments({ patientId, canRegister, canVoid }: { patientId
           </Link>
         )}
       </div>
+      {account.credit > 0 && (
+        <p className="m-0 text-caption text-ink-muted">El saldo a favor se aplica solo en cuanto el paciente acepte un presupuesto, empezando por el más antiguo.</p>
+      )}
       {account.quotes.length > 0 && (
         <Card as="section" aria-label="Saldo por presupuesto" className="flex flex-col gap-2">
           <h2 className="m-0 text-subtitle">Por presupuesto</h2>
@@ -103,6 +112,7 @@ export function AccountSummary({ patientId }: { patientId: string }) {
     <span className="text-ui">
       Saldo <span className={account.balance > 0 ? 'font-semibold text-warning' : 'font-semibold'}>{money(account.balance)}</span>
       <span className="block text-caption text-ink-muted">Pagado {money(account.paid_total)}</span>
+      {account.credit > 0 && <span className="block text-caption text-success">A favor {money(account.credit)}</span>}
     </span>
   )
 }

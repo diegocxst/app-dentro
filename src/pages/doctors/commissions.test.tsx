@@ -41,7 +41,7 @@ function seedTeam() {
 
 /** Registra un pago con su comisión, como lo haría la base (trigger). */
 function pay(id: string, folio: number, patient: string, doctor: string, amount: number) {
-  fakeDb.payments.push({ id, tenant_id: TENANT_ID, folio, patient_id: patient, quote_id: null, doctor_id: doctor, amount, method: 'efectivo', paid_at: paidAt, voided_at: null })
+  fakeDb.payments.push({ id, tenant_id: TENANT_ID, folio, patient_id: patient, quote_id: `q-${id}`, doctor_id: doctor, amount, method: 'efectivo', paid_at: paidAt, voided_at: null })
   const s = fakeDb.commission_schemes.find((x) => x.membership_id === doctor && !x.ended_at)
   if (!s) return
   const rate = s.kind === 'percent_collected' ? Number(s.percent) : 100

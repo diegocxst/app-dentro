@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { getPatientName } from '@/data/agenda'
 import { fetchTreatments, type Treatment } from '@/data/catalog'
 import { setGuideTask } from '@/data/onboarding'
-import { listQuotePayments, type Payment } from '@/data/payments'
+import { listQuotePayments, type QuotePayment } from '@/data/payments'
 import { getQuote, markQuoteFollowup, saveQuote, setQuoteStatus, type QuoteCard, type QuoteItem } from '@/data/quotes'
 import { useDoctors } from '@/hooks/useDoctors'
 import { useFlashNotice } from '@/hooks/useFlashNotice'
@@ -445,7 +445,7 @@ function PdfActions({ quote, items }: { quote: QuoteCard; items: QuoteItem[] }) 
 /** Pagos del presupuesto: pagado, saldo y «Registrar pago» (gerencia y recepción). */
 function QuotePayments({ quote }: { quote: QuoteCard }) {
   const { active } = useWorkspace()
-  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [payments, setPayments] = useState<QuotePayment[] | null>(null)
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let current = true
