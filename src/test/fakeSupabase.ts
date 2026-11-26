@@ -69,9 +69,9 @@ export const fakeSupabase = {
 
 // ── Base en memoria (solo lo que usa la app; la RLS real se prueba en npm run test:db) ──
 type Row = Record<string, unknown>
-type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[]; commission_schemes: Row[]; commission_entries: Row[]; commission_payouts: Row[]; doctor_settings: Row[] }
+type Db = { tenants: Row[]; memberships: Row[]; profiles: Row[]; branches: Row[]; privacy_notices: Row[]; account_consents: Row[]; invitations: Row[]; chairs: Row[]; treatments: Row[]; patients: Row[]; patient_notes: Row[]; patient_access_log: Row[]; patient_documents: Row[]; document_access_log: Row[]; arco_requests: Row[]; appointments: Row[]; leads: Row[]; lead_activity: Row[]; quotes: Row[]; quote_items: Row[]; payments: Row[]; commission_schemes: Row[]; commission_entries: Row[]; commission_payouts: Row[]; commission_treatment_rules: Row[]; doctor_settings: Row[] }
 export const fakeStorage: { bucket: string; path: string; type: string }[] = []
-export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [], commission_schemes: [], commission_entries: [], commission_payouts: [], doctor_settings: [] }
+export const fakeDb: Db = { tenants: [], memberships: [], profiles: [], branches: [], privacy_notices: [], account_consents: [], invitations: [], chairs: [], treatments: [], patients: [], patient_notes: [], patient_access_log: [], patient_documents: [], document_access_log: [], arco_requests: [], appointments: [], leads: [], lead_activity: [], quotes: [], quote_items: [], payments: [], commission_schemes: [], commission_entries: [], commission_payouts: [], commission_treatment_rules: [], doctor_settings: [] }
 
 export const NOTICE_ID = '30000000-0000-4000-8000-000000000001'
 export const NOTICE_VERSION = 'borrador-2026-11-15'
@@ -244,21 +244,55 @@ const err = (code: string) => Promise.resolve({ data: null, error: { code, messa
 const localDate = (iso: unknown) => String(iso).slice(0, 10)
 const activeScheme = (doctor: unknown) => fakeDb.commission_schemes.find((x) => x.membership_id === doctor && !x.ended_at)
 
+/** Igual que private.commission_on_payment (0023): reparte el abono entre las partidas del presupuesto. */
 function commissionOnPayment(pay: Row) {
   const sch = pay.doctor_id ? activeScheme(pay.doctor_id) : undefined
   if (!sch) return
   const rate = sch.kind === 'percent_collected' ? Number(sch.percent) : 100
-  fakeDb.commission_entries.push({
-    id: `ce-${fakeDb.commission_entries.length + 1}`, tenant_id: pay.tenant_id, doctor_id: pay.doctor_id, payment_id: pay.id, scheme_id: sch.id, kind: 'comision',
-    base: Number(pay.amount), rate, amount: Math.round(Number(pay.amount) * rate) / 100, period_date: localDate(pay.paid_at), payout_id: null, created_at: '2026-11-23T12:00:00Z', voided_at: null,
+  const amount = Number(pay.amount)
+  const entry = (base: number, r: number, amt: number, extra: Row = {}) =>
+    fakeDb.commission_entries.push({
+      id: `ce-${fakeDb.commission_entries.length + 1}`, tenant_id: pay.tenant_id, doctor_id: pay.doctor_id, payment_id: pay.id, scheme_id: sch.id, kind: 'comision',
+      base, rate: r, amount: amt, period_date: localDate(pay.paid_at), payout_id: null, created_at: '2026-11-23T12:00:00Z', voided_at: null, treatment_id: null, fixed_amount: null, ...extra,
+    })
+  const round = (n: number) => Math.round(n * 100) / 100
+  const quote = pay.quote_id ? fakeDb.quotes.find((q) => q.id === pay.quote_id) : undefined
+  const items = quote ? fakeDb.quote_items.filter((i) => i.quote_id === quote.id && Number(i.quantity) * Number(i.unit_price) > 0) : []
+  const rules = fakeDb.commission_treatment_rules.filter((r) => r.membership_id === pay.doctor_id)
+  const pos = items.reduce((t, i) => t + Number(i.quantity) * Number(i.unit_price), 0)
+  const groups = new Map<string, { line: number; qty: number; rule: Row }>()
+  for (const i of items) {
+    const rule = rules.find((r) => r.treatment_id === i.treatment_id)
+    if (!rule) continue
+    const g = groups.get(String(i.treatment_id)) ?? { line: 0, qty: 0, rule }
+    g.line += Number(i.quantity) * Number(i.unit_price)
+    g.qty += Number(i.quantity)
+    groups.set(String(i.treatment_id), g)
+  }
+  if (sch.kind !== 'percent_collected' || !quote || Number(quote.total) <= 0 || pos <= 0 || groups.size === 0) {
+    entry(amount, rate, round((amount * rate) / 100))
+    return
+  }
+  const ruled = [...groups.values()].reduce((t, g) => t + g.line, 0)
+  let left = amount
+  const keys = [...groups.keys()].sort()
+  keys.forEach((k, idx) => {
+    const g = groups.get(k)!
+    let part = idx === keys.length - 1 && ruled >= pos ? left : round((amount * g.line) / pos)
+    part = Math.min(part, left)
+    if (part <= 0) return
+    left = round(left - part)
+    if (g.rule.percent != null) entry(part, Number(g.rule.percent), round((part * Number(g.rule.percent)) / 100), { treatment_id: k })
+    else entry(part, 0, round((Number(g.rule.amount) * g.qty * amount) / Number(quote.total)), { treatment_id: k, fixed_amount: Number(g.rule.amount) })
   })
+  if (left > 0) entry(left, rate, round((left * rate) / 100))
 }
 
 function commissionOnVoid(pay: Row) {
-  const e = fakeDb.commission_entries.find((x) => x.payment_id === pay.id && x.kind === 'comision')
-  if (!e || e.voided_at) return
-  if (!e.payout_id) e.voided_at = '2026-11-23T13:00:00Z'
-  else fakeDb.commission_entries.push({ ...e, id: `ce-${fakeDb.commission_entries.length + 1}`, kind: 'ajuste', base: -Number(e.base), amount: -Number(e.amount), period_date: new Date().toISOString().slice(0, 10), payout_id: null })
+  for (const e of fakeDb.commission_entries.filter((x) => x.payment_id === pay.id && x.kind === 'comision' && !x.voided_at)) {
+    if (!e.payout_id) e.voided_at = '2026-11-23T13:00:00Z'
+    else fakeDb.commission_entries.push({ ...e, id: `ce-${fakeDb.commission_entries.length + 1}`, kind: 'ajuste', base: -Number(e.base), amount: -Number(e.amount), period_date: new Date().toISOString().slice(0, 10), payout_id: null })
+  }
 }
 
 function badPeriod(from: unknown, to: unknown) {
@@ -324,6 +358,7 @@ function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | n
         const q = fakeDb.quotes.find((x) => x.id === pay?.quote_id)
         return { id: e.id, kind: e.kind, base: e.base, rate: e.rate, amount: e.amount, period_date: e.period_date, paid: Boolean(e.payout_id),
           scheme_kind: fakeDb.commission_schemes.find((x) => x.id === e.scheme_id)?.kind ?? null, folio: pay?.folio,
+          treatment: fakeDb.treatments.find((t) => t.id === e.treatment_id)?.name ?? null, fixed_amount: e.fixed_amount ?? null,
           method: pay?.method, patient: fakeDb.patients.find((x) => x.id === pay?.patient_id)?.full_name, quote_title: q?.title ?? null, quote_folio: q?.folio ?? null }
       })
       .sort((a, b) => String(b.period_date).localeCompare(String(a.period_date)) || Number(b.folio) - Number(a.folio))
@@ -408,6 +443,26 @@ function commissionRpc(fn: string, args: Record<string, unknown>): RpcResult | n
       recent: ap.filter((a) => String(a.starts_at) < now).sort((a, b) => String(b.starts_at).localeCompare(String(a.starts_at))).slice(0, 10).map(toItem),
     }
     return Promise.resolve({ data, error: null })
+  }
+  if (fn === 'set_treatment_commission') {
+    const doc = fakeDb.memberships.find((m) => m.id === args.p_membership)
+    if (!doc || !isMgr(doc.tenant_id)) return err('P0002')
+    if (!fakeDb.treatments.some((t) => t.id === args.p_treatment && t.tenant_id === doc.tenant_id)) return err('P0002')
+    const pct = args.p_percent == null ? null : Number(args.p_percent)
+    const amt = args.p_amount == null ? null : Number(args.p_amount)
+    if (pct != null && amt != null) return err('22023')
+    if (pct != null && !(pct > 0 && pct <= 100)) return err('22023')
+    if (amt != null && !(amt > 0 && amt <= 10000000)) return err('22023')
+    const i = fakeDb.commission_treatment_rules.findIndex((r) => r.membership_id === doc.id && r.treatment_id === args.p_treatment)
+    if (pct == null && amt == null) {
+      if (i >= 0) fakeDb.commission_treatment_rules.splice(i, 1)
+      return Promise.resolve({ data: null, error: null })
+    }
+    if (activeScheme(doc.id)?.kind !== 'percent_collected') return err('22023')
+    const row = { id: i >= 0 ? fakeDb.commission_treatment_rules[i]!.id : `ctr-${fakeDb.commission_treatment_rules.length + 1}`, tenant_id: doc.tenant_id, membership_id: doc.id, treatment_id: args.p_treatment, percent: pct, amount: amt }
+    if (i >= 0) fakeDb.commission_treatment_rules[i] = row
+    else fakeDb.commission_treatment_rules.push(row)
+    return Promise.resolve({ data: row, error: null })
   }
   if (fn === 'set_commission_period') {
     if (!isMgr(args.p_tenant)) return err('42501')

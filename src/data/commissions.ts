@@ -1,4 +1,4 @@
-import type { CommissionKind, CommissionLine, CommissionPeriodKind, CommissionRow } from '@/lib/commissions'
+import type { CommissionKind, CommissionLine, CommissionPeriodKind, CommissionRow, TreatmentRule } from '@/lib/commissions'
 import { supabase } from '@/lib/supabase'
 
 export const LINES_PAGE_SIZE = 50
@@ -25,7 +25,10 @@ export async function commissionLines(doctorId: string, from: string, to: string
   const { data, error } = await supabase.rpc('commission_lines', { p_doctor: doctorId, p_from: from, p_to: to, p_limit: LINES_PAGE_SIZE, p_offset: page * LINES_PAGE_SIZE })
   if (error) throw error
   const d = (data ?? { rows: [], total: 0 }) as unknown as { rows: CommissionLine[]; total: number }
-  return { total: Number(d.total), rows: d.rows.map((l) => ({ ...l, base: Number(l.base), rate: Number(l.rate), amount: Number(l.amount) })) }
+  return {
+    total: Number(d.total),
+    rows: d.rows.map((l) => ({ ...l, base: Number(l.base), rate: Number(l.rate), amount: Number(l.amount), fixed_amount: l.fixed_amount == null ? null : Number(l.fixed_amount) })),
+  }
 }
 
 export async function payCommissions(doctorId: string, from: string, to: string, notes: string): Promise<void> {
@@ -46,5 +49,23 @@ export async function setCommissionScheme(membershipId: string, kind: Commission
 
 export async function setCommissionPeriod(tenantId: string, period: CommissionPeriodKind): Promise<void> {
   const { error } = await supabase.rpc('set_commission_period', { p_tenant: tenantId, p_period: period })
+  if (error) throw error
+}
+
+/** Excepciones por tratamiento de un doctor (la gerencia ve todas; cada doctor, las suyas). */
+export async function fetchTreatmentRules(membershipId: string): Promise<TreatmentRule[]> {
+  const { data, error } = await supabase.from('commission_treatment_rules').select('id, treatment_id, percent, amount').eq('membership_id', membershipId)
+  if (error) throw error
+  return (data ?? []).map((r) => ({ ...r, percent: r.percent == null ? null : Number(r.percent), amount: r.amount == null ? null : Number(r.amount) }))
+}
+
+/** Pone (% o monto por unidad) o quita (ambos null) la excepción de un tratamiento. Solo gerencia. */
+export async function setTreatmentCommission(membershipId: string, treatmentId: string, rule: { percent: number } | { amount: number } | null): Promise<void> {
+  const { error } = await supabase.rpc('set_treatment_commission', {
+    p_membership: membershipId,
+    p_treatment: treatmentId,
+    ...(rule && 'percent' in rule ? { p_percent: rule.percent } : {}),
+    ...(rule && 'amount' in rule ? { p_amount: rule.amount } : {}),
+  })
   if (error) throw error
 }

@@ -27,6 +27,7 @@ import { ColorPicker } from './ColorPicker'
 import { HistoryCard } from './HistoryCard'
 import { checkDoctorForm, EMAIL_RE, type DoctorFormErrors, type DoctorFormValues } from './doctorForm'
 import { SchemeForm } from './SchemeForm'
+import { TreatmentRules } from './TreatmentRules'
 
 /** P27 · Perfil del doctor: nombre en la clínica, especialidad, color, acceso y comisión. */
 export function DoctorPage() {
@@ -309,6 +310,9 @@ function CommissionCard({ member, tenantId, period, canManage }: { member: TeamM
       ) : (
         <>
           <p className="m-0 text-ui">{schemeLabel(row)}</p>
+          {row.scheme_kind === 'percent_collected' && (
+            <TreatmentRules key={`reglas-${row.percent}`} membershipId={member.id} tenantId={tenantId} generalPercent={Number(row.percent)} canManage={canManage} />
+          )}
           {canManage && <SchemeForm key={`${row.scheme_kind}-${row.percent}-${row.rent_amount}`} row={row} onSaved={() => setVersion((v) => v + 1)} />}
         </>
       )}

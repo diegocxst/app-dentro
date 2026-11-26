@@ -14,6 +14,9 @@ export type CommissionLine = {
   paid: boolean
   /** Esquema con que se calculó (obs. 18); null en movimientos de un esquema ya borrado. */
   scheme_kind?: CommissionKind | null
+  /** Comisión por tratamiento (M6-C1): el tratamiento y, si es monto fijo, el monto por unidad. */
+  treatment?: string | null
+  fixed_amount?: number | null
   folio: number
   patient: string
   quote_title: string | null
@@ -92,3 +95,8 @@ export function commissionsCsv(rows: readonly CommissionRow[], period: Period): 
   const body = rows.map((r) => [period.label, r.full_name, schemeLabel(r), r.patients, Number(r.collected), Number(r.commission), toPay(r), commissionStatus(r).label])
   return '﻿' + [head, ...body].map((l) => l.map(cell).join(',')).join('\n')
 }
+
+/** Excepción de comisión por tratamiento (M6-C1): un % o un monto fijo por unidad. */
+export type TreatmentRule = { id: string; treatment_id: string; percent: number | null; amount: number | null }
+
+export const ruleLabel = (r: Pick<TreatmentRule, 'percent' | 'amount'>) => (r.percent != null ? `${r.percent}% de lo cobrado` : `${money(r.amount ?? 0)} por unidad`)

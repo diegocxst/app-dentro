@@ -190,4 +190,9 @@ export function CommissionDetail({ row, period, canManage, onChanged }: Props) {
 }
 
 /** Con qué esquema se calculó cada movimiento (obs. 18): no cambia aunque después cambie el esquema. */
-const rateLabel = (l: CommissionLine) => (l.scheme_kind === 'chair_rent' ? 'Renta' : `${Number.isInteger(l.rate) ? l.rate : l.rate.toFixed(2)}%`)
+function rateLabel(l: CommissionLine): string {
+  if (l.fixed_amount) return `${money(l.fixed_amount)} fijo · ${l.treatment ?? 'tratamiento'}`
+  if (l.scheme_kind === 'chair_rent' && !l.treatment) return 'Renta'
+  const pct = `${Number.isInteger(l.rate) ? l.rate : l.rate.toFixed(2)}%`
+  return l.treatment ? `${pct} · ${l.treatment}` : pct
+}
