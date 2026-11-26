@@ -13,7 +13,7 @@ V0 validación → V1 modelo de negocio → V2 estructura → **V3 diseño y dem
 - Un prompt o tarea = un incremento verificable.
 
 ## Alcance
-- **El alcance del MVP está congelado (2026-11-05):** M1–M13, ver `docs/roadmap.md`.
+- **El alcance del MVP está congelado (2026-11-05):** M1–M13, ver `docs/roadmap.md`. Cambio aprobado el 2026-11-26: entra **M7-B · Historia clínica** (`docs/historia-clinica.md`).
 - Una idea nueva va a la lista Fase 2+. Entra antes solo si un piloto la pide o paga por ella, y con aprobación de Diego.
 - No cambiar el alcance por iniciativa propia: proponer y esperar confirmación.
 

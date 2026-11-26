@@ -1,6 +1,6 @@
 # Roadmap — dentro
 
-## MVP (congelado el 2026-11-05)
+## MVP (congelado el 2026-11-05; cambio aprobado por Diego el 2026-11-26: entra M7-B)
 
 **Base `core-base`:** auth · multiempresa (`tenant_id`, RLS, RPC) · privacidad LFPDPPP/ARCO a nivel datos de salud · captación pública blindada · layout, tokens y mobile first · paginación en servidor · notificaciones internas · analítica sin cookies · Soporte V1 · feature flags · billing con Stripe (se activa con la empresa propia) · pruebas.
 
@@ -13,6 +13,7 @@
 | M5 | Pagos y abonos | Registro manual + link de pago por WhatsApp |
 | M6 | Doctores y comisiones | Esquemas de comisión, reportes, horarios |
 | M7 | Documentos / expediente Nivel 1 | Repositorio por paciente con bitácora |
+| M7-B | Historia clínica estructurada (agregado el 2026-11-26) | Antecedentes y alertas médicas, exploración, diagnóstico CIE-10, plan de tratamiento → presupuesto, odontograma FDI, periodontograma simplificado, notas de evolución y firmas (NOM-004 y NOM-013). Ver `docs/historia-clinica.md`; incrementos HC-A a HC-D |
 | M8 | Seguimientos | Tareas y recordatorios manuales (base lista para automatizar) |
 | M9 | Dashboard del dueño | Orientado a acción |
 | M10 | Configuración | Sucursales, sillones, horarios, tratamientos, usuarios y roles |
@@ -27,7 +28,7 @@
 4. Tienda de productos de la clínica
 5. Tienda de plantillas
 6. Galería antes/después
-7. Expediente estructurado NOM-013 (Nivel 2)
+7. Lo que queda del expediente estructurado tras M7-B: periodontograma completo de 6 puntos (D2), personalización de la historia por clínica (D5, propuesto), interconsulta y referencia, hoja de egreso voluntario y antecedentes llenados por el paciente antes de la cita
 8. Chatbot IA, Google Ads
 9. Contratación y pago de servicios en línea; proveedores externos
 10. Directorio / marketplace de clínicas
