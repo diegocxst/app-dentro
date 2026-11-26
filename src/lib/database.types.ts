@@ -1,6 +1,5 @@
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0022 · 2026-11-24. NO editar a mano: regenerar tras cada migración.
-// ⚠️ PROVISIONAL: commission_treatment_rules, set_treatment_commission y las columnas nuevas de commission_entries (0023) se agregaron a mano hasta aplicar la migración en dev.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0023 · 2026-11-26. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -350,12 +349,11 @@ export type Database = {
       }
       commission_entries: {
         Row: {
-          fixed_amount: number | null
-          treatment_id: string | null
           amount: number
           base: number
           created_at: string
           doctor_id: string
+          fixed_amount: number | null
           id: string
           kind: Database["public"]["Enums"]["commission_entry_kind"]
           payment_id: string
@@ -364,15 +362,15 @@ export type Database = {
           rate: number
           scheme_id: string | null
           tenant_id: string
+          treatment_id: string | null
           voided_at: string | null
         }
         Insert: {
-          fixed_amount?: number | null
-          treatment_id?: string | null
           amount: number
           base: number
           created_at?: string
           doctor_id: string
+          fixed_amount?: number | null
           id?: string
           kind?: Database["public"]["Enums"]["commission_entry_kind"]
           payment_id: string
@@ -381,15 +379,15 @@ export type Database = {
           rate: number
           scheme_id?: string | null
           tenant_id: string
+          treatment_id?: string | null
           voided_at?: string | null
         }
         Update: {
-          fixed_amount?: number | null
-          treatment_id?: string | null
           amount?: number
           base?: number
           created_at?: string
           doctor_id?: string
+          fixed_amount?: number | null
           id?: string
           kind?: Database["public"]["Enums"]["commission_entry_kind"]
           payment_id?: string
@@ -398,6 +396,7 @@ export type Database = {
           rate?: number
           scheme_id?: string | null
           tenant_id?: string
+          treatment_id?: string | null
           voided_at?: string | null
         }
         Relationships: [
@@ -434,6 +433,13 @@ export type Database = {
             columns: ["tenant_id", "scheme_id"]
             isOneToOne: false
             referencedRelation: "commission_schemes"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "commission_entries_treatment_fk"
+            columns: ["tenant_id", "treatment_id"]
+            isOneToOne: false
+            referencedRelation: "treatments"
             referencedColumns: ["tenant_id", "id"]
           },
         ]
@@ -580,7 +586,29 @@ export type Database = {
           treatment_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "commission_treatment_rules_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_treatment_rules_tenant_id_membership_id_fkey"
+            columns: ["tenant_id", "membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "commission_treatment_rules_tenant_id_treatment_id_fkey"
+            columns: ["tenant_id", "treatment_id"]
+            isOneToOne: false
+            referencedRelation: "treatments"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
       }
       doctor_settings: {
         Row: {
@@ -2552,8 +2580,29 @@ export type Database = {
         }
       }
       set_treatment_commission: {
-        Args: { p_amount?: number; p_membership: string; p_percent?: number; p_treatment: string }
-        Returns: Database["public"]["Tables"]["commission_treatment_rules"]["Row"]
+        Args: {
+          p_amount?: number
+          p_membership: string
+          p_percent?: number
+          p_treatment: string
+        }
+        Returns: {
+          amount: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          membership_id: string
+          percent: number | null
+          tenant_id: string
+          treatment_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commission_treatment_rules"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_appointment: {
         Args: {
