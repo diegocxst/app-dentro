@@ -93,6 +93,10 @@ select pg_temp.assert_true(
 -- Se le asignan pacientes y comisiones como a cualquier doctor.
 select pg_temp.login_as('reception_a');
 select set_config('dr.p1', (public.create_patient(pg_temp.v('a'), 'Paciente Doctor Sin Acceso', 'papel', p_primary_doctor => pg_temp.v('off'))).id::text, true);
+-- M5-C: un abono sin presupuesto es saldo a favor; con un presupuesto aceptado se aplica solo.
+select pg_temp.logout();
+insert into public.quotes (tenant_id, folio, patient_id, doctor_id, title, status, total) values
+  (pg_temp.v('a'), 901, pg_temp.v('p1'), pg_temp.v('off'), 'Plan de prueba', 'aceptado', 1000000);
 select pg_temp.login_as('owner_a');
 select public.set_commission_scheme(pg_temp.v('off'), 'percent_collected', 30);
 select pg_temp.login_as('reception_a');

@@ -137,7 +137,7 @@ select pg_temp.assert_true(
 select pg_temp.expect_error(format($$update public.payments set amount = 1 where id = %L$$, pg_temp.v('x2')), '42501', 'sin UPDATE directo');
 select pg_temp.expect_error(format($$delete from public.payments where id = %L$$, pg_temp.v('x2')), '42501', 'sin DELETE');
 select pg_temp.assert_true(
-  (select count(*) >= 3 and bool_and(details - 'method' - 'status' = '{}'::jsonb) from public.audit_logs where entity = 'payment'),
+  (select count(*) >= 3 and bool_and(details - 'method' - 'status' - 'kind' = '{}'::jsonb) from public.audit_logs where entity = 'payment'),
   'auditoría sin montos ni datos del paciente');
 select pg_temp.logout();
 select pg_temp.expect_error(format($$update public.payments set voided_at = now() where id = %L$$, pg_temp.v('x2')), '23514', 'CHECK: anulado exige motivo');

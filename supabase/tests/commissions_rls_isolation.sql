@@ -80,6 +80,13 @@ select set_config('cm.rec', (select id::text from public.memberships where user_
 select pg_temp.login_as('reception_a');
 select set_config('cm.p1', (public.create_patient(pg_temp.v('a'), 'Paciente Comisión Uno', 'papel', p_primary_doctor => pg_temp.v('d1'))).id::text, true);
 select set_config('cm.p2', (public.create_patient(pg_temp.v('a'), 'Paciente Comisión Dos', 'papel', p_primary_doctor => pg_temp.v('d2'))).id::text, true);
+-- M5-C: un abono sin presupuesto es saldo a favor; con un presupuesto aceptado se aplica solo.
+select pg_temp.logout();
+insert into public.quotes (tenant_id, folio, patient_id, doctor_id, title, status, total) values
+  (pg_temp.v('a'), 901, pg_temp.v('p1'), pg_temp.v('d1'), 'Plan de prueba', 'aceptado', 1000000);
+insert into public.quotes (tenant_id, folio, patient_id, doctor_id, title, status, total) values
+  (pg_temp.v('a'), 902, pg_temp.v('p2'), pg_temp.v('d2'), 'Plan de prueba', 'aceptado', 1000000);
+select pg_temp.login_as('reception_a');
 -- Pago ANTES de tener esquema: no genera comisión.
 select set_config('cm.x0', (public.register_payment(pg_temp.v('p1'), 700, 'efectivo')).id::text, true);
 select pg_temp.logout();

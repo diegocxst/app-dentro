@@ -170,7 +170,9 @@ select pg_temp.pay('x3', 3, 'q3', 1000);
 select pg_temp.assert_true(pg_temp.parts('x3') = 'Implante 1000.00 30.00 300.00', 'todo con excepción: sin parte general');
 
 select pg_temp.pay('x4', 4, null, 500);
-select pg_temp.assert_true(pg_temp.parts('x4') = 'general 500.00 40.00 200.00', 'sin presupuesto: % general');
+-- M5-C: sin presupuesto es saldo a favor; se aplica solo al presupuesto aceptado más antiguo con saldo (q1).
+select pg_temp.assert_true(pg_temp.parts('x4') = 'Implante 400.00 30.00 120.00 | general 100.00 40.00 40.00',
+  'sin presupuesto: saldo a favor aplicado al más antiguo, con su reparto (' || coalesce(pg_temp.parts('x4'), 'nada') || ')');
 
 select pg_temp.assert_true((select sum(base) = 1000 from public.commission_entries where payment_id = pg_temp.v('x1')), 'las partes suman el abono');
 
