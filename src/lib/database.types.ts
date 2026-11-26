@@ -1,6 +1,5 @@
-// ⚠️ PROVISIONAL: incluye a mano la migración 0024 (payment_allocations y commission_entries.allocation_id) hasta aplicarla en dev y regenerar.
 // Generado con: npx supabase gen types typescript --remote --schema public
-// Proyecto dev dentro-dentistas-app · migraciones 0001–0023 · 2026-11-26. NO editar a mano: regenerar tras cada migración.
+// Proyecto dev dentro-dentistas-app · migraciones 0001–0024 · 2026-11-26. NO editar a mano: regenerar tras cada migración.
 export type Json =
   | string
   | number
@@ -350,6 +349,7 @@ export type Database = {
       }
       commission_entries: {
         Row: {
+          allocation_id: string
           amount: number
           base: number
           created_at: string
@@ -357,7 +357,6 @@ export type Database = {
           fixed_amount: number | null
           id: string
           kind: Database["public"]["Enums"]["commission_entry_kind"]
-          allocation_id: string
           payment_id: string
           payout_id: string | null
           period_date: string
@@ -368,6 +367,7 @@ export type Database = {
           voided_at: string | null
         }
         Insert: {
+          allocation_id: string
           amount: number
           base: number
           created_at?: string
@@ -385,6 +385,7 @@ export type Database = {
           voided_at?: string | null
         }
         Update: {
+          allocation_id?: string
           amount?: number
           base?: number
           created_at?: string
@@ -402,6 +403,13 @@ export type Database = {
           voided_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "commission_entries_allocation_fk"
+            columns: ["tenant_id", "allocation_id"]
+            isOneToOne: false
+            referencedRelation: "payment_allocations"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "commission_entries_tenant_id_doctor_id_fkey"
             columns: ["tenant_id", "doctor_id"]
@@ -1232,7 +1240,43 @@ export type Database = {
           tenant_id?: string
           voided_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payment_allocations_tenant_id_doctor_id_fkey"
+            columns: ["tenant_id", "doctor_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_tenant_id_patient_id_fkey"
+            columns: ["tenant_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_tenant_id_payment_id_fkey"
+            columns: ["tenant_id", "payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_tenant_id_quote_id_fkey"
+            columns: ["tenant_id", "quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
       }
       payments: {
         Row: {

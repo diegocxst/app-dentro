@@ -130,7 +130,7 @@ select public.set_treatment_commission(pg_temp.v('d1'), pg_temp.v('imp'), 25);
 select public.set_treatment_commission(pg_temp.v('d1'), pg_temp.v('imp'), 30);
 select public.set_treatment_commission(pg_temp.v('d1'), pg_temp.v('cor'), null, 1500);
 select pg_temp.logout();
-select pg_temp.assert_true((select count(*) = 2 and bool_and(membership_id = pg_temp.v('d1')) from public.commission_treatment_rules),
+select pg_temp.assert_true((select count(*) = 2 and bool_and(membership_id = pg_temp.v('d1')) from public.commission_treatment_rules where tenant_id = pg_temp.v('a')),
   'una excepción por tratamiento (la segunda reemplaza a la primera)');
 select pg_temp.assert_true((select percent = 30 from public.commission_treatment_rules where treatment_id = pg_temp.v('imp')), 'se guarda el último %');
 
@@ -193,7 +193,7 @@ select pg_temp.assert_true((select count(*) = 2 and sum(amount) = -1671.43 and c
 select pg_temp.login_as('owner_a');
 select public.set_treatment_commission(pg_temp.v('d1'), pg_temp.v('imp'));
 select pg_temp.logout();
-select pg_temp.assert_true((select count(*) = 1 from public.commission_treatment_rules), 'quitar la excepción');
+select pg_temp.assert_true((select count(*) = 1 from public.commission_treatment_rules where tenant_id = pg_temp.v('a')), 'quitar la excepción');
 select pg_temp.pay('x5', 5, 'q1', 1000);
 select pg_temp.assert_true(pg_temp.parts('x5') = 'general 1000.00 40.00 400.00', 'sin excepción vuelve al % general');
 select pg_temp.assert_true(pg_temp.parts('x3') = 'Implante 1000.00 30.00 300.00', 'lo ya generado no cambia');
